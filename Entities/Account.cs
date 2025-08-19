@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace CuaHangQuanAo.Entities;
+
+public partial class Account
+{
+    public int AccId { get; set; }
+
+    public string? Username { get; set; }
+
+    public string? Pass { get; set; }
+
+    public string Salt { get; set; } = null!;
+
+    public string AccRole { get; set; } = null!;
+
+    public bool? IsActive { get; set; }
+
+    public bool? IsEmailConfirmed { get; set; }
+
+    public DateTime? CreatedDate { get; set; }
+
+    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+
+    public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+}
