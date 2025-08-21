@@ -7,19 +7,21 @@ public partial class Account
 {
     public int AccId { get; set; }
 
-    public string? Username { get; set; }
+    public string Username { get; set; } = null!;
 
-    public string? Pass { get; set; }
+    public string Email { get; set; } = null!;
+
+    public string Pass { get; set; } = null!;
 
     public string Salt { get; set; } = null!;
 
     public string AccRole { get; set; } = null!;
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
-    public bool? IsEmailConfirmed { get; set; }
+    public bool IsEmailConfirmed { get; set; }
 
-    public DateTime? CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 

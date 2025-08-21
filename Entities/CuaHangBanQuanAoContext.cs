@@ -51,8 +51,10 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.IsEmailConfirmed).HasDefaultValue(false);
             entity.Property(e => e.Pass)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -90,9 +92,6 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.City)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(30)
-                .IsUnicode(false);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(20)
                 .IsUnicode(false);
@@ -116,8 +115,8 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
             entity.Property(e => e.AccId).HasColumnName("AccID");
-            entity.Property(e => e.Email)
-                .HasMaxLength(50)
+            entity.Property(e => e.Address)
+                .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Firstname)
                 .HasMaxLength(20)

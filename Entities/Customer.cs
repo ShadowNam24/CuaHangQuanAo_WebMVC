@@ -17,8 +17,6 @@ public partial class Customer
 
     public string? AddressName { get; set; }
 
-    public string? Email { get; set; }
-
     public string? City { get; set; }
 
     public virtual Account Acc { get; set; } = null!;
