@@ -109,23 +109,6 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        document.getElementById('accountType').addEventListener('change', function() {
-            var employeeFields = document.getElementById('employeeFields');
-            var customerFields = document.getElementById('customerFields');
-
-            if (this.value === 'Employee') {
-                employeeFields.style.display = 'block';
-                customerFields.style.display = 'none';
-            } else if (this.value === 'Customer') {
-                employeeFields.style.display = 'none';
-                customerFields.style.display = 'block';
-            } else {
-                employeeFields.style.display = 'none';
-                customerFields.style.display = 'none';
-            }
-        });
-    </script>
-    <script>
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
