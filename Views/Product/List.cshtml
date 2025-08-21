@@ -1,0 +1,146 @@
+﻿@model (string Title, CuaHangQuanAo.Entities.ProductListVm F)
+@{
+    ViewData["Title"] = Model.Title;
+    var f = Model.F;
+    int totalPages = (int)Math.Ceiling((double)f.Total / f.PageSize);
+    string currentAction = Context.Request.RouteValues["action"]?.ToString() ?? "QuanAo";
+}
+
+<div class="container-fluid my-3">
+    <div class="row">
+        <!-- Sidebar filter -->
+        <aside class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Bộ lọc</h5>
+                    <form method="get" id="filterForm">
+                        <div class="mb-3">
+                            <label class="form-label">Từ khóa</label>
+                            <input name="Q" value="@f.Q" class="form-control" placeholder="Tên sản phẩm..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Danh mục</label>
+                            <select name="CategoryId" class="form-select">
+                                <option value="">-- Tất cả --</option>
+                                @foreach (var c in f.Categories)
+                                {
+                                    <option value="@c.CategoryId" selected="@(f.CategoryId==c.CategoryId)">
+                                        @c.NameCategory
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col">
+                                <label class="form-label">Giá từ</label>
+                                <input type="number" name="MinPrice" value="@(f.MinPrice?.ToString())"
+                                       class="form-control" min="0" />
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Đến</label>
+                                <input type="number" name="MaxPrice" value="@(f.MaxPrice?.ToString())"
+                                       class="form-control" min="0" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Size</label>
+                            <input name="Size" value="@f.Size" class="form-control" placeholder="S, M, L, XL..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Sắp xếp</label>
+                            <select name="Sort" class="form-select">
+                                <option value="name_asc" selected="@(f.Sort=="name_asc"  || string.IsNullOrEmpty(f.Sort))">Tên A–Z</option>
+                                <option value="name_desc" selected="@(f.Sort=="name_desc")">Tên Z–A</option>
+                                <option value="price_asc" selected="@(f.Sort=="price_asc")">Giá ↑</option>
+                                <option value="price_desc" selected="@(f.Sort=="price_desc")">Giá ↓</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-dark">Áp dụng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Product grid -->
+        <section class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="mb-0">@Model.Title</h4>
+                <div class="text-muted">@f.Total sản phẩm</div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                @foreach (var i in f.Items)
+                {
+                    <div class="col">
+                        <div class="card product-card h-100 shadow-sm">
+                            <!-- Ảnh bấm được -->
+                            <div class="ratio ratio-1x1 bg-light position-relative">
+                                <img class="card-img-top object-fit-contain p-3"
+                                     src="~/images/no-image.png" alt="@i.ItemsName" />
+                                <a asp-controller="Product"
+                                   asp-action="Detail"
+                                   asp-route-id="@i.ItemsId"
+                                   class="stretched-link"></a>
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="text-muted small">@i.Category?.NameCategory</div>
+                                <!-- Tên bấm được -->
+                                <h6 class="card-title mt-1 text-truncate" title="@i.ItemsName">
+                                    <a asp-controller="Product"
+                                       asp-action="Detail"
+                                       asp-route-id="@i.ItemsId"
+                                       class="link-dark text-decoration-none">
+                                        @i.ItemsName
+                                    </a>
+                                </h6>
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <span class="fw-semibold">@string.Format("{0:N0} đ", i.SellPrice)</span>
+                                    <span class="badge bg-secondary">@i.Size</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav class="mt-4">
+                    <ul class="pagination">
+                        @for (int p = 1; p <= totalPages; p++)
+                        {
+                            <li class="page-item @(p==f.Page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="@currentAction"
+                                   asp-route-Q="@f.Q" asp-route-CategoryId="@f.CategoryId"
+                                   asp-route-MinPrice="@f.MinPrice" asp-route-MaxPrice="@f.MaxPrice"
+                                   asp-route-Sort="@f.Sort" asp-route-Page="@p">@p</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            }
+        </section>
+    </div>
+</div>
+
+<style>
+    .product-card .card-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .object-fit-contain {
+        object-fit: contain;
+    }
+</style>

@@ -1,0 +1,183 @@
+﻿@model CuaHangQuanAo.Entities.ProductDetailVm
+@{
+    ViewData["Title"] = Model.Item.ItemsName;
+    var backAction = (Model.Item.CategoryId >= 1 && Model.Item.CategoryId <= 7) ? "QuanAo" : "PhuKien";
+}
+
+<div class="container my-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Product" asp-action="@backAction">
+                    @Model.Item.Category?.NameCategory
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Item.ItemsName</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- LEFT: Gallery -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="ratio ratio-1x1 bg-light position-relative">
+                    <img id="mainImage" src="@Model.Gallery.FirstOrDefault()" class="p-3 object-fit-contain" alt="@Model.Item.ItemsName" />
+                </div>
+            </div>
+
+            <div class="row row-cols-4 g-3 mt-2">
+                @for (int i = 0; i < Model.Gallery.Count; i++)
+                {
+                    <div class="col">
+                        <div class="thumb border rounded-3 overflow-hidden position-relative" role="button" tabindex="0"
+                             data-img="@Model.Gallery[i]">
+                            <img src="@Model.Gallery[i]" class="w-100 object-fit-contain" style="aspect-ratio:1/1" alt="thumb @i" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- RIGHT: Info -->
+        <div class="col-lg-5">
+            <div class="text-muted small">@Model.Item.Category?.NameCategory</div>
+            <h2 class="mb-2">@Model.Item.ItemsName</h2>
+
+            <div class="fs-3 fw-semibold text-danger mb-1">
+                @string.Format("{0:N0} đ", Model.Item.SellPrice)
+            </div>
+            <div class="text-muted small mb-3">(Giá đã bao gồm VAT)</div>
+
+            <!-- Rating -->
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <div class="rating">
+                    <span class="text-warning">★</span><span class="text-warning">★</span>
+                    <span class="text-warning">★</span><span class="text-warning">★</span>
+                    <span class="text-secondary">★</span>
+                </div>
+                <div class="small">
+                    @Model.Rating.ToString("0.0") (@Model.RatingCount) · <a href="#" class="link-dark">Viết đánh giá</a>
+                </div>
+            </div>
+
+            <!-- Variant (ví dụ màu) -->
+            <div class="mb-3">
+                <div class="small text-muted mb-1">Màu sắc</div>
+                <div class="d-flex gap-2">
+                    <div class="swatch bg-light border rounded-3 p-1">
+                        <img src="~/images/no-image.png" width="36" height="36" class="object-fit-contain" alt="color" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Size -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="small text-muted">Bảng size</div>
+                    <a href="#" class="small">Hướng dẫn chọn size</a>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-2" id="sizeGroup">
+                    @if (Model.Sizes.Any())
+                    {
+                        foreach (var s in Model.Sizes)
+                        {
+                            <button type="button" class="btn btn-outline-dark btn-sm size-btn" data-size="@s">@s</button>
+                        }
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">@Model.Item.Size</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Add to cart -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-dark btn-lg" id="btnAddCart">
+                    <i class="bi bi-bag me-2"></i>THÊM VÀO GIỎ
+                </button>
+                <button class="btn btn-outline-dark">
+                    <i class="bi bi-heart me-2"></i>Yêu thích
+                </button>
+            </div>
+
+            <hr class="my-4" />
+            <div class="small text-muted">
+                <b>Thời gian giao hàng dự kiến</b><br />
+                Từ 3 đến 5 ngày kể từ ngày đặt hàng
+            </div>
+            <div class="alert alert-light border mt-3 small" role="alert">
+                Đổi hàng trong 30 ngày với sản phẩm còn nguyên tem mác, chưa qua sử dụng, giặt.
+            </div>
+        </div>
+    </div>
+
+    <!-- Related -->
+    @if (Model.Related.Any())
+    {
+        <h4 class="mt-5 mb-3">Sản phẩm liên quan</h4>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+            @foreach (var i in Model.Related)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="ratio ratio-1x1 bg-light position-relative">
+                            <img src="~/images/no-image.png" class="p-3 object-fit-contain" alt="@i.ItemsName" />
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="@i.ItemsId" class="stretched-link"></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="small text-muted">@i.Category?.NameCategory</div>
+                            <h6 class="card-title text-truncate" title="@i.ItemsName">@i.ItemsName</h6>
+                            <div class="fw-semibold">@string.Format("{0:N0} đ", i.SellPrice)</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .object-fit-contain {
+        object-fit: contain;
+    }
+
+    .thumb:hover {
+        box-shadow: 0 0 0 2px #000 inset;
+    }
+
+    .size-btn.active {
+        background: #000;
+        color: #fff;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.thumb').forEach(t => {
+            t.addEventListener('click', () => {
+                const src = t.dataset.img;
+                document.getElementById('mainImage').src = src;
+            });
+        });
+
+        const sizeBtns = document.querySelectorAll('.size-btn');
+        sizeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sizeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                // bạn có thể lưu size chọn vào input hidden để post giỏ hàng
+            });
+        });
+
+        document.getElementById('btnAddCart')?.addEventListener('click', () => {
+            const active = document.querySelector('.size-btn.active');
+            const size = active ? active.getAttribute('data-size') : '@Model.Item.Size';
+            alert('Đã thêm vào giỏ: ' + size);
+            // TODO: gọi Ajax hoặc post tới CartController để thêm vào giỏ
+        });
+    </script>
+}
