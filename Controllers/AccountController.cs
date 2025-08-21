@@ -62,7 +62,7 @@ namespace CuaHangQuanAo.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            if (returnUrl != null)
                 return Redirect(returnUrl);
 
             return RedirectToAction("Index", "Home");
@@ -104,6 +104,17 @@ namespace CuaHangQuanAo.Controllers
 
         [Authorize]
         public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        public IActionResult ChangePassword()
         {
             return View();
         }
