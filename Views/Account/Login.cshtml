@@ -1,59 +1,238 @@
 ﻿@model CuaHangQuanAo.Models.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Đăng nhập";
     var returnUrl = ViewData["ReturnUrl"] as string;
     Layout = "_AuthenLayout";
 }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    /* ==== Auth Page Styles ==== */
+    .auth-wrap {
+        min-height: calc(100vh - 140px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg,#f7f7f7 0%, #ffffff 40%, #f1f5f9 100%);
+    }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Login</h4>
+    .auth-card {
+        width: 100%;
+        max-width: 960px;
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,.12);
+    }
+
+    .auth-left {
+        background: url('/Images/demo/bg-fashion.jpg') center/cover no-repeat;
+        position: relative;
+        min-height: 560px;
+    }
+
+        .auth-left::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg,rgba(0,0,0,.55),rgba(0,0,0,.35));
+        }
+
+    .branding {
+        position: absolute;
+        z-index: 2;
+        inset: 24px auto auto 24px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        letter-spacing: 2px;
+    }
+
+        .branding .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ffd166;
+            display: inline-block;
+        }
+
+    .auth-caption {
+        position: absolute;
+        z-index: 2;
+        bottom: 24px;
+        left: 24px;
+        right: 24px;
+        color: #fff;
+    }
+
+        .auth-caption h3 {
+            font-weight: 800;
+            margin: 0 0 .25rem;
+        }
+
+        .auth-caption p {
+            opacity: .9;
+            margin: 0;
+        }
+
+    .auth-right {
+        background: #fff;
+        padding: 2.25rem 2rem;
+    
+
+    {
+        padding: 3rem 3rem;
+    }
+
+    }
+
+    h4.auth-title {
+        font-weight: 800;
+        letter-spacing: .5px;
+        margin: 0 0 .25rem;
+    }
+
+    .auth-sub {
+        color: #6b7280;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-floating > .form-control {
+        padding: 1rem .75rem;
+        height: 3.3rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: .75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .input-with-icon {
+        padding-left: 2.3rem;
+    }
+
+    .btn-primary {
+        background: #111827;
+        border-color: #111827;
+        border-radius: 12px;
+        padding: .8rem 1rem;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+        .btn-primary:hover {
+            background: #e67e22;
+            border-color: #e67e22;
+        }
+
+    .btn-outline {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #111827;
+        border-radius: 12px;
+        padding: .75rem 1rem;
+        font-weight: 600;
+    }
+
+        .btn-outline:hover {
+            border-color: #111827;
+        }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        color: #9ca3af;
+        margin: 1rem 0;
+    }
+
+        .divider::before, .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: #e5e7eb;
+        }
+
+    .small-links a {
+        color: #111827;
+        text-decoration: none;
+    }
+
+        .small-links a:hover {
+            text-decoration: underline;
+        }
+</style>
+
+<div class="auth-wrap">
+    <div class="card auth-card">
+        <div class="row g-0">
+            <!-- Left visual -->
+            <div class="col-lg-6 position-relative auth-left">
+                <div class="branding">
+                    <span class="dot"></span>
+                    <strong>ShopQuanAo</strong>
+                </div>
+                <div class="auth-caption">
+                    <h3>Chào mừng trở lại</h3>
+                    <p>Đăng nhập để tiếp tục mua sắm và theo dõi đơn hàng của bạn.</p>
+                </div>
             </div>
-            <div class="card-body">
+
+            <!-- Right form -->
+            <div class="col-lg-6 auth-right">
+                <h4 class="auth-title">Đăng nhập</h4>
+                <div class="auth-sub">Rất vui được gặp lại bạn 👋</div>
+
                 @if (TempData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         @TempData["SuccessMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 }
 
-                <form asp-action="Login" asp-route-returnUrl="@returnUrl" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <form asp-action="Login" asp-route-returnUrl="@returnUrl" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
-                    <div class="mb-3">
-                        <label asp-for="UsernameOrEmail" class="form-label"></label>
-                        <input asp-for="UsernameOrEmail" class="form-control" placeholder="Enter username or email" />
-                        <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+                    <div class="mb-3 position-relative">
+                        <i class="bi bi-person input-icon"></i>
+                        <input asp-for="UsernameOrEmail" class="form-control input-with-icon" placeholder="Email hoặc tên đăng nhập" />
+                        <span asp-validation-for="UsernameOrEmail" class="text-danger small"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
+                    <div class="mb-2 position-relative">
+                        <i class="bi bi-shield-lock input-icon"></i>
                         <div class="input-group">
-                            <input asp-for="Password" class="form-control" type="password" id="LoginPassword" />
-                            <span class="input-group-text" id="toggleLoginPassword" style="cursor:pointer">
+                            <input asp-for="Password" class="form-control input-with-icon" type="password" id="LoginPassword" placeholder="Mật khẩu" />
+                            <button type="button" class="btn btn-outline" id="toggleLoginPassword" title="Hiện/ẩn mật khẩu">
                                 <i class="bi bi-eye" id="LoginPasswordIcon"></i>
-                            </span>
+                            </button>
                         </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
                     </div>
 
-                    <div class="mb-3 form-check">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    <div class="d-flex justify-content-between align-items-center mb-3 small-links">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" id="rememberMeChk" />
+                            <label asp-for="RememberMe" class="form-check-label"></label>
+                        </div>
+                        <a asp-action="ForgotPassword">Quên mật khẩu?</a>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+                        </button>
                     </div>
                 </form>
-            </div>
-            <div class="card-footer text-center">
-				<p class="mb-0">Forgot your password? <a asp-action="ForgotPassword">Reset it here</a></p>
-			</div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Don't have an account? <a asp-action="Register">Register here</a></p>
+
+                <div class="text-center mt-3 small-links">
+                    Chưa có tài khoản? <a asp-action="Register">Đăng ký ngay</a>
+                </div>
             </div>
         </div>
     </div>
@@ -64,22 +243,19 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        function togglePassword(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.classList.remove("bi-eye");
-                icon.classList.add("bi-eye-slash");
-            } else {
-                input.type = "password";
-                icon.classList.remove("bi-eye-slash");
-                icon.classList.add("bi-eye");
-            }
-        }
-
-        document.getElementById('toggleLoginPassword').addEventListener('click', function () {
-            togglePassword('LoginPassword', 'LoginPasswordIcon');
-        });
+        (function () {
+            const btn = document.getElementById('toggleLoginPassword');
+            const input = document.getElementById('LoginPassword');
+            const icon = document.getElementById('LoginPasswordIcon');
+            btn?.addEventListener('click', () => {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye'); icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash'); icon.classList.add('bi-eye');
+                }
+            });
+        })();
     </script>
 }

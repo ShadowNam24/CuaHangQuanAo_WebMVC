@@ -1,17 +1,91 @@
 ﻿@{
     ViewData["Title"] = "Access Denied";
-	Layout = "_AuthenLayout";
+    Layout = "_AuthenLayout";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="text-center">
-                <h1 class="display-1 text-danger">403</h1>
-                <h2>Access Denied</h2>
-                <p class="lead">You do not have permission to access this resource.</p>
-                <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Go to Home</a>
-            </div>
+<style>
+    .denied-wrap {
+        min-height: calc(100vh - 140px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#f9fafb 0%,#f3f4f6 50%,#e5e7eb 100%);
+        padding: 2rem 1rem;
+    }
+
+    .denied-box {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.1);
+        text-align: center;
+        padding: 3rem 2rem;
+        max-width: 600px;
+        width: 100%;
+        animation: fadeUp .6s ease;
+    }
+
+    {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .denied-icon {
+        font-size: 4rem;
+        color: #ef4444;
+        margin-bottom: .75rem;
+    }
+
+    .denied-code {
+        font-size: 5rem;
+        font-weight: 800;
+        color: #ef4444;
+        line-height: 1;
+    }
+
+    .denied-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0.25rem 0 0.5rem;
+    }
+
+    .denied-text {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-home {
+        background: #111827;
+        border-color: #111827;
+        border-radius: 12px;
+        padding: .8rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: .3s;
+    }
+
+        .btn-home:hover {
+            background: #e67e22;
+            border-color: #e67e22;
+        }
+</style>
+
+<div class="denied-wrap">
+    <div class="denied-box">
+        <div class="denied-icon">
+            <i class="bi bi-shield-lock-fill"></i>
         </div>
+        <div class="denied-code">403</div>
+        <div class="denied-title">Access Denied</div>
+        <p class="denied-text">Bạn không có quyền truy cập tài nguyên này.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-home">
+            <i class="bi bi-house-door me-1"></i> Quay về Trang chủ
+        </a>
     </div>
 </div>
