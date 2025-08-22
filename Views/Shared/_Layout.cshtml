@@ -7,40 +7,157 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CuaHangQuanAo.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-light bg-red">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CuaHangQuanAo</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+
+                <a class="navbar-brand text-white" href="#">CuaHangQuanAo</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                <div class="collapse navbar-collapse" id="navbarNav">   
+
+                    <form class="d-flex mx-auto search-bar">
+                        <div class="input-group">
+                            <input class="form-control" type="search" placeholder="Bạn cần tìm gì?" aria-label="Search">
+                            <span class="input-group-text bg-white border-start-0">
+                                <i class="bi bi-search"></i>
+                            </span>
+                        </div>
+                    </form>
+
+                    <ul class="navbar-nav ms-auto">
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="aoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Áo
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="aoDropdown">
+                                <li><a class="dropdown-item" href="#">Áo thun</a></li>
+                                <li><a class="dropdown-item" href="#">Áo sơ mi</a></li>
+                                <li><a class="dropdown-item" href="#">Áo khoác</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="quanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Quần
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="quanDropdown">
+                                <li><a class="dropdown-item" href="#">Quần jeans</a></li>
+                                <li><a class="dropdown-item" href="#">Quần short</a></li>
+                                <li><a class="dropdown-item" href="#">Quần tây</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="giayDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Giay
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
+                                <li><a class="dropdown-item" href="#">Giay</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="thaclungDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                That Lung
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
+                                <li><a class="dropdown-item" href="#">That lung</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="suitDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Suit
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
+                                <li><a class="dropdown-item" href="#">Hang chua ve</a></li>
+
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-white" href="#"><i class="bi bi-box"></i> Tra cứu đơn hàng</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#"><i class="bi bi-cart"></i> Giỏ hàng</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="btn">
+                                <div class="original">Signup</div>
+                                <div class="letters">
+                                    <span>S</span>
+                                    <span>I</span>
+                                    <span>G</span>
+                                    <span>N</span>
+                                    <span>U</span>
+                                    <span>P</span>
+                                </div>
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="btn">
+                                <div class="original">Login</div>
+                                <div class="letters">
+                                    <span>L</span>
+                                    <span>O</span>
+                                    <span>G</span>
+                                    <span>I</span>
+                                    <span>N</span>
+                                </div>
+                            </button>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CuaHangQuanAo - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="site-footer">
+        <div class="footer-main">
+            <div class="footer-columns">
+                <div class="footer-col">
+                    <h4>CuaHangQuanAo</h4>
+                    <ul>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>CHÍNH SÁCH</h4>
+                    <ul>
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Chính sách giao hàng</a></li>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>THÔNG TIN</h4>
+                    <ul>
+                        <li><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#">Hướng dẫn thanh toán</a></li>
+                        <li><a href="#">Hướng dẫn trả góp</a></li>
+                        <li><a href="#">Tra cứu địa chỉ bảo hành</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
