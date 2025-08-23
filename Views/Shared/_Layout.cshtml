@@ -11,109 +11,109 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-red">
+        <!-- sticky + shadow -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-red sticky-top shadow-sm">
             <div class="container-fluid">
 
-                <a class="navbar-brand text-white" href="#">CuaHangQuanAo</a>
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <img class="logo me-2" src="~/Images/demo/logo.svg" onerror="this.style.display='none';" alt="logo">
+                    <span class="fw-bold">CuaHangQuanAo</span>
+                </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav">   
+                <div class="collapse navbar-collapse" id="navbarNav">
 
-                    <form class="d-flex mx-auto search-bar">
+                    <!-- Search -->
+                    <form class="d-flex mx-lg-auto my-2 my-lg-0 search-bar" asp-controller="Product" asp-action="QuanAo" method="get">
                         <div class="input-group">
-                            <input class="form-control" type="search" placeholder="Bạn cần tìm gì?" aria-label="Search">
-                            <span class="input-group-text bg-white border-start-0">
+                            <input class="form-control" name="Q" type="search" placeholder="Bạn cần tìm gì?" aria-label="Search">
+                            <button class="input-group-text bg-white border-start-0" type="submit" title="Tìm kiếm">
                                 <i class="bi bi-search"></i>
-                            </span>
+                            </button>
                         </div>
                     </form>
 
-                    <ul class="navbar-nav ms-auto">
+                    <!-- Nav items -->
+                    <ul class="navbar-nav ms-auto align-items-lg-center">
 
+                        <!-- Áo -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="aoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Áo
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="aoDropdown">
-                                <li><a class="dropdown-item" href="#">Áo thun</a></li>
-                                <li><a class="dropdown-item" href="#">Áo sơ mi</a></li>
-                                <li><a class="dropdown-item" href="#">Áo khoác</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <!-- Thay CategoryId cho khớp DB của bạn -->
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="7">Áo thun</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="5">Áo sơ mi</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="4">Áo polo</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="áo khoác">Áo khoác</a></li>
                             </ul>
                         </li>
 
+                        <!-- Quần -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="quanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Quần
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="quanDropdown">
-                                <li><a class="dropdown-item" href="#">Quần jeans</a></li>
-                                <li><a class="dropdown-item" href="#">Quần short</a></li>
-                                <li><a class="dropdown-item" href="#">Quần tây</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="jeans">Quần jeans</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="short">Quần short</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="3">Quần tây</a></li>
                             </ul>
                         </li>
 
+                        <!-- Giày -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="giayDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Giay
+                                Giày
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
-                                <li><a class="dropdown-item" href="#">Giay</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="8">Giày da</a></li>
                             </ul>
                         </li>
+
+                        <!-- Thắt lưng -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="thaclungDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                That Lung
+                                Thắt lưng
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
-                                <li><a class="dropdown-item" href="#">That lung</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="9">Thắt lưng</a></li>
                             </ul>
                         </li>
+
+                        <!-- Suit -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="suitDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Suit
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="phuKienDropdown">
-                                <li><a class="dropdown-item" href="#">Hang chua ve</a></li>
-
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="2">Suit luxury</a></li>
+                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="1">BST Vest</a></li>
                             </ul>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#"><i class="bi bi-box"></i> Tra cứu đơn hàng</a>
+                            <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup"><i class="bi bi-box"></i> Tra cứu đơn hàng</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="#"><i class="bi bi-cart"></i> Giỏ hàng</a>
+                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index"><i class="bi bi-cart"></i> Giỏ hàng</a>
                         </li>
 
-                        <li class="nav-item">
-                            <button class="btn">
-                                <div class="original">Signup</div>
-                                <div class="letters">
-                                    <span>S</span>
-                                    <span>I</span>
-                                    <span>G</span>
-                                    <span>N</span>
-                                    <span>U</span>
-                                    <span>P</span>
-                                </div>
-                            </button>
+                        <!-- Auth buttons -->
+                        <li class="nav-item ms-lg-2">
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
                         </li>
                         <li class="nav-item">
-                            <button class="btn">
-                                <div class="original">Login</div>
-                                <div class="letters">
-                                    <span>L</span>
-                                    <span>O</span>
-                                    <span>G</span>
-                                    <span>I</span>
-                                    <span>N</span>
-                                </div>
-                            </button>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
                         </li>
+
                     </ul>
                 </div>
             </div>

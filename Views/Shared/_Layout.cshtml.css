@@ -1,261 +1,185 @@
 ﻿https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 
 a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
 }
 
 a {
-  color: #0077cc;
+    color: #0077cc;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
+    a:hover {
+        color: #b74b4b;
+    }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
-}
-nav {
-    font-size: 1.8rem;
-    color: white;
-    font-weight: 500;
-    transition: 0.3s ease;
-    border-bottom: 3px solid transparent;
-}
-
-a:hover {
-    color: #b74b4b;
-    border-bottom: 3px solid #b74b4b;
-}
-
+/* Navbar */
 .bg-red {
-    background-color: black;
+    background-color: #000;
 }
 
 .navbar-brand .logo {
-    height: 40px;
+    height: 36px;
 }
 
 .nav-link {
     font-size: 1rem;
     font-weight: 500;
-    margin: 0 0.5rem;
-    transition: color 0.3s ease;
+    margin: 0 .5rem;
+    color: #fff;
 }
 
-.nav-link:hover {
-    color: #ffcccb;
+    .nav-link:hover {
+        color: #ffcccb;
+    }
+
+.navbar-nav .dropdown-menu {
+    border: none;
+    box-shadow: 0 12px 30px rgba(0,0,0,.12);
 }
 
-.navbar-nav .nav-item {
-    display: flex;
-    align-items: center;
+.dropdown-item:hover {
+    background: #f8f9fa;
 }
 
-.navbar-nav .nav-link i {
-    margin-right: 0.5rem;
+/* Search */
+.search-bar .form-control {
+    border-right: 0;
+    border-color: #e5e7eb;
+    min-width: 340px;
 }
 
-.btn,
-.btn *,
-.btn :after,
-.btn :before,
-.btn:after,
-.btn:before {
+.search-bar .input-group-text {
+    border-left: 0;
+    border-color: #e5e7eb;
+}
+
+/* Fancy button (không đụng .btn Bootstrap) */
+.btn-fancy,
+.btn-fancy *,
+.btn-fancy :after,
+.btn-fancy :before,
+.btn-fancy:after,
+.btn-fancy:before {
     border: 0 solid;
     box-sizing: border-box;
 }
 
-.btn {
-    transform:scale(0.5);
-    -webkit-tap-highlight-color: transparent;
-    -webkit-appearance: button;
-    background-color: #000;
-    background-image: none;
-    color: #fff;
-    cursor: pointer;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-    font-size: 100%;
-    line-height: 1.5;
-    margin: 0;
-    padding: 0;
-}
-
-    .btn:disabled {
-        cursor: default;
-    }
-
-    .btn:-moz-focusring {
-        outline: auto;
-    }
-
-    .btn svg {
-        display: block;
-        vertical-align: middle;
-    }
-
-    .btn [hidden] {
-        display: none;
-    }
-
-.btn {
-    left:20px;
-    border: 1px solid;
+.btn-fancy {
+    border: 1px solid #fff;
     border-radius: 999px;
-    box-sizing: border-box;
-    display: block;
+    display: inline-block;
     font-weight: 900;
     overflow: hidden;
-    padding: 1.2rem 3rem;
+    padding: .6rem 1.6rem;
     position: relative;
     text-transform: uppercase;
+    background: #000;
+    color: #fff;
 }
 
-    .btn .original {
+    .btn-fancy .original {
         background: #fff;
         color: #000;
         display: grid;
         inset: 0;
         place-content: center;
         position: absolute;
-        transition: transform 0.3s cubic-bezier(0.87, 0, 0.13, 1);
+        transition: transform .3s cubic-bezier(.87,0,.13,1);
     }
-    .btn:hover .original {
+
+    .btn-fancy:hover .original {
         transform: translateY(100%);
     }
 
-    .btn .letters {
+    .btn-fancy .letters {
         display: inline-flex;
     }
 
-    .btn span {
+    .btn-fancy span {
         opacity: 0;
         transform: translateY(-15px);
-        transition: transform 0.3s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.3s;
+        transition: transform .3s cubic-bezier(.87,0,.13,1), opacity .3s;
     }
 
-        .btn span:nth-child(2n) {
+        .btn-fancy span:nth-child(2n) {
             transform: translateY(15px);
         }
 
-    .btn:hover span {
+    .btn-fancy:hover span {
         opacity: 1;
         transform: translateY(0);
     }
 
-        .btn:hover span:nth-child(2) {
-            transition-delay: 0.1s;
+        .btn-fancy:hover span:nth-child(2) {
+            transition-delay: .1s;
         }
 
-        .btn:hover span:nth-child(3) {
-            transition-delay: 0.2s;
+        .btn-fancy:hover span:nth-child(3) {
+            transition-delay: .2s;
         }
 
-        .btn:hover span:nth-child(4) {
-            transition-delay: 0.3s;
+        .btn-fancy:hover span:nth-child(4) {
+            transition-delay: .3s;
         }
 
-        .btn:hover span:nth-child(5) {
-            transition-delay: 0.4s;
+        .btn-fancy:hover span:nth-child(5) {
+            transition-delay: .4s;
         }
 
-        .btn:hover span:nth-child(6) {
-            transition-delay: 0.5s;
+        .btn-fancy:hover span:nth-child(6) {
+            transition-delay: .5s;
         }
 
+/* Footer (giữ nguyên) */
 .site-footer {
     background: #fff;
-    padding: 40px 0 0 0;
+    padding: 40px 0 0;
     font-size: 15px;
     color: #333;
     border-top: 1px solid #eee;
 }
+
 .footer-main {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 40px;
 }
+
 .footer-columns {
     display: flex;
     flex-wrap: wrap;
     gap: 40px;
     justify-content: space-between;
 }
+
 .footer-col {
     flex: 1 1 180px;
     min-width: 180px;
 }
-.footer-col h4 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-.footer-col ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.footer-col ul li {
-    margin-bottom: 8px;
-}
-.footer-col ul li a {
-    color: #333;
-    text-decoration: none;
-}
-.footer-col ul li a:hover {
-    text-decoration: underline;
-}
-.shipping-logos img,
-.payment-logos img {
-    height: 12px;
-    margin-right: 8px;
-    margin-bottom: 8px;
-    vertical-align: middle;
-}
-.footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 20px 0;
-}
-.footer-social span {
-    font-weight: bold;
-    margin-right: 16px;
-}
 
-hr {
-    border: none;
-    border-top: 1px solid #eee;
-    margin: 32px 0 0 0;
-}
+    .footer-col h4 {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 
+    .footer-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .footer-col ul li {
+            margin-bottom: 8px;
+        }
+
+            .footer-col ul li a {
+                color: #333;
+                text-decoration: none;
+            }
+
+                .footer-col ul li a:hover {
+                    text-decoration: underline;
+                }
