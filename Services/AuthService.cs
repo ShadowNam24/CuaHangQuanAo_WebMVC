@@ -119,5 +119,66 @@ namespace CuaHangQuanAo.Services
                 return Convert.ToBase64String(hashedBytes);
             }
         }
+        public async Task<(bool Success, string Token)> GeneratePasswordResetTokenAsync(string email)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email && a.IsActive);
+            if (account == null)
+                return (false, null);
+
+            // Generate a secure token
+            var tokenBytes = new byte[48];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(tokenBytes);
+            }
+            var token = Convert.ToBase64String(tokenBytes);
+
+            // Store token in DB
+            var resetToken = new PasswordResetToken
+            {
+                AccountId = account.AccId,
+                Token = token,
+                ExpiryDate = DateTime.UtcNow.AddHours(1),
+                IsUsed = false
+            };
+            _context.PasswordResetTokens.Add(resetToken);
+            await _context.SaveChangesAsync();
+
+            return (true, token);
+        }
+
+        public async Task<(bool Success, Account Account)> ValidatePasswordResetTokenAsync(string token)
+        {
+            var resetToken = await _context.PasswordResetTokens
+                .Include(t => t.Account)
+                .FirstOrDefaultAsync(t => t.Token == token && (t.IsUsed == false || t.IsUsed == null));
+
+            if (resetToken == null || resetToken.ExpiryDate < DateTime.UtcNow)
+                return (false, null);
+
+            return (true, resetToken.Account);
+        }
+        public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == email && a.IsActive);
+            if (account == null)
+                return false;
+
+            // Generate new salt and hash
+            var salt = GenerateSalt();
+            var passwordHash = HashPassword(newPassword, salt);
+
+            account.Salt = salt;
+            account.Pass = passwordHash;
+
+            // Mark all unused tokens for this account as used
+            var tokens = _context.PasswordResetTokens
+                .Where(t => t.AccountId == account.AccId && (t.IsUsed == false || t.IsUsed == null));
+            foreach (var t in tokens)
+                t.IsUsed = true;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

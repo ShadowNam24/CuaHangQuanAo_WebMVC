@@ -1,0 +1,160 @@
+﻿@model CuaHangQuanAo.Models.ForgotPasswordVM
+@{
+    ViewData["Title"] = "Email Sent";
+    Layout = "_AuthenLayout";
+}
+
+<style>
+    .forgot-wrap {
+        min-height: calc(100vh - 140px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#f9fafb 0%,#f3f4f6 50%,#e5e7eb 100%);
+        padding: 2rem 1rem;
+    }
+
+    .forgot-card {
+        width: 100%;
+        max-width: 720px;
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,.12);
+        animation: fadeUp .6s ease;
+        background: #fff;
+    }
+
+    {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .card-header {
+        background: #111827;
+        color: #fff;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .lead-desc {
+        color: #6b7280;
+    }
+
+    .mail-hero {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: center;
+        background: #f9fafb;
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        padding: 16px;
+        margin: 0 0 16px;
+    }
+
+        .mail-hero i {
+            font-size: 1.6rem;
+            color: #10b981;
+        }
+
+    .mail-target {
+        background: #f3f4f6;
+        border-radius: 10px;
+        padding: .5rem .75rem;
+        display: inline-block;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .help {
+        color: #6b7280;
+        font-size: .95rem;
+    }
+
+    .btn-primary {
+        background: #111827;
+        border-color: #111827;
+        border-radius: 12px;
+        padding: .85rem 1rem;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+        .btn-primary:hover {
+            background: #e67e22;
+            border-color: #e67e22;
+        }
+
+    .action-row {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .card-footer {
+        background: #fafafa;
+    }
+</style>
+
+<div class="forgot-wrap">
+    <div class="card forgot-card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-envelope-check me-2"></i>Kiểm tra email của bạn
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="mail-hero mb-3">
+                <i class="bi bi-shield-lock"></i>
+                <div>
+                    <div class="fw-bold">Liên kết đặt lại mật khẩu đã được gửi!</div>
+                    <div class="help mb-0">Vui lòng kiểm tra hộp thư đến và làm theo hướng dẫn.</div>
+                </div>
+            </div>
+
+            <p class="lead-desc">
+                Hệ thống đã gửi email đến địa chỉ:
+                <span class="mail-target">@Model.Email</span>
+            </p>
+
+            <p class="help">
+                Không thấy email? Hãy kiểm tra thư mục <strong>Spam/Quảng cáo</strong> hoặc thử gửi lại.
+            </p>
+
+            <div class="action-row mt-3">
+                <!-- Gửi lại email -->
+                <form asp-action="ForgotPassword" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Email" />
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Gửi lại email
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="card-footer text-center">
+            <small class="text-muted">
+                Nếu vẫn không nhận được email sau vài phút, hãy dùng chức năng <a asp-action="ForgotPassword">Quên mật khẩu</a> để yêu cầu lại.
+            </small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

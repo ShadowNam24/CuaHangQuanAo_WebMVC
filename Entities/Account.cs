@@ -26,4 +26,6 @@ public partial class Account
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 
     public virtual ICollection<Employee> Employees { get; set; } = new List<Employee>();
+
+    public virtual ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
 }
