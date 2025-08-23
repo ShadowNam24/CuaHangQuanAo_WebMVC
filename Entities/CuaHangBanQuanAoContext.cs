@@ -29,6 +29,8 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
     public virtual DbSet<OrdersDetail> OrdersDetails { get; set; }
 
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
     public virtual DbSet<Storage> Storages { get; set; }
 
     public virtual DbSet<Supplier> Suppliers { get; set; }
@@ -56,7 +58,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Pass)
-                .HasMaxLength(20)
+                .HasMaxLength(256)
                 .IsUnicode(false);
             entity.Property(e => e.Salt)
                 .HasMaxLength(128)
@@ -87,7 +89,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.AccId).HasColumnName("AccID");
             entity.Property(e => e.AddressName)
-                .HasMaxLength(20)
+                .HasMaxLength(200)
                 .IsUnicode(false);
             entity.Property(e => e.City)
                 .HasMaxLength(50)
@@ -96,7 +98,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.LastName)
-                .HasMaxLength(30)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(20)
@@ -116,13 +118,13 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
             entity.Property(e => e.AccId).HasColumnName("AccID");
             entity.Property(e => e.Address)
-                .HasMaxLength(100)
+                .HasMaxLength(200)
                 .IsUnicode(false);
             entity.Property(e => e.Firstname)
                 .HasMaxLength(20)
                 .IsUnicode(false);
             entity.Property(e => e.Lastname)
-                .HasMaxLength(20)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(10)
@@ -188,6 +190,23 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.HasOne(d => d.Orders).WithMany(p => p.OrdersDetails)
                 .HasForeignKey(d => d.OrdersId)
                 .HasConstraintName("fk_OrdersDetails_OrdersID");
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC0744DDC862");
+
+            entity.ToTable("PasswordResetToken");
+
+            entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+            entity.Property(e => e.IsUsed).HasDefaultValue(false);
+            entity.Property(e => e.Token)
+                .HasMaxLength(256)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.PasswordResetTokens)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_RefreshToken_Account");
         });
 
         modelBuilder.Entity<Storage>(entity =>

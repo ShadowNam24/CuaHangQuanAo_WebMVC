@@ -15,7 +15,7 @@ namespace CuaHangQuanAo.Services
         {
             var fromEmail = _configuration["EmailSettings:FromEmail"];
             var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+            var smtpPort = int.Parse(_configuration["EmailSettings:Port"]);
             var smtpUser = _configuration["EmailSettings:Username"];
             var smtpPassword = _configuration["EmailSettings:Password"];
 

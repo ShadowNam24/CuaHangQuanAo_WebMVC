@@ -1,0 +1,103 @@
+﻿@model CuaHangQuanAo.Models.ForgotPasswordVM
+@{
+	ViewData["Title"] = "Email Sent";
+	Layout = "_AuthenLayout";
+}
+<style>
+    .forgot-wrap {
+        min-height: calc(100vh - 140px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#f9fafb 0%,#f3f4f6 50%,#e5e7eb 100%);
+        padding: 2rem 1rem;
+    }
+
+    .forgot-card {
+        width: 100%;
+        max-width: 640px;
+        border: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,.12);
+        animation: fadeUp .6s ease;
+    }
+
+    {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .card-header {
+        background: #111827;
+        color: #fff;
+    }
+
+    .input-group-text {
+        background: #fff;
+        border-color: #e5e7eb;
+    }
+
+    .form-control {
+        border-color: #e5e7eb;
+    }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 .25rem rgba(230,126,34,.15);
+            border-color: #e67e22;
+        }
+
+    .btn-primary {
+        background: #111827;
+        border-color: #111827;
+        border-radius: 12px;
+        padding: .85rem 1rem;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+        .btn-primary:hover {
+            background: #e67e22;
+            border-color: #e67e22;
+        }
+
+    .help {
+        color: #6b7280;
+        font-size: .95rem;
+    }
+</style>
+
+<div class="forgot-wrap">
+    <div class="card forgot-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-envelope-check me-2"></i>Kiểm tra email đi</h5>
+        </div>
+        <p class="help mb-3">
+			Một liên kết đặt lại mật khẩu đã được gửi đến <strong>@Model.Email</strong>. Vui lòng kiểm tra hộp thư đến của bạn và làm theo hướng dẫn để đặt lại mật khẩu của bạn.
+        </p>
+        <p class="help mb-3">
+                Nếu bạn không nhận được email, hãy kiểm tra thư mục spam hoặc thử gửi lại.
+        </p>
+        <form asp-action="ForgotPassword" method="post">
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Gửi lại email</button>
+            </div>
+	    </form>
+        <div class="card-footer text-center">
+            <p class="mb-1">Nhớ mật khẩu rồi? <a asp-action="Login">Đăng nhập</a></p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -12,10 +12,12 @@ namespace CuaHangQuanAo.Controllers
     public class AccountController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public AccountController(IAuthService authService)
+        public AccountController(IAuthService authService, IEmailService emailService)
         {
             _authService = authService;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -113,9 +115,76 @@ namespace CuaHangQuanAo.Controllers
             return View();
         }
 
-        public IActionResult ChangePassword()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordVM model)
         {
-            return View();
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var (success, token) = await _authService.GeneratePasswordResetTokenAsync(model.Email);
+            if (!success)
+            {
+                ModelState.AddModelError(string.Empty, "Email not found or account inactive.");
+                return View(model);
+            }
+
+            var resetLink = Url.Action("ResetPassword", "Account", new { token }, Request.Scheme);
+            await _emailService.SendEmailAsync(model.Email, "Password Reset", $"Click <a href='{resetLink}'>here</a> to reset your password.");
+
+            TempData["Email"] = model.Email;
+            return RedirectToAction(nameof(EmailSent));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ResetPassword(string token)
+        {
+            var (success, account) = await _authService.ValidatePasswordResetTokenAsync(token);
+            if (!success || account == null)
+            {
+                TempData["ErrorMessage"] = "Invalid or expired password reset link.";
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            var model = new ChangePasswordVM
+            {
+                Email = account.Email,
+                Token = token
+            };
+            return View("ChangePassword", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordVM model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var (success, account) = await _authService.ValidatePasswordResetTokenAsync(model.Token);
+            if (!success || account == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid or expired token.");
+                return View(model);
+            }
+
+            var resetSuccess = await _authService.ResetPasswordAsync(model.Email, model.NewPassword);
+            if (!resetSuccess)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to reset password.");
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Your password has been changed successfully.";
+            return RedirectToAction(nameof(Login));
+        }
+
+        [HttpGet]
+        public IActionResult EmailSent()
+        {
+            var email = TempData["Email"] as string;
+            var vm = new ForgotPasswordVM { Email = email };
+            return View(vm);
         }
     }
 }

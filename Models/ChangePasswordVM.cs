@@ -13,8 +13,8 @@ namespace CuaHangQuanAo.Models
 
         [Required(ErrorMessage = "New password is required.")]
         [DataType(DataType.Password)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$")]
-        [StringLength(100, ErrorMessage = "New password must be at least 8 characters long.", MinimumLength = 8)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$",
+            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character")]
         [Display(Name = "New Password")]
         public string NewPassword { get; set; } = string.Empty;
 
