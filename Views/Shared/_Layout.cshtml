@@ -47,7 +47,6 @@
                                 Áo
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <!-- Thay CategoryId cho khớp DB của bạn -->
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="7">Áo thun</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="5">Áo sơ mi</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="4">Áo polo</a></li>
@@ -98,12 +97,21 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup"><i class="bi bi-box"></i> Tra cứu đơn hàng</a>
-                        </li>
+                        <!-- Tra cứu đơn hàng: chỉ hiện khi đăng nhập -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup">
+                                    <i class="bi bi-box"></i> Tra cứu đơn hàng
+                                </a>
+                            </li>
+                        }
 
+                        <!-- Giỏ hàng -->
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index"><i class="bi bi-cart"></i> Giỏ hàng</a>
+                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart"></i> Giỏ hàng
+                            </a>
                         </li>
 
                         <!-- Auth buttons -->
@@ -114,21 +122,22 @@
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <!-- Nơi để mấy con gà thêm dropdown item cho profile và lịch sử mua hàng-->
-                                    <li><form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                    </form></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </li>
                         }
                         else
                         {
-                        <li class="nav-item ms-lg-2">
-                            <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
-                        </li>
+                            <li class="nav-item ms-lg-2">
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
+                            </li>
                         }
                     </ul>
                 </div>
