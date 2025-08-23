@@ -113,38 +113,17 @@
                 <i class="bi bi-envelope-check me-2"></i>Kiểm tra email của bạn
             </h5>
         </div>
-
-        <div class="card-body">
-            <div class="mail-hero mb-3">
-                <i class="bi bi-shield-lock"></i>
-                <div>
-                    <div class="fw-bold">Liên kết đặt lại mật khẩu đã được gửi!</div>
-                    <div class="help mb-0">Vui lòng kiểm tra hộp thư đến và làm theo hướng dẫn.</div>
-                </div>
+        <p class="help mb-3">
+			Một liên kết đặt lại mật khẩu đã được gửi đến <strong>@Model.Email</strong>. Vui lòng kiểm tra hộp thư đến của bạn và làm theo hướng dẫn để đặt lại mật khẩu của bạn.
+        </p>
+        <p class="help mb-3">
+                Nếu bạn không nhận được email, hãy kiểm tra thư mục spam hoặc thử gửi lại.
+        </p>
+        <form asp-action="ForgotPassword" method="post">
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Gửi lại email</button>
             </div>
-
-            <p class="lead-desc">
-                Hệ thống đã gửi email đến địa chỉ:
-                <span class="mail-target">@Model.Email</span>
-            </p>
-
-            <p class="help">
-                Không thấy email? Hãy kiểm tra thư mục <strong>Spam/Quảng cáo</strong> hoặc thử gửi lại.
-            </p>
-
-            <div class="action-row mt-3">
-                <!-- Gửi lại email -->
-                <form asp-action="ForgotPassword" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="Email" />
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Gửi lại email
-                    </button>
-                </form>
-                </a>
-            </div>
-        </div>
-
+	    </form>
         <div class="card-footer text-center">
             <small class="text-muted">
                 Nếu vẫn không nhận được email sau vài phút, hãy dùng chức năng <a asp-action="ForgotPassword">Quên mật khẩu</a> để yêu cầu lại.
