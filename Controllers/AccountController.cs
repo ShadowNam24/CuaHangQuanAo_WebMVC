@@ -21,7 +21,7 @@ namespace CuaHangQuanAo.Controllers
         [HttpGet]
         public IActionResult Login(string? returnUrl)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            ViewBag.ReturnURL = returnUrl ?? Url.Content("~/");
             return View();
         }
 
@@ -29,8 +29,6 @@ namespace CuaHangQuanAo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -54,7 +52,7 @@ namespace CuaHangQuanAo.Controllers
             var authProperties = new AuthenticationProperties
             {
                 IsPersistent = model.RememberMe,
-                ExpiresUtc = model.RememberMe ? DateTime.UtcNow.AddDays(30) : DateTime.UtcNow.AddHours(8)
+                ExpiresUtc = model.RememberMe ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddHours(1)
             };
 
             await HttpContext.SignInAsync(
@@ -62,9 +60,10 @@ namespace CuaHangQuanAo.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            if (returnUrl != null)
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
                 return Redirect(returnUrl);
-
+            }
             return RedirectToAction("Index", "Home");
         }
 
