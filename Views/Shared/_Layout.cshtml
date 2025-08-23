@@ -114,10 +114,21 @@
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <!-- Nơi để mấy con gà thêm dropdown item cho profile và lịch sử mua hàng-->
-                                    <li><form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                        <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                    </form></li>
+                                    <!-- Profile -->
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
+                                            <i class="bi bi-person"></i> Profile
+                                        </a>
+                                    </li>
+                                    <!-- Logout -->
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item">
+                                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </li>
                         }
