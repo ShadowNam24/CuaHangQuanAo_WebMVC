@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Entities\" />
+    <Folder Include="Views\Profile\" />
   </ItemGroup>
 
 </Project>

@@ -278,7 +278,7 @@
     {
         <div class="product-card">
             <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                <img src="~/images/no-image.png" alt="@p.ItemsName" class="product-img" />
+                <img src="~/Images/@p.Image" alt="@p.ItemsName" class="product-img" />
             </a>
             <div class="product-title">
                 <a class="text-dark text-decoration-none"
@@ -301,7 +301,7 @@
     {
         <div class="product-card">
             <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                <img src="~/images/no-image.png" alt="@p.ItemsName" class="product-img" />
+                <img src="~/Images/@p.Image" alt="@p.ItemsName" class="product-img" />
             </a>
             <div class="product-title">
                 <a class="text-dark text-decoration-none"

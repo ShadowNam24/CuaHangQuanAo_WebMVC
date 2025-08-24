@@ -24,7 +24,7 @@
         <div class="col-lg-7">
             <div class="card shadow-sm">
                 <div class="ratio ratio-1x1 bg-light position-relative">
-                    <img id="mainImage" src="@Model.Gallery.FirstOrDefault()" class="p-3 object-fit-contain" alt="@Model.Item.ItemsName" />
+                    <img id="mainImage" src="~/Images/@Model.Item.Image" class="p-3 object-fit-contain" alt="@Model.Item.ItemsName" />
                 </div>
             </div>
 
@@ -34,7 +34,7 @@
                     <div class="col">
                         <div class="thumb border rounded-3 overflow-hidden position-relative" role="button" tabindex="0"
                              data-img="@Model.Gallery[i]">
-                            <img src="@Model.Gallery[i]" class="w-100 object-fit-contain" style="aspect-ratio:1/1" alt="thumb @i" />
+                            <img src="~/Images/@Model.Gallery[i]" class="w-100 object-fit-contain" style="aspect-ratio:1/1" alt="thumb @i" />
                         </div>
                     </div>
                 }
@@ -114,7 +114,7 @@
                 <div class="col">
                     <div class="card h-100 shadow-sm">
                         <div class="ratio ratio-1x1 bg-light position-relative">
-                            <img src="~/images/no-image.png" class="p-3 object-fit-contain" alt="@i.ItemsName" />
+                            <img src="~/Images/@i.Image" class="p-3 object-fit-contain" alt="@i.ItemsName" />
                             <a asp-controller="Product" asp-action="Detail" asp-route-id="@i.ItemsId" class="stretched-link"></a>
                         </div>
                         <div class="card-body">

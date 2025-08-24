@@ -10,9 +10,6 @@ namespace CuaHangQuanAo.Models
         [Required, StringLength(100)]
         public string FullName { get; set; } = "";
 
-        [Display(Name = "Giới tính")]
-        public string Gender { get; set; } = "Nam"; // Nam/Nữ
-
         [Display(Name = "Số điện thoại")]
         [Phone]
         public string PhoneNumber { get; set; } = "";
@@ -25,11 +22,6 @@ namespace CuaHangQuanAo.Models
         public string Email { get; set; } = "";
 
         public bool EmailVerified { get; set; } = false;
-
-        // Ngày sinh (chia 3 trường cho dễ bind dropdown)
-        public int? BirthDay { get; set; }
-        public int? BirthMonth { get; set; }
-        public int? BirthYear { get; set; }
 
         public string AvatarUrl { get; set; } = "/images/default-avatar.png";
     }

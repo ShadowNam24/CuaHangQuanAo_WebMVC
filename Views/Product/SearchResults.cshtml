@@ -57,7 +57,7 @@ else
     <div class="ajax-products">
         @foreach (var p in Model)
         {
-            var img = Url.Content($"~/Images/Products/{p.ItemsId}.jpg");
+            var img = Url.Content($"~/Images/{p.ItemsId}.jpg");
             <div class="ajax-card">
                 <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
                     <img class="ajax-img" src="@img" onerror="this.src='@Url.Content("~/images/no-image.png")'" alt="@p.ItemsName" />
