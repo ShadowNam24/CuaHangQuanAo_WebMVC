@@ -1,0 +1,29 @@
+﻿@model CuaHangQuanAo.Models.CheckoutVm
+@{
+    ViewBag.Title = "Thanh toán";
+}
+
+<h2>Đặt Hàng</h2>
+
+<form asp-action="Checkout" method="post">
+    <div class="form-group">
+        <label>Họ tên</label>
+        <input asp-for="CustomerName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Số điện thoại</label>
+        <input asp-for="Phone" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Địa chỉ</label>
+        <input asp-for="Address" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Giảm giá</label>
+        <input asp-for="Discount" class="form-control" type="number" value="0" />
+    </div>
+
+    <h4>Tổng cộng: @string.Format("{0:N0} đ", ViewBag.Total)</h4>
+
+    <button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
+</form>

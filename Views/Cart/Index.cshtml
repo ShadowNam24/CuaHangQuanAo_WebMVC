@@ -65,5 +65,13 @@ else
     <h3>Tổng cộng: @ViewBag.Total.ToString("N0") VNĐ</h3>
 
     <a asp-action="Clear" class="btn btn-warning">Xóa toàn bộ giỏ hàng</a>
-    <a asp-controller="Orders" asp-action="Checkout" class="btn btn-success">Thanh toán</a>
+    <form asp-action="CheckStock" asp-controller="Cart" method="post">
+        <button type="submit" class="btn btn-success">Đặt Hàng</button>
+    </form>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
 }
