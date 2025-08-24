@@ -5,7 +5,7 @@
 
 <h2>Đặt Hàng</h2>
 
-<form asp-action="Checkout" method="post">
+<form asp-action="Checkout" method="post" id="checkoutForm">
     <div class="form-group">
         <label>Họ tên</label>
         <input asp-for="CustomerName" class="form-control" required />
@@ -25,5 +25,17 @@
 
     <h4>Tổng cộng: @string.Format("{0:N0} đ", ViewBag.Total)</h4>
 
-    <button type="submit" class="btn btn-success">Xác nhận đặt hàng</button>
+    <button type="submit" class="btn btn-success" id="btnCheckout">Xác nhận đặt hàng</button>
 </form>
+
+@section Scripts {
+    <script>
+        document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+            if (!confirm("Bạn có chắc chắn muốn đặt hàng không?")) {
+                e.preventDefault(); // Người dùng Cancel → hủy submit
+            } else {
+                alert("Bạn đã đặt hàng thành công!");
+            }
+        });
+    </script>
+}
