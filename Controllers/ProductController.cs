@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CuaHangQuanAo.Controllers
 {
+
     public class ProductController : Controller
     {
         private readonly CuaHangBanQuanAoContext _db;

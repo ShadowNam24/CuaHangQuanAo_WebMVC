@@ -46,7 +46,7 @@
                             <a class="nav-link dropdown-toggle text-white" href="#" id="aoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Áo
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="aoDropdown">
                                 <!-- Thay CategoryId cho khớp DB của bạn -->
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="7">Áo thun</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="5">Áo sơ mi</a></li>
@@ -60,30 +60,36 @@
                             <a class="nav-link dropdown-toggle text-white" href="#" id="quanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Quần
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quanDropdown">
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="jeans">Quần jeans</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="short">Quần short</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="3">Quần tây</a></li>
                             </ul>
                         </li>
 
-                        <!-- Giày -->
+                        <!-- Phụ kiện (GỘP Giày + Thắt lưng) -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="giayDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Giày
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="phuKienDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Phụ kiện
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="8">Giày da</a></li>
-                            </ul>
-                        </li>
-
-                        <!-- Thắt lưng -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="thaclungDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Thắt lưng
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="9">Thắt lưng</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="phuKienDropdown">
+                                <!-- Nếu bạn muốn lọc theo loại trong trang PhuKien, dùng CategoryId phù hợp DB -->
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="8">
+                                        Giày
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="9">
+                                        Thắt lưng
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien">
+                                        Tất cả phụ kiện
+                                    </a>
+                                </li>
                             </ul>
                         </li>
 
@@ -92,35 +98,42 @@
                             <a class="nav-link dropdown-toggle text-white" href="#" id="suitDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Suit
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="suitDropdown">
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="2">Suit luxury</a></li>
                                 <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="1">BST Vest</a></li>
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup"><i class="bi bi-box"></i> Tra cứu đơn hàng</a>
-                        </li>
+                        <!-- Tra cứu đơn hàng: chỉ hiện khi đăng nhập -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup">
+                                    <i class="bi bi-box"></i> Tra cứu đơn hàng
+                                </a>
+                            </li>
+                        }
 
+                        <!-- Giỏ hàng -->
                         <li class="nav-item">
-                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index"><i class="bi bi-cart"></i> Giỏ hàng</a>
+                            <a class="nav-link text-white" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart"></i> Giỏ hàng
+                            </a>
                         </li>
 
                         <!-- Auth buttons -->
-                        @if(User.Identity.IsAuthenticated)
+                        @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-person-circle"></i> @User.Identity.Name
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <!-- Profile -->
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
                                             <i class="bi bi-person"></i> Profile
                                         </a>
                                     </li>
-                                    <!-- Đăng  -->
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
@@ -134,12 +147,12 @@
                         }
                         else
                         {
-                        <li class="nav-item ms-lg-2">
-                            <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
-                        </li>
-                        <li class="nav-item">
-                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
-                        </li>
+                            <li class="nav-item ms-lg-2">
+                                <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
+                            </li>
                         }
                     </ul>
                 </div>
