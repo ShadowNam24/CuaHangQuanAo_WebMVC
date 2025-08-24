@@ -1,0 +1,304 @@
+﻿@model CuaHangQuanAo.Entities.Item
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .details-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .details-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .info-section {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        color: #4B0082;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        font-size: 1.1rem;
+        color: #212529;
+    }
+
+    .badge-price {
+        background: linear-gradient(45deg, #4B0082, #9370DB);
+        color: white;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .badge-category {
+        background-color: #e9ecef;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .badge-size {
+        background-color: #212529;
+        color: white;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-weight: 500;
+    }
+
+    .no-data {
+        padding: 1.5rem;
+        text-align: center;
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        border: 1px dashed #dee2e6;
+    }
+
+        .no-data i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+    .table-details th {
+        background-color: #f8f9fa;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .table-details {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Items", "Item")">Danh sách sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết sản phẩm</li>
+        </ol>
+    </nav>
+
+    <div class="details-container">
+        <div class="details-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0">
+                        <i class="bi bi-box-seam me-2"></i>Chi tiết sản phẩm
+                    </h2>
+                    <p class="mb-0 text-white-50">Thông tin chi tiết về sản phẩm</p>
+                </div>
+                <div class="d-flex">
+                    <a href="@Url.Action("EditItem", "Items", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-primary btn-action">
+                        <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                    </a>
+
+                    <button class="btn btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash me-1"></i> Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <div class="info-section">
+                <h4 class="section-title">
+                    <i class="bi bi-info-circle me-2"></i>Thông tin cơ bản
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Mã sản phẩm</div>
+                            <div class="info-value">#@Model.ItemsId</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Tên sản phẩm</div>
+                            <div class="info-value">@Model.ItemsName</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Danh mục</div>
+                            <div class="info-value">
+                                <span class="badge-category">
+                                    <i class="bi bi-grid me-1"></i>
+                                    @(Model.Category?.NameCategory ?? "Chưa phân loại")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Giá bán</div>
+                            <div class="info-value">
+                                <span class="badge-price">
+                                    @string.Format("{0:N0} đ", Model.SellPrice)
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Kích thước</div>
+                            <div class="info-value">
+                                <span class="badge-size">
+                                    @Model.Size
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h4 class="section-title">
+                            <i class="bi bi-box me-2"></i>Thông tin tồn kho
+                        </h4>
+                        @if (Model.Storages != null && Model.Storages.Any())
+                        {
+                            <table class="table table-details">
+                                <thead>
+                                    <tr>
+                                        <th>Ngày nhập</th>
+                                        <th>Số lượng</th>
+                                        <th>Giá nhập</th>
+                                        <th>Nhà cung cấp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var storage in Model.Storages)
+                                    {
+                                        <tr>
+                                            <td>@storage.ImportDate?.ToString("dd/MM/yyyy")</td>
+                                            <td>@storage.Quantity</td>
+                                            <td>@string.Format("{0:N0} đ", storage.ImportCost)</td>
+                                            <td>@(storage.Supplier?.SupplierName ?? "Không có")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="no-data">
+                                <i class="bi bi-inbox"></i>
+                                <p class="mb-0">Chưa có thông tin tồn kho</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h4 class="section-title">
+                            <i class="bi bi-receipt me-2"></i>Lịch sử đơn hàng
+                        </h4>
+                        @if (Model.OrdersDetails != null && Model.OrdersDetails.Any())
+                        {
+                            <table class="table table-details">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn hàng</th>
+                                        <th>Số lượng</th>
+                                        <th>Giá bán</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var detail in Model.OrdersDetails)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="@Url.Action("OrderDetails", "Order", new { id = detail.OrdersId })">
+                                                    #@detail.OrdersId
+                                                </a>
+                                            </td>
+                                            <td>@detail.Quantity</td>
+                                            <td>@string.Format("{0:N0} đ", detail.Price)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="no-data">
+                                <i class="bi bi-receipt"></i>
+                                <p class="mb-0">Chưa có thông tin đơn hàng</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a href="@Url.Action("Items", "Item")" class="btn btn-outline-secondary btn-action">
+                    <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
+                </a>
+                <a href="@Url.Action("EditItem", "Item", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-primary btn-action">
+                    <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa sản phẩm -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa sản phẩm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>@Model.ItemsName</strong> không?</p>
+                <p class="text-danger"><strong>Lưu ý:</strong> Hành động này không thể hoàn tác và sẽ xóa tất cả thông tin liên quan.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form asp-action="Functions_DeleteConfirmed" asp-controller="Item" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.ItemsId" />
+                    <button type="submit" class="btn btn-danger">Xóa sản phẩm</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -34,7 +34,7 @@ namespace CuaHangQuanAo.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
-        [StringLength(20)]
+        [StringLength(10, MinimumLength = 10, ErrorMessage = "Phone number must only have 10 number")]
         [Phone]
         public string Phone { get; set; }
 

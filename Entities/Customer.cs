@@ -7,7 +7,7 @@ public partial class Customer
 {
     public int CustomerId { get; set; }
 
-    public int AccId { get; set; }
+    public int? AccId { get; set; }
 
     public string FirstName { get; set; } = null!;
 
@@ -19,7 +19,7 @@ public partial class Customer
 
     public string? City { get; set; }
 
-    public virtual Account Acc { get; set; } = null!;
+    public virtual Account? Acc { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

@@ -1,0 +1,267 @@
+﻿@model CuaHangQuanAo.Entities.Employee
+
+@{
+    ViewData["Title"] = "Thêm Nhân Viên Mới";
+	Layout = "_AdminLayout";
+}
+
+<style>
+    /* Style cho form thêm nhân viên */
+    .employee-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .employee-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E") center/cover;
+            opacity: 0.5;
+        }
+
+    .employee-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+    }
+
+    .section-title {
+        position: relative;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 50px;
+            background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+            border-radius: 5px;
+        }
+
+    .form-control:focus {
+        border-color: #9370DB;
+        box-shadow: 0 0 0 0.25rem rgba(147, 112, 219, 0.25);
+    }
+
+    .input-group-custom {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #3B0062 0%, #8360CB 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-secondary-custom {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        color: #495057;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-secondary-custom:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .form-label-custom {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="employee-header">
+        <h2><i class="bi bi-person-plus me-2"></i>Thêm Nhân Viên Mới</h2>
+    </div>
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="AdminDashboard">Trang Chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Quản Lý Nhân Viên</a></li>
+            <li class="breadcrumb-item active">Thêm Nhân Viên Mới</li>
+        </ol>
+    </nav>
+
+    <div class="employee-card">
+        <div class="card-header-custom">
+            <h5 class="mb-0"><i class="bi bi-person-plus me-2"></i>Thông Tin Nhân Viên Mới</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" asp-controller="Employee">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="section-title">Thông Tin Cá Nhân</h5>
+
+                        <div class="input-group-custom">
+                            <label asp-for="Firstname" class="form-label-custom">Tên</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input asp-for="Firstname" class="form-control" placeholder="Nhập tên" />
+                            </div>
+                            <span asp-validation-for="Firstname" class="text-danger"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="Lastname" class="form-label-custom">Họ</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input asp-for="Lastname" class="form-control" placeholder="Nhập họ" />
+                            </div>
+                            <span asp-validation-for="Lastname" class="text-danger"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="Position" class="form-label-custom">Chức Vụ</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                                <input asp-for="Position" class="form-control" placeholder="Nhập chức vụ" />
+                            </div>
+                            <span asp-validation-for="Position" class="text-danger"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="PhoneNumber" class="form-label-custom">Số Điện Thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label asp-for="Address" class="form-label-custom">Địa Chỉ</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                <textarea asp-for="Address" class="form-control" rows="3" placeholder="Nhập địa chỉ"></textarea>
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="section-title">Thông Tin Tài Khoản</h5>
+
+                        <div class="input-group-custom">
+                            <label for="username" class="form-label-custom">Tên đăng nhập</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <input name="username" id="username" class="form-control" placeholder="Nhập tên đăng nhập" required />
+                            </div>
+                            <span class="text-danger" data-valmsg-for="username"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label for="username" class="form-label-custom">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <input name="email" id="email" class="form-control" placeholder="Nhập email" required />
+                            </div>
+                            <span class="text-danger" data-valmsg-for="email"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label for="password" class="form-label-custom">Mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Nhập mật khẩu" required />
+                            </div>
+                            <span class="text-danger" data-valmsg-for="password"></span>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label for="confirmPassword" class="form-label-custom">Xác nhận mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input type="password" id="confirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required />
+                            </div>
+                            <span id="password-error" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary-custom">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+                    </a>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="bi bi-save me-1"></i> Lưu nhân viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Xác thực mật khẩu
+            $('#confirmPassword').on('keyup', function() {
+                var password = $('#password').val();
+                var confirmPassword = $(this).val();
+
+                if (password != confirmPassword) {
+                    $('#password-error').text('Mật khẩu xác nhận không khớp');
+                } else {
+                    $('#password-error').text('');
+                }
+            });
+
+            $('#password').on('keyup', function() {
+                var password = $(this).val();
+                var confirmPassword = $('#confirmPassword').val();
+
+                if (confirmPassword && password != confirmPassword) {
+                    $('#password-error').text('Mật khẩu xác nhận không khớp');
+                } else {
+                    $('#password-error').text('');
+                }
+            });
+        });
+    </script>
+}

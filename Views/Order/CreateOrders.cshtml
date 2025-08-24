@@ -1,0 +1,421 @@
+﻿@model CuaHangQuanAo.Entities.Order
+@{
+    ViewData["Title"] = "Tạo đơn hàng mới";
+    Layout = "_AdminLayout";
+}
+<meta charset="UTF-8" />
+
+<style>
+    .form-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #4B0082;
+        box-shadow: 0 0 0 0.25rem rgba(75, 0, 130, 0.25);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #3B0062 0%, #8360CB 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 50px;
+            background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+
+    .btn-outline-return {
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-outline-return:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .item-row {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #4B0082;
+    }
+
+    .item-total {
+        font-weight: bold;
+        color: #4B0082;
+    }
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/Order/Index">Danh sách đơn hàng</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tạo đơn hàng mới</li>
+        </ol>
+    </nav>
+
+    <div class="form-container">
+        <div class="form-header">
+            <h2 class="mb-0">
+                <i class="bi bi-plus-circle me-2"></i>Tạo đơn hàng mới
+            </h2>
+            <p class="mb-0 text-white-50">Nhập thông tin chi tiết cho đơn hàng</p>
+        </div>
+
+        <div class="p-4">
+            <!-- Hidden template for product options -->
+            <select id="item-options-template" class="d-none">
+                <option value="">-- Chọn sản phẩm --</option>
+                @foreach (var item in ViewBag.Items ?? new List<dynamic>())
+                {
+                    <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName - Size: @item.Size</option>
+                }
+            </select>
+
+            <form asp-controller="Order" asp-action="Functions_Create" method="post" id="orderForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="section-title">Thông tin đơn hàng</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person me-1"></i> Tên khách hàng
+                            </label>
+                            <input name="customerName" id="customerName" class="form-control" type="text" placeholder="Nhập tên khách hàng" required />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="customerName"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-telephone me-1"></i> Số điện thoại
+                            </label>
+                            <input name="phoneNumber" id="phoneNumber" class="form-control" type="text" placeholder="Nhập số điện thoại" />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="phoneNumber"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-geo-alt me-1"></i> Địa chỉ
+                            </label>
+                            <input name="addressName" id="addressName" class="form-control" type="text" placeholder="Nhập địa chỉ" />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="addressName"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="OrderDate" class="form-label">
+                                <i class="bi bi-calendar me-1"></i> Ngày đặt hàng
+                            </label>
+                            <input asp-for="OrderDate" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="OrderDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <h5 class="section-title">Thông tin thanh toán</h5>
+
+                        <div class="mb-3">
+                            <label asp-for="EmployeeId" class="form-label">
+                                <i class="bi bi-person-badge me-1"></i> Nhân viên bán hàng
+                            </label>
+                            <select asp-for="EmployeeId" class="form-select"
+                                    asp-items="@(new SelectList(ViewBag.Employees, "EmployeeId", "FullName"))">
+                                <option value="">-- Chọn nhân viên --</option>
+                            </select>
+                            <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Discount" class="form-label">
+                                <i class="bi bi-percent me-1"></i> Giảm giá (%)
+                            </label>
+                            <input asp-for="Discount" class="form-control" type="number" min="0" max="100" step="0.01" value="0" />
+                            <span asp-validation-for="Discount" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="bi bi-people me-1"></i> Khách hàng
+                    </label>
+                    <select name="CustomerId" id="customer-select" class="form-control" required>
+                        <option value="">-- Chọn khách hàng --</option>
+                        @foreach (var customer in ViewBag.Customers ?? new List<dynamic>())
+                        {
+                            <option value="@customer.CustomerId"
+                                    data-name="@($"{customer.FirstName} {customer.LastName}")"
+                                    data-phone="@customer.PhoneNumber"
+                                    data-address="@customer.AddressName">
+                                @customer.FirstName @customer.LastName - @customer.PhoneNumber
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
+
+                <h5 class="section-title">Chi tiết sản phẩm</h5>
+
+                <div id="items-container">
+                    <div class="item-row" data-item-index="0">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label">Sản phẩm</label>
+                                    <select name="OrdersDetails[0].ItemsId" class="form-select item-select" required>
+                                        <option value="">-- Chọn sản phẩm --</option>
+                                        @foreach (var item in ViewBag.Items ?? new List<dynamic>())
+                                        {
+                                            <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName - Size: @item.Size</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng</label>
+                                    <input type="number" name="OrdersDetails[0].Quantity" class="form-control item-quantity" min="1" value="1" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Đơn giá</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control item-price" readonly />
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-outline-danger form-control remove-item">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <button type="button" class="btn btn-outline-primary" id="add-item">
+                        <i class="bi bi-plus-circle me-1"></i> Thêm sản phẩm
+                    </button>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt me-2 text-primary"></i> Tổng kết đơn hàng
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Tổng số lượng:</strong> <span id="total-quantity">0</span> sản phẩm</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Tổng tiền hàng:</strong> <span id="subtotal">0 đ</span></p>
+                                <p class="mb-2"><strong>Giảm giá:</strong> <span id="discount-amount">0 đ</span></p>
+                                <p class="mb-0"><strong>Tổng thanh toán:</strong> <span id="total-amount" class="text-primary fw-bold">0 đ</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-top pt-4 d-flex justify-content-between">
+                    <a href="/Order/Index" class="btn btn-outline-secondary btn-outline-return">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-gradient">
+                        <i class="bi bi-save me-1"></i> Lưu đơn hàng
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            let itemIndex = $('#items-container .item-row').length - 1;
+            const itemOptionsHtml = $('#item-options-template').html();
+
+            $("#add-item").click(function () {
+                itemIndex++;
+                const newItem = `
+                    <div class="item-row" data-item-index="${itemIndex}">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="mb-3">
+                                    <label class="form-label">Sản phẩm</label>
+                                    <select name="OrdersDetails[${itemIndex}].ItemsId" class="form-select item-select" required>
+                                        ${itemOptionsHtml}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Số lượng</label>
+                                    <input type="number" name="OrdersDetails[${itemIndex}].Quantity" class="form-control item-quantity" min="1" value="1" required />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">Đơn giá</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control item-price" readonly />
+                                        <span class="input-group-text">đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="button" class="btn btn-outline-danger form-control remove-item">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $("#items-container").append(newItem);
+                updateAllCalculations();
+            });
+            // Xóa sản phẩm
+            $(document).on("click", ".remove-item", function() {
+                // Không xóa nếu chỉ còn một sản phẩm
+                if ($("#items-container .item-row").length > 1) {
+                    $(this).closest('.item-row').remove();
+                    updateAllCalculations();
+                } else {
+                    alert("Đơn hàng cần ít nhất một sản phẩm");
+                }
+            });
+
+            // Cập nhật đơn giá khi chọn sản phẩm
+            $(document).on('change', '.item-select', function() {
+                const selectedOption = $(this).find('option:selected');
+                const price = selectedOption.data('price') || 0;
+                const row = $(this).closest('.item-row');
+
+                row.find('.item-price').val(formatCurrency(price));
+                updateRowTotal(row);
+                updateAllCalculations();
+            });
+
+            // Cập nhật tổng khi số lượng thay đổi
+            $(document).on('change', '.item-quantity', function() {
+                const row = $(this).closest('.item-row');
+                updateRowTotal(row);
+                updateAllCalculations();
+            });
+
+            // Cập nhật tổng khi giảm giá thay đổi
+            $('#Discount').on('input', function() {
+                updateAllCalculations();
+            });
+
+            // Cập nhật thông tin khách hàng khi chọn từ danh sách
+            $('#customer-select').on('change', function () {
+                var selected = $(this).find('option:selected');
+                $('#customerName').val(selected.data('name') || '');
+                $('#phoneNumber').val(selected.data('phone') || '');
+                $('#addressName').val(selected.data('address') || '');
+            });
+
+            // Cập nhật tính toán
+            function updateRowTotal(row) {
+                const selectedOption = row.find('.item-select option:selected');
+                const price = selectedOption.data('price') || 0;
+                const quantity = parseInt(row.find('.item-quantity').val()) || 0;
+
+                row.find('.item-price').val(formatCurrency(price));
+            }
+
+            function updateAllCalculations() {
+                let totalQuantity = 0;
+                let subtotal = 0;
+
+                $('.item-row').each(function() {
+                    const row = $(this);
+                    const selectedOption = row.find('.item-select option:selected');
+                    const price = selectedOption.data('price') || 0;
+                    const quantity = parseInt(row.find('.item-quantity').val()) || 0;
+
+                    totalQuantity += quantity;
+                    subtotal += price * quantity;
+                });
+
+                const discount = parseFloat($('#Discount').val()) || 0;
+                const discountAmount = subtotal * (discount / 100);
+                const totalAmount = subtotal - discountAmount;
+
+                $('#total-quantity').text(totalQuantity);
+                $('#subtotal').text(formatCurrency(subtotal));
+                $('#discount-amount').text(formatCurrency(discountAmount));
+                $('#total-amount').text(formatCurrency(totalAmount));
+            }
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+            }
+
+            // Khởi tạo
+            updateAllCalculations();
+        });
+    </script>
+}

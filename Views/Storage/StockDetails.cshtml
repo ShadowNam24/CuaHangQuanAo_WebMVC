@@ -1,0 +1,268 @@
+﻿@model CuaHangQuanAo.Entities.Storage
+@{
+    ViewData["Title"] = "Chi tiết phiếu nhập kho";
+	Layout = "_AdminLayout";
+}
+
+<style>
+    .details-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .details-header {
+        background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .info-section {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    .badge-primary {
+        background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+    }
+
+    .item-details {
+        border-left: 4px solid #0061ff;
+        padding-left: 1rem;
+    }
+
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .gradient-icon {
+        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/Storage/StockRefill">Danh sách nhập kho</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết phiếu #@Model.StorageId</li>
+        </ol>
+    </nav>
+
+    <div class="details-container">
+        <div class="details-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Chi tiết phiếu nhập kho
+                    </h2>
+                    <p class="mb-0 text-white-50">Thông tin phiếu nhập #@Model.StorageId</p>
+                </div>
+                <div class="d-flex">
+                    <a href="/Storage/Functions_Edit/@Model.StorageId" class="btn btn-light btn-action me-2">
+                        <i class="bi bi-pencil-square me-1"></i> Sửa
+                    </a>
+                    <a href="/Storage/Functions_Delete/@Model.StorageId" class="btn btn-light btn-action">
+                        <i class="bi bi-trash me-1"></i> Xóa
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-card-heading me-2 text-primary"></i>
+                            Thông tin cơ bản
+                        </h5>
+
+                        <div class="mb-3">
+                            <div class="info-label">Mã phiếu nhập</div>
+                            <div class="info-value">#@Model.StorageId</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Ngày nhập</div>
+                            <div class="info-value">
+                                <i class="bi bi-calendar2-check me-1 text-primary"></i>
+                                @Model.ImportDate?.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Chi phí nhập</div>
+                            <div class="info-value d-flex align-items-center">
+                                <span class="badge-primary">
+                                    <i class="bi bi-cash me-1 gradient-icon"></i>
+                                    @string.Format("{0:N0} đ", Model.ImportCost)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-section">
+                        <h5 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-box-seam me-2 text-primary"></i>
+                            Chi tiết sản phẩm
+                        </h5>
+
+                        <div class="mb-3 item-details">
+                            <div class="info-label">Tên sản phẩm</div>
+                            <div class="info-value">@(Model.Items?.ItemsName ?? "Chưa có thông tin")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Số lượng</div>
+                            <div class="info-value">
+                                <i class="bi bi-box me-1 text-primary"></i>
+                                @Model.Quantity đơn vị
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Kích thước</div>
+                            <div class="info-value">@(Model.Items?.Size ?? "Chưa có thông tin")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Danh mục</div>
+                            <div class="info-value">@(Model.Items?.Category?.NameCategory ?? "Chưa có thông tin")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section mb-4">
+                <h5 class="border-bottom pb-2 mb-3">
+                    <i class="bi bi-building me-2 text-primary"></i>
+                    Thông tin nhà cung cấp
+                </h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Tên nhà cung cấp</div>
+                            <div class="info-value">@(Model.Supplier?.SupplierName ?? "Chưa có thông tin")</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Số điện thoại</div>
+                            <div class="info-value">
+                                <i class="bi bi-telephone me-1 text-primary"></i>
+                                @(Model.Supplier?.PhoneNumber ?? "Chưa có thông tin")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">
+                                <i class="bi bi-envelope me-1 text-primary"></i>
+                                @(Model.Supplier?.Email ?? "Chưa có thông tin")
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Địa chỉ liên hệ</div>
+                            <div class="info-value">
+                                <i class="bi bi-geo-alt me-1 text-primary"></i>
+                                @(Model.Supplier?.AddressContact ?? "Chưa có thông tin")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-exchange me-2 text-primary"></i>
+                        Thông tin chi phí
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="info-label">Giá đơn vị</div>
+                                <div class="info-value">
+                                    @{
+                                        var unitPrice = Model.Quantity.HasValue && Model.Quantity.Value > 0 && Model.ImportCost.HasValue
+                                        ? (int)(Model.ImportCost.Value / Model.Quantity.Value)
+                                        : 0;
+                                    }
+                                    @string.Format("{0:N0} đ", unitPrice)
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="info-label">Giá bán lẻ</div>
+                                <div class="info-value">
+                                    @string.Format("{0:N0} đ", Model.Items?.SellPrice ?? 0)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="info-label">Tổng chi phí nhập</div>
+                                <div class="info-value fw-bold text-primary">
+                                    @string.Format("{0:N0} đ", Model.ImportCost)
+                                </div>
+                            </div>
+                            @if (Model.Items?.SellPrice >= 0 && Model.Quantity.HasValue)
+                            {
+                                <div class="mb-3">
+                                    <div class="info-label">Tổng giá trị bán dự kiến</div>
+                                    <div class="info-value fw-bold text-success">
+                                        @string.Format("{0:N0} đ", Model.Items.SellPrice * Model.Quantity)
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top pt-4 d-flex justify-content-between">
+                <a href="/Storage/StockRefill" class="btn btn-outline-secondary btn-action">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+                </a>
+                <a href="/Storage/Functions_Edit/@Model.StorageId" class="btn btn-primary btn-action">
+                    <i class="bi bi-pencil-square me-1"></i> Sửa thông tin
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

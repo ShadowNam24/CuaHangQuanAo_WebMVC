@@ -1,20 +1,22 @@
-﻿using CuaHangQuanAo.Models;
+﻿using CuaHangQuanAo.Entities;
+using CuaHangQuanAo.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CuaHangQuanAo.Controllers
 {
     public class ProfileController : Controller
     {
-        private static Profile _profile = new Profile
+        private readonly CuaHangBanQuanAoContext _context;
+
+        public ProfileController(CuaHangBanQuanAoContext context)
         {
-            FullName = "",
-            PhoneNumber = "",
-        };
+            _context = context;
+        }
 
         [HttpGet]
         public IActionResult Index()
         {
-            return View(_profile);
+            return View();
         }
     }
 }

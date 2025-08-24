@@ -101,11 +101,12 @@ public partial class CuaHangBanQuanAoContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(20)
+                .HasMaxLength(10)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Acc).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.AccId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Customer_Account");
         });
 
@@ -144,6 +145,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.ItemsId).HasColumnName("ItemsID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
+            entity.Property(e => e.Image).HasMaxLength(100);
             entity.Property(e => e.ItemsName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -153,6 +155,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.HasOne(d => d.Category).WithMany(p => p.Items)
                 .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_Items_CategoryID");
         });
 

@@ -1,0 +1,290 @@
+﻿@model IEnumerable<CuaHangQuanAo.Entities.Employee>
+
+@{
+    ViewData["Title"] = "Quản Lý Nhân Viên";
+	Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Style cho trang danh sách nhân viên */
+    .employee-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .employee-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E") center/cover;
+            opacity: 0.5;
+        }
+
+    .employee-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+    }
+
+    .employee-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .employee-table thead th {
+            background-color: #f8f9fa;
+            color: #4B0082;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .employee-table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .employee-table tbody tr:hover {
+            background-color: rgba(147, 112, 219, 0.05);
+        }
+
+    .badge-active {
+        background-color: rgba(72, 187, 120, 0.1);
+        color: #48BB78;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-inactive {
+        background-color: rgba(245, 101, 101, 0.1);
+        color: #F56565;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .action-buttons .btn-action {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 3px;
+        transition: all 0.2s;
+    }
+
+    .action-buttons .btn-view {
+        background-color: #17a2b8;
+        color: white;
+        border: none;
+    }
+
+    .action-buttons .btn-edit {
+        background-color: #9370DB;
+        color: white;
+        border: none;
+    }
+
+    .action-buttons .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+    .action-buttons .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        border: none;
+        color: white;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #3B0062 0%, #8360CB 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    /* Responsive styles */
+    @@media (max-width: 767.98px) {
+        .employee-table thead {
+            display: none;
+        }
+
+        .employee-table tbody td {
+            display: block;
+            text-align: right;
+            padding: 0.5rem 1rem;
+            position: relative;
+            padding-left: 50%;
+        }
+
+            .employee-table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                font-weight: 600;
+                text-align: left;
+            }
+
+        .employee-table tbody tr {
+            margin-bottom: 1rem;
+            display: block;
+            border: 1px solid #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="employee-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2><i class="bi bi-people-fill me-2"></i>Quản Lý Nhân Viên</h2>
+            <a href="~/Employee/Create" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i> Thêm Nhân Viên Mới
+            </a>
+        </div>
+    </div>
+
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="AdminDashboard">Trang Chủ</a></li>
+            <li class="breadcrumb-item active">Quản Lý Nhân Viên</li>
+        </ol>
+    </nav>
+
+    <div class="employee-card">
+        <div class="card-header-custom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Danh Sách Nhân Viên</h5>
+                <div class="input-group" style="width: 300px;">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm nhân viên...">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="employee-table" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th>Mã NV</th>
+                            <th>Họ và Tên</th>
+                            <th>Chức Vụ</th>
+                            <th>Số Điện Thoại</th>
+                            <th>Tài Khoản</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var employee in Model)
+                            {
+                                <tr>
+                                    <td data-label="Mã NV">#@employee.EmployeeId</td>
+                                    <td data-label="Họ và Tên">
+                                        <div class="fw-bold">@employee.Firstname @employee.Lastname</div>
+                                    </td>
+                                    <td data-label="Chức Vụ">@employee.Position</td>
+                                    <td data-label="Số Điện Thoại">@employee.PhoneNumber</td>
+                                    <td data-label="Tài Khoản">@employee.Acc?.Username</td>
+                                    <td data-label="Trạng Thái">
+                                        @if (employee.Acc?.IsActive == true)
+                                        {
+                                            <span class="badge-active">Hoạt động</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-inactive">Không hoạt động</span>
+                                        }
+                                    </td>
+                                    <td data-label="Thao Tác">
+                                        <div class="action-buttons">
+                                            <a asp-action="Details" asp-controller="Employee" asp-route-id="@employee.EmployeeId" class="btn btn-action btn-view" title="Chi tiết">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <a asp-action="DeleteConfirmed" asp-controller="Employee" asp-route-id="@employee.EmployeeId" class="btn btn-action btn-delete" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <i class="bi bi-inbox text-muted mb-3" style="font-size: 2rem;"></i>
+                                        <p class="text-muted">Không có dữ liệu nhân viên</p>
+                                        <a asp-action="Create" class="btn btn-primary-custom mt-2">
+                                            <i class="bi bi-plus-circle me-2"></i> Thêm Nhân Viên Mới
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Tìm kiếm nhân viên
+            $("#searchInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#employeeTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

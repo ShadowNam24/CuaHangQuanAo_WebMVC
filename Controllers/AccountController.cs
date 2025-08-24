@@ -62,6 +62,11 @@ namespace CuaHangQuanAo.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
+            if (account.AccRole == "Employee" || account.AccRole == "Admin")
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);

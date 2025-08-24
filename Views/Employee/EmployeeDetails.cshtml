@@ -1,0 +1,81 @@
+﻿@model CuaHangQuanAo.Entities.Employee
+
+@{
+    ViewData["Title"] = "Employee Details";
+	Layout = "_AdminLayout";
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Employee List</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Employee Details</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="bi bi-person-badge me-2"></i>Employee Details</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3">Personal Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Employee ID</dt>
+                        <dd class="col-sm-8">@Model.EmployeeId</dd>
+
+                        <dt class="col-sm-4">First Name</dt>
+                        <dd class="col-sm-8">@Model.Firstname</dd>
+
+                        <dt class="col-sm-4">Last Name</dt>
+                        <dd class="col-sm-8">@Model.Lastname</dd>
+
+                        <dt class="col-sm-4">Position</dt>
+                        <dd class="col-sm-8">@Model.Position</dd>
+
+                        <dt class="col-sm-4">Phone Number</dt>
+                        <dd class="col-sm-8">@Model.PhoneNumber</dd>
+
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">@Model.Address</dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="mb-3">Account Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Account ID</dt>
+                        <dd class="col-sm-8">@Model.AccId</dd>
+
+                        <dt class="col-sm-4">Username</dt>
+                        <dd class="col-sm-8">@Model.Acc?.Username</dd>
+
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">@Model.Acc?.Email</dd>
+
+                        <dt class="col-sm-4">Account Role</dt>
+                        <dd class="col-sm-8">@Model.Acc?.AccRole</dd>
+
+                        <dt class="col-sm-4">Account Status</dt>
+                        <dd class="col-sm-8">@(Model.Acc?.IsActive == true ? "Active" : "Inactive")</dd>
+
+                        <dt class="col-sm-4">Created Date</dt>
+                        <dd class="col-sm-8">@Model.Acc?.CreatedDate.ToString("dd/MM/yyyy")</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+                <div>
+                    <a asp-action="DeleteConfirmed" asp-route-id="@Model.EmployeeId" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,279 @@
+﻿@model CuaHangQuanAo.Entities.Storage
+@{
+    ViewData["Title"] = "Thêm phiếu nhập kho";
+	Layout = "_AdminLayout";
+}
+
+<style>
+    .form-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #6a11cb;
+        box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #5a0cb9 0%, #1565e0 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+        position: relative;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 50px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+    }
+
+    .btn-outline-return {
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
+
+        .btn-outline-return:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .price-calculator {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-left: 4px solid #6a11cb;
+    }
+
+    .profit-slider {
+        width: 60px;
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .form-check-input:checked {
+        background-color: #6a11cb;
+        border-color: #6a11cb;
+    }
+
+    .form-switch .form-check-input:focus {
+        border-color: rgba(106, 17, 203, 0.25);
+        box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+    }
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/Storage/StockRefill">Danh sách nhập kho</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thêm phiếu nhập</li>
+        </ol>
+    </nav>
+
+    <div class="form-container">
+        <div class="form-header">
+            <h2 class="mb-0">
+                <i class="bi bi-plus-circle me-2"></i>Thêm phiếu nhập kho mới
+            </h2>
+            <p class="mb-0 text-white-50">Nhập thông tin chi tiết cho phiếu nhập kho</p>
+        </div>
+
+        <div class="p-4">
+            <form asp-controller="Storage" asp-action="Functions_Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="section-title">Thông tin cơ bản</h5>
+
+                        <div class="mb-3">
+                            <label asp-for="SupplierId" class="form-label">
+                                <i class="bi bi-building me-1"></i> Nhà cung cấp
+                            </label>
+                            <select asp-for="SupplierId" class="form-select"
+                                    asp-items="@(new SelectList(ViewBag.Suppliers ?? new List<dynamic>(), "SupplierId", "SupplierName"))">
+                                <option value="">-- Chọn nhà cung cấp --</option>
+                            </select>
+                            <span asp-validation-for="SupplierId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ImportDate" class="form-label">
+                                <i class="bi bi-calendar me-1"></i> Ngày nhập
+                            </label>
+                            <input asp-for="ImportDate" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="ImportDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="section-title">Chi tiết sản phẩm</h5>
+                        <div class="mb-3">
+                            <label asp-for="ItemsId" class="form-label">
+                                <i class="bi bi-box-seam me-1"></i> Sản phẩm
+                            </label>
+                            <select asp-for="ItemsId" class="form-control">
+                                <option value="">-- Chọn sản phẩm --</option>
+                                @foreach (var category in ViewBag.ItemsByCategory as Dictionary<string, List<dynamic>>)
+                                {
+                                    <optgroup label="@category.Key">
+                                        @foreach (var item in category.Value)
+                                        {
+                                            <option value="@item.ItemsId">@item.DisplayName</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                            <span asp-validation-for="ItemsId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Quantity" class="form-label">
+                                <i class="bi bi-123 me-1"></i> Số lượng
+                            </label>
+                            <input asp-for="Quantity" class="form-control" type="number" min="1" id="Quantity" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ImportCost" class="form-label">
+                                <i class="bi bi-cash me-1"></i> Chi phí nhập
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="ImportCost" class="form-control" type="number" min="0" id="ImportCost" />
+                                <span class="input-group-text">VNĐ</span>
+                            </div>
+                            <span asp-validation-for="ImportCost" class="text-danger"></span>
+                        </div>
+                    </div>
+				</div>
+                        <!-- Phần tính giá bán - Cải tiến -->
+                        <!-- Phần tính giá bán -->
+                        <div class="price-calculator">
+                            <h6><i class="bi bi-calculator me-1"></i> Ước tính giá bán</h6>
+
+                            <div class="mb-2">
+                                <label class="form-label">Tỷ lệ lợi nhuận:</label>
+                                <div class="d-flex align-items-center">
+                                    <input id="profitPercentage" type="number" min="0" max="100" step="1" value="30"
+                                           class="form-control form-control-sm" style="width: 80px;">
+                                    <span class="ms-2">%</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Giá bán ước tính:</label>
+                                <div class="input-group">
+                                    <input id="estimatedSellPrice" name="estimatedSellPrice" class="form-control" type="number" readonly />
+                                    <span class="input-group-text">VNĐ</span>
+                                </div>
+                                <div class="form-text">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="updateItemPrice" name="updateItemPrice" value="true" checked>
+                                        <label class="form-check-label" for="updateItemPrice">
+                                            Cập nhật giá bán cho sản phẩm này
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-top pt-4 d-flex justify-content-between">
+                            <a href="/Storage/StockRefill" class="btn btn-outline-secondary btn-outline-return">
+                                <i class="bi bi-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-gradient">
+                                <i class="bi bi-save me-1"></i> Lưu phiếu nhập
+                            </button>
+                        </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Tính toán giá bán khi giá nhập hoặc tỷ lệ lợi nhuận thay đổi
+            $("#ImportCost, #profitPercentage").on("input", function() {
+                calculateSellPrice();
+            });
+
+            // Hiển thị thông tin sản phẩm hiện tại khi chọn
+            $("#ItemsId").on("change", function() {
+                // Reset giá nhập để người dùng nhập mới
+                $("#ImportCost").val('');
+                $("#ImportCost").focus();
+
+                // Reset giá bán ước tính
+                $("#estimatedSellPrice").val('');
+            });
+
+            // Tính toán ban đầu khi trang tải xong
+            setTimeout(function() {
+                calculateSellPrice();
+            }, 500);
+
+            function calculateSellPrice() {
+                var importCost = parseFloat($("#ImportCost").val()) || 0;
+                var profitPercentage = parseFloat($("#profitPercentage").val()) || 0;
+
+                // Tính toán giá bán = giá nhập + (giá nhập * tỷ lệ lợi nhuận / 100)
+                var sellPrice = importCost + (importCost * profitPercentage / 100);
+
+                // Làm tròn và hiển thị
+                $("#estimatedSellPrice").val(Math.round(sellPrice));
+            }
+
+            // Hiển thị/ẩn phần cài đặt giá bán dựa trên trạng thái checkbox
+            $("#updateItemPrice").on("change", function() {
+                var isChecked = $(this).prop("checked");
+                $("#estimatedSellPrice").prop("disabled", !isChecked);
+                $("#profitPercentage").prop("disabled", !isChecked);
+            });
+        });
+    </script>
+}
+

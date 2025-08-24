@@ -1,0 +1,202 @@
+﻿@model CuaHangQuanAo.Entities.Item
+@{
+    ViewData["Title"] = "Xóa sản phẩm";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .delete-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-header {
+        background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .alert-icon {
+        font-size: 3rem;
+        color: #FF416C;
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .warning-text {
+        color: #FF416C;
+        font-weight: 500;
+    }
+
+    .info-card {
+        background-color: #f8f9fa;
+        border-radius: 0.8rem;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        border: 1px solid #dee2e6;
+    }
+
+    .detail-row {
+        margin-bottom: 0.75rem;
+    }
+
+    .detail-label {
+        font-weight: 500;
+        color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    .detail-value {
+        font-weight: 600;
+    }
+
+    .badge-price {
+        background: linear-gradient(45deg, #4B0082, #9370DB);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+
+    .badge-category {
+        background-color: #e9ecef;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .badge-size {
+        background-color: #212529;
+        color: white;
+        border-radius: 4px;
+        padding: 0.25rem 0.6rem;
+        font-weight: 500;
+    }
+
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-action.btn-danger {
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            border: none;
+        }
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Items", "Item")">Danh sách sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Xóa sản phẩm</li>
+        </ol>
+    </nav>
+
+    <div class="delete-container">
+        <div class="delete-header">
+            <h2 class="mb-0">
+                <i class="bi bi-trash me-2"></i>Xóa sản phẩm
+            </h2>
+            <p class="mb-0 text-white-50">Xác nhận xóa sản phẩm khỏi hệ thống</p>
+        </div>
+
+        <div class="p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-exclamation-diamond-fill alert-icon animated-pulse"></i>
+                <h4 class="mt-3 mb-2">Bạn chắc chắn muốn xóa sản phẩm này?</h4>
+                <p class="text-muted mb-0">Hành động này không thể hoàn tác và sẽ xóa vĩnh viễn dữ liệu.</p>
+                <p class="warning-text mt-2">Tất cả thông tin liên quan đến sản phẩm này sẽ bị xóa khỏi hệ thống.</p>
+            </div>
+
+            <div class="info-card">
+                <h5 class="mb-3">Thông tin sản phẩm</h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="detail-row">
+                            <span class="detail-label">Mã sản phẩm:</span>
+                            <span class="detail-value">#@Model.ItemsId</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Tên sản phẩm:</span>
+                            <span class="detail-value">@Model.ItemsName</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Danh mục:</span>
+                            <span class="detail-value">
+                                <span class="badge-category">
+                                    <i class="bi bi-grid me-1"></i>
+                                    @(Model.Category?.NameCategory ?? "Chưa phân loại")
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-row">
+                            <span class="detail-label">Giá bán:</span>
+                            <span class="detail-value">
+                                <span class="badge-price">
+                                    @string.Format("{0:N0} đ", Model.SellPrice)
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Kích thước:</span>
+                            <span class="detail-value">
+                                <span class="badge-size">@Model.Size</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Functions_DeleteConfirmed" asp-route-id="@Model.ItemsId" method="post">
+                <div class="validation-summary-valid text-danger" data-valmsg-summary="true">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                    {
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach (var error in ViewData.ModelState[string.Empty].Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("Items", "Item")" class="btn btn-outline-secondary btn-action">
+                        <i class="bi bi-arrow-left me-2"></i>Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-danger btn-action">
+                        <i class="bi bi-trash me-2"></i>Xác nhận xóa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

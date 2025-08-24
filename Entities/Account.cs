@@ -19,8 +19,6 @@ public partial class Account
 
     public bool IsActive { get; set; }
 
-    public bool IsEmailConfirmed { get; set; }
-
     public DateTime CreatedDate { get; set; }
 
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();

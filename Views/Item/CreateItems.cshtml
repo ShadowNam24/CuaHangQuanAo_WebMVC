@@ -1,0 +1,169 @@
+﻿@model CuaHangQuanAo.Entities.Item
+@{
+    ViewData["Title"] = "Thêm sản phẩm mới";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .create-container {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .create-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+        border-radius: 0.8rem 0.8rem 0 0;
+        padding: 1.5rem;
+    }
+
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+        color: #4B0082;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-floating label {
+        color: #6c757d;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: #4B0082;
+    }
+
+    .alert-info {
+        border-left: 4px solid #0dcaf0;
+        background-color: #f8f9fa;
+    }
+</style>
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Item", "CreateItems")">Danh sách sản phẩm</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thêm sản phẩm mới</li>
+        </ol>
+    </nav>
+
+    <div class="create-container">
+        <div class="create-header">
+            <h2 class="mb-0">
+                <i class="bi bi-box-seam me-2"></i>Thêm sản phẩm mới
+            </h2>
+            <p class="mb-0 text-white-50">Nhập thông tin chi tiết cho sản phẩm</p>
+        </div>
+
+        <div class="p-4">
+            <form asp-action="CreateItems" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-section">
+                    <h4 class="section-title">
+                        <i class="bi bi-info-circle me-2"></i>Thông tin sản phẩm
+                    </h4>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="ItemsName" class="form-control" placeholder="Tên sản phẩm" required />
+                                <label asp-for="ItemsName">Tên sản phẩm</label>
+                                <span asp-validation-for="ItemsName" class="validation-message"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <select asp-for="CategoryId" class="form-select" required>
+                                    <option value="">-- Chọn danh mục --</option>
+                                    @foreach (var category in ViewBag.Categories)
+                                    {
+                                        <option value="@category.CategoryId">@category.NameCategory</option>
+                                    }
+                                </select>
+                                <label asp-for="CategoryId">Danh mục sản phẩm</label>
+                                <span asp-validation-for="CategoryId" class="validation-message"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="SellPrice" type="number" class="form-control" placeholder="Giá bán" min="0" required />
+                                <label asp-for="SellPrice">Giá bán (VNĐ)</label>
+                                <span asp-validation-for="SellPrice" class="validation-message"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input asp-for="Size" class="form-control" placeholder="Kích thước" required />
+                                <label asp-for="Size">Kích thước (S/M/L/XL...)</label>
+                                <span asp-validation-for="Size" class="validation-message"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3" role="alert">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>Lưu ý:</strong> Sau khi tạo sản phẩm, bạn có thể thêm số lượng vào kho thông qua chức năng Nhập kho.
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("Items", "Item")" class="btn btn-outline-secondary btn-action">
+                        <i class="bi bi-arrow-left me-2"></i>Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-action">
+                        <i class="bi bi-save me-2"></i>Lưu sản phẩm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Validation for SellPrice
+            $('#SellPrice').on('input', function() {
+                var value = $(this).val();
+                if (value < 0) {
+                    $(this).val(0);
+                }
+            });
+        });
+    </script>
+}
+
