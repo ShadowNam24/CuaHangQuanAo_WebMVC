@@ -1,86 +1,61 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using CuaHangQuanAo.Entities;
 using CuaHangQuanAo.Models;
-using CuaHangQuanAo.Entities; // DbContext
-using Microsoft.EntityFrameworkCore;
+using CuaHangQuanAo.Services;
 
 namespace CuaHangQuanAo.Controllers
 {
     public class CartController : Controller
     {
+        private readonly CartService _cartService;
         private readonly CuaHangBanQuanAoContext _context;
-        private const string CARTKEY = "CART";
 
-        public CartController(CuaHangBanQuanAoContext context)
+        public CartController(CartService cartService, CuaHangBanQuanAoContext context)
         {
+            _cartService = cartService;
             _context = context;
         }
 
-        // Lấy cart từ Session
-        private Cart GetCart()
-        {
-            var cart = HttpContext.Session.Get<Cart>(CARTKEY);
-            if (cart == null)
-            {
-                cart = new Cart();
-                HttpContext.Session.Set(CARTKEY, cart);
-            }
-            return cart;
-        }
-
-        // Hiển thị giỏ hàng
         public IActionResult Index()
         {
-            var cart = GetCart();
-            return View("~/Views/Product/Cart.cshtml", cart);
-        }
-
-        // Thêm sản phẩm
-        public async Task<IActionResult> AddToCart(int id, int quantity = 1)
-        {
-            var product = await _context.Items.FirstOrDefaultAsync(x => x.ItemsId == id);
-            if (product == null) return NotFound();
-
-            var cart = GetCart();
-            cart.AddItem(new CartItem
-            {
-                ItemsID = product.ItemsId,
-                ItemsName = product.ItemsName,
-                SellPrice = product.SellPrice,
-                Quantity = quantity
-            });
-
-            HttpContext.Session.Set(CARTKEY, cart);
-            return RedirectToAction("Index");
-        }
-
-        // Xóa sản phẩm
-        public IActionResult Remove(int id)
-        {
-            var cart = GetCart();
-            cart.RemoveItem(id);
-            HttpContext.Session.Set(CARTKEY, cart);
-            return RedirectToAction("Index");
-        }
-
-        // Checkout
-        public IActionResult Checkout()
-        {
-            var cart = GetCart();
-            return View("~/Views/Product/Checkout.cshtml", cart);
+            var cart = _cartService.GetCart();
+            ViewBag.Total = cart.Sum(c => c.TotalPrice);
+            return View(cart);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CheckoutConfirm()
+        public IActionResult Add(int id, string size, int quantity = 1)
         {
-            var cart = GetCart();
-            if (!cart.Items.Any())
-                return RedirectToAction("Index");
+            var item = _context.Items.FirstOrDefault(i => i.ItemsId == id);
+            if (item == null)
+            {
+                return Json(new { success = false, message = "Sản phẩm không tồn tại" });
+            }
 
-            //TODO: Lưu vào bảng Orders & OrderDetails
-            cart.Clear();
-            HttpContext.Session.Set(CARTKEY, cart);
+            var cartItem = new CartItem
+            {
+                ItemsId = item.ItemsId,
+                ItemsName = item.ItemsName ?? "Không tên",
+                Size = size,
+                Quantity = quantity,
+                SellPrice = item.SellPrice ?? 0
+            };
 
-            return RedirectToAction("Index", "Home");
+            _cartService.AddToCart(cartItem);
+
+            return Json(new { success = true, message = "Đã thêm vào giỏ", cartCount = _cartService.GetCart().Count });
+        }
+
+        public IActionResult Remove(int id, string size)
+        {
+            _cartService.RemoveFromCart(id, size);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Clear()
+        {
+            _cartService.ClearCart();
+            return RedirectToAction("Index");
         }
     }
 }

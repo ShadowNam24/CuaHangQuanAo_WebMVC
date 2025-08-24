@@ -2,11 +2,11 @@
 {
     public class CartItem
     {
-        public int ItemsID { get; set; }
+        public int ItemsId { get; set; }
+        public string Size { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public int SellPrice { get; set; }
         public string ItemsName { get; set; } = string.Empty;
-        public int? SellPrice { get; set; }
-        public int? Quantity { get; set; }
-
-        public int? Total => SellPrice * Quantity;
+        public int TotalPrice => Quantity * SellPrice;
     }
 }

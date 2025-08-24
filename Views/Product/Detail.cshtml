@@ -96,25 +96,14 @@
 
             <!-- Add to cart -->
             <div class="d-grid gap-2">
-                <button class="btn btn-dark btn-lg" id="btnAddCart">
+                <button type="button" class="btn btn-dark btn-lg" id="btnAddCart">
                     <i class="bi bi-bag me-2"></i>THÊM VÀO GIỎ
                 </button>
+
                 <button class="btn btn-outline-dark">
                     <i class="bi bi-heart me-2"></i>Yêu thích
                 </button>
             </div>
-
-            <hr class="my-4" />
-            <div class="small text-muted">
-                <b>Thời gian giao hàng dự kiến</b><br />
-                Từ 3 đến 5 ngày kể từ ngày đặt hàng
-            </div>
-            <div class="alert alert-light border mt-3 small" role="alert">
-                Đổi hàng trong 30 ngày với sản phẩm còn nguyên tem mác, chưa qua sử dụng, giặt.
-            </div>
-        </div>
-    </div>
-
     <!-- Related -->
     @if (Model.Related.Any())
     {
@@ -157,27 +146,34 @@
 
 @section Scripts {
     <script>
-        document.querySelectorAll('.thumb').forEach(t => {
-            t.addEventListener('click', () => {
-                const src = t.dataset.img;
-                document.getElementById('mainImage').src = src;
-            });
-        });
+                const sizeBtns = document.querySelectorAll('.size-btn');
+                let selectedSize = '@Model.Item.Size'; // mặc định nếu chỉ có 1 size
 
-        const sizeBtns = document.querySelectorAll('.size-btn');
-        sizeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                sizeBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                // bạn có thể lưu size chọn vào input hidden để post giỏ hàng
-            });
-        });
+                sizeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        sizeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        selectedSize = btn.getAttribute('data-size');
+                    });
+                });
 
-        document.getElementById('btnAddCart')?.addEventListener('click', () => {
-            const active = document.querySelector('.size-btn.active');
-            const size = active ? active.getAttribute('data-size') : '@Model.Item.Size';
-            alert('Đã thêm vào giỏ: ' + size);
-            // TODO: gọi Ajax hoặc post tới CartController để thêm vào giỏ
-        });
+                document.getElementById('btnAddCart').addEventListener('click', function () {
+                    fetch('@Url.Action("Add", "Cart")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `id=@Model.Item.ItemsId&size=${encodeURIComponent(selectedSize)}&quantity=1`
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message + " (Tổng số sản phẩm: " + data.cartCount + ")");
+                            // TODO: bạn có thể cập nhật số lượng giỏ hàng ở navbar tại đây
+                        } else {
+                            alert("Lỗi: " + data.message);
+                        }
+                    });
+                });
     </script>
 }

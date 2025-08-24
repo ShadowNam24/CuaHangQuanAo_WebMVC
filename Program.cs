@@ -44,7 +44,12 @@ builder.Services.AddSession(options =>
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();//
+builder.Services.AddScoped<CartService>();
+builder.Services.AddSession();
+
 var app = builder.Build();
+app.UseSession(); //
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -67,5 +72,6 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.Run();
