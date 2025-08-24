@@ -29,14 +29,16 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
 
                     <!-- Search -->
-                    <form class="d-flex mx-lg-auto my-2 my-lg-0 search-bar" asp-controller="Product" asp-action="QuanAo" method="get">
-                        <div class="input-group">
-                            <input class="form-control" name="Q" type="search" placeholder="Bạn cần tìm gì?" aria-label="Search">
-                            <button class="input-group-text bg-white border-start-0" type="submit" title="Tìm kiếm">
-                                <i class="bi bi-search"></i>
-                            </button>
+                    <div class="container my-4">
+                        <div class="position-relative mx-auto" style="max-width:720px;">
+                            <input id="homeSearch" type="text" class="form-control form-control-lg"
+                                   placeholder="Tìm sản phẩm bạn muốn... (gõ để tìm nhanh)">
+                            <!-- dropdown gợi ý -->
+                            <div id="suggestBox" class="list-group position-absolute w-100 shadow-sm"
+                                 style="z-index:1000; display:none; max-height:360px; overflow:auto;"></div>
                         </div>
-                    </form>
+                        <div id="ajaxResults" class="mt-4"></div>
+                    </div>
 
                     <!-- Nav items -->
                     <ul class="navbar-nav ms-auto align-items-lg-center">
@@ -109,7 +111,7 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-white" asp-controller="Order" asp-action="Lookup">
-                                    <i class="bi bi-box"></i> Tra cứu đơn hàng
+                                    <i class="bi bi-box"></i> Tra cứu 
                                 </a>
                             </li>
                         }

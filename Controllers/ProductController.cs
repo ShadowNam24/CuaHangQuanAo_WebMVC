@@ -9,6 +9,51 @@ namespace CuaHangQuanAo.Controllers
     {
         private readonly CuaHangBanQuanAoContext _db;
         public ProductController(CuaHangBanQuanAoContext db) => _db = db;
+        // Gợi ý nhanh (autocomplete), trả JSON
+        [HttpGet]
+        public async Task<IActionResult> Suggest(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(Enumerable.Empty<object>());
+
+            var data = await _db.Items
+                .AsNoTracking()
+                .Where(x => x.ItemsName.Contains(term))
+                .OrderBy(x => x.ItemsName)
+                .Select(x => new
+                {
+                    id = x.ItemsId,
+                    name = x.ItemsName,
+                    price = x.SellPrice,
+                    // ảnh theo quy ước <ItemsId>.jpg (cách 3)
+                    img = Url.Content($"~/Images/Products/{x.ItemsId}.jpg")
+                })
+                .Take(8)
+                .ToListAsync();
+
+            return Json(data);
+        }
+
+        // Kết quả tìm kiếm nhanh (trả về partial HTML)
+        [HttpGet]
+        public async Task<IActionResult> AjaxSearch(string q)
+        {
+            var query = _db.Items.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                query = query.Where(x => x.ItemsName.Contains(q));
+            }
+
+            var results = await query
+                .OrderByDescending(x => x.ItemsId) // sản phẩm mới nhất sẽ có Id lớn hơn
+                .ThenBy(x => x.ItemsName)
+                .Take(24)
+                .ToListAsync();
+
+
+            return PartialView("_SearchResults", results);
+        }
 
         // QUẦN ÁO: CategoryId 1..7
         public async Task<IActionResult> QuanAo(ProductListVm f)

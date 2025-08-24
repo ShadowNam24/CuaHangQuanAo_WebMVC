@@ -4,6 +4,8 @@
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<!-- SEARCH AJAX (trang chủ) -->
+
 
 <style>
     .fashion-hero {
@@ -314,3 +316,77 @@
     <a class="product-btn" asp-controller="Product" asp-action="QuanAo">Xem thêm quần áo</a>
     <a class="product-btn ms-2" asp-controller="Product" asp-action="PhuKien">Xem thêm phụ kiện</a>
 </div>
+@section Scripts {
+    <script>
+        (function(){
+            const $input = $('#homeSearch');
+            const $box   = $('#suggestBox');
+            const $res   = $('#ajaxResults');
+            let timer;
+
+            function fmtPrice(n){ try{ return new Intl.NumberFormat('vi-VN').format(n) + ' đ'; }catch{return n+' đ';} }
+
+            function renderSuggest(items){
+                if(!items || items.length === 0){ $box.hide().empty(); return; }
+                let html = '';
+                items.forEach(i=>{
+                    html += `
+                    <a href="/Product/Detail/${i.id}" class="list-group-item list-group-item-action d-flex align-items-center">
+                        <img src="${i.img}" onerror="this.src='/images/no-image.png'" class="me-2" style="width:44px;height:44px;object-fit:cover;border-radius:6px;">
+                        <div>
+                            <div class="fw-semibold">${i.name}</div>
+                            <small class="text-muted">${fmtPrice(i.price)}</small>
+                        </div>
+                    </a>`;
+                });
+                // Xem tất cả kết quả
+                const q = encodeURIComponent($input.val().trim());
+                html += `<a href="javascript:void(0)" id="viewAll" class="list-group-item list-group-item-action text-center text-primary">Xem tất cả kết quả</a>`;
+                $box.html(html).show();
+
+                $('#viewAll').off('click').on('click', function(){
+                    loadResults($input.val().trim());
+                    $box.hide();
+                });
+            }
+
+            function loadSuggest(q){
+                if(!q){ $box.hide().empty(); return; }
+                $.get('/Product/Suggest', { term: q })
+                    .done(renderSuggest)
+                    .fail(()=>{ $box.hide().empty(); });
+            }
+
+            function loadResults(q){
+                $res.html('<div class="text-center text-muted py-3">Đang tải...</div>');
+                $.get('/Product/AjaxSearch', { q: q })
+                    .done(html=>{ $res.html(html); })
+                    .fail(()=>{ $res.html('<div class="text-danger">Lỗi tải kết quả.</div>'); });
+            }
+
+            // gõ -> debounce gợi ý
+            $input.on('input', function(){
+                const q = this.value.trim();
+                clearTimeout(timer);
+                timer = setTimeout(()=> loadSuggest(q), 220);
+            });
+
+            // Enter -> load kết quả
+            $input.on('keydown', function(e){
+                if(e.key === 'Enter'){
+                    e.preventDefault();
+                    const q = this.value.trim();
+                    loadResults(q);
+                    $box.hide();
+                }
+            });
+
+            // click ra ngoài đóng dropdown
+            $(document).on('click', function(e){
+                if(!$(e.target).closest('#suggestBox, #homeSearch').length){
+                    $box.hide();
+                }
+            });
+        })();
+    </script>
+}

@@ -47,13 +47,29 @@ a {
 .search-bar .form-control {
     border-right: 0;
     border-color: #e5e7eb;
-    min-width: 340px;
+    min-width: 200px; /* ↓ thu nhỏ chiều rộng tối thiểu */
+    font-size: 0.85rem; /* ↓ chữ nhỏ hơn */
+    padding: 0.375rem 0.5rem;
 }
 
 .search-bar .input-group-text {
     border-left: 0;
     border-color: #e5e7eb;
+    background: #fff;
+    font-size: 0.85rem;
+    padding: 0.375rem 0.6rem;
 }
+
+.search-bar .form-control:focus {
+    border-color: #e67e22;
+    box-shadow: 0 0 0 0.1rem rgba(230, 126, 34, 0.25);
+}
+
+
+    .search-bar .input-group-text i {
+        font-size: 1rem; /* icon nhỏ gọn */
+    }
+
 
 /* Fancy button (không đụng .btn Bootstrap) */
 .btn-fancy,
