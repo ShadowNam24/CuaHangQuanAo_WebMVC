@@ -2,6 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.IO;
+using System.Threading.Tasks;
+
 
 namespace CuaHangQuanAo.Controllers
 {
@@ -48,13 +53,13 @@ namespace CuaHangQuanAo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateItems(Item item)
+        public async Task<IActionResult> CreateItems(Item item, IFormFile ImageFile)
         {
             if (string.IsNullOrWhiteSpace(item.ItemsName))
             {
                 ModelState.AddModelError("ItemsName", "Tên sản phẩm là bắt buộc");
                 ViewBag.Categories = _context.Categories.ToList();
-                return View("CreateItems",item);
+                return View("CreateItems", item);
             }
 
             if (item.CategoryId <= 0)
@@ -78,6 +83,56 @@ namespace CuaHangQuanAo.Controllers
                 return View("CreateItems", item);
             }
 
+            // Xử lý tải lên hình ảnh
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Kiểm tra kích thước file (tối đa 2MB)
+                if (ImageFile.Length > 2 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("", "Kích thước tệp quá lớn. Vui lòng chọn tệp nhỏ hơn 2MB.");
+                    ViewBag.Categories = _context.Categories.ToList();
+                    return View("CreateItems", item);
+                }
+
+                // Kiểm tra định dạng file
+                var extension = Path.GetExtension(ImageFile.FileName).ToLower();
+                if (!(extension == ".jpg" || extension == ".jpeg" || extension == ".png"))
+                {
+                    ModelState.AddModelError("", "Chỉ chấp nhận các định dạng JPG, JPEG hoặc PNG.");
+                    ViewBag.Categories = _context.Categories.ToList();
+                    return View("CreateItems", item);
+                }
+
+                try
+                {
+                    // Tạo tên file duy nhất để tránh trùng lặp
+                    string uniqueFileName = Guid.NewGuid().ToString() + extension;
+
+                    // Tạo thư mục lưu trữ nếu chưa tồn tại
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    // Lưu file
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(fileStream);
+                    }
+
+                    // Lưu đường dẫn vào đối tượng sản phẩm
+                    item.Image = "/images/products/" + uniqueFileName;
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Lỗi khi tải ảnh lên: {ex.Message}");
+                    ViewBag.Categories = _context.Categories.ToList();
+                    return View("CreateItems", item);
+                }
+            }
+
             try
             {
                 _context.Items.Add(item);
@@ -97,6 +152,7 @@ namespace CuaHangQuanAo.Controllers
                 return View("CreateItems", item);
             }
         }
+
 
         // GET: /CreateItems/Functions_Details/5
         public async Task<IActionResult> ItemDetails(int id)

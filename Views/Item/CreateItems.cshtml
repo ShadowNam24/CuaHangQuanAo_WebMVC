@@ -70,6 +70,35 @@
         border-left: 4px solid #0dcaf0;
         background-color: #f8f9fa;
     }
+
+    /* Styles for image upload */
+    .image-upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+    }
+
+        .image-upload-container:hover {
+            border-color: #9370DB;
+        }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        border-radius: 5px;
+        display: none;
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
 </style>
 
 <div class="container py-4">
@@ -89,7 +118,7 @@
         </div>
 
         <div class="p-4">
-            <form asp-action="CreateItems" method="post">
+            <form asp-action="CreateItems" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="form-section">
@@ -134,6 +163,18 @@
                         </div>
                     </div>
 
+                    <div class="mt-4">
+                        <label class="form-label fw-bold mb-2">Ảnh sản phẩm</label>
+                        <div class="image-upload-container" id="image-upload-container">
+                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                            <p>Nhấp để tải lên hoặc kéo và thả ảnh vào đây</p>
+                            <p class="text-muted small">Định dạng: JPG, PNG, JPEG. Kích thước tối đa: 2MB</p>
+                            <input type="file" name="ImageFile" id="image-upload" class="d-none" accept="image/png, image/jpeg, image/jpg" />
+                        </div>
+                        <img id="image-preview" class="image-preview" src="#" alt="Xem trước ảnh" />
+                        <span id="image-error" class="text-danger small"></span>
+                    </div>
+
                     <div class="alert alert-info mt-3" role="alert">
                         <i class="bi bi-lightbulb me-2"></i>
                         <strong>Lưu ý:</strong> Sau khi tạo sản phẩm, bạn có thể thêm số lượng vào kho thông qua chức năng Nhập kho.
@@ -163,7 +204,63 @@
                     $(this).val(0);
                 }
             });
+
+            // Image upload handling
+            $('#image-upload-container').click(function() {
+                $('#image-upload').click();
+            });
+
+            $('#image-upload').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+
+                    // Validate file size (2MB maximum)
+                    if (file.size > 2 * 1024 * 1024) {
+                        $('#image-error').text('Kích thước tệp quá lớn. Vui lòng chọn tệp nhỏ hơn 2MB.');
+                        $('#image-preview').hide();
+                        return;
+                    }
+
+                    // Validate file type
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        $('#image-error').text('Chỉ chấp nhận các định dạng JPG, JPEG hoặc PNG.');
+                        $('#image-preview').hide();
+                        return;
+                    }
+
+                    $('#image-error').text('');
+                    reader.onload = function(e) {
+                        $('#image-preview').attr('src', e.target.result);
+                        $('#image-preview').show();
+                    }
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Drag and drop functionality
+            $('#image-upload-container').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#e9ecef');
+            });
+
+            $('#image-upload-container').on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#f8f9fa');
+            });
+
+            $('#image-upload-container').on('drop', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#f8f9fa');
+
+                const file = e.originalEvent.dataTransfer.files[0];
+                if (file) {
+                    $('#image-upload')[0].files = e.originalEvent.dataTransfer.files;
+                    $('#image-upload').trigger('change');
+                }
+            });
         });
     </script>
 }
-
