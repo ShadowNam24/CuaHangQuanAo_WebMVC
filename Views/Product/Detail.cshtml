@@ -80,17 +80,6 @@
                     <a href="#" class="small">Hướng dẫn chọn size</a>
                 </div>
                 <div class="d-flex flex-wrap gap-2 mt-2" id="sizeGroup">
-                    @if (Model.Sizes.Any())
-                    {
-                        foreach (var s in Model.Sizes)
-                        {
-                            <button type="button" class="btn btn-outline-dark btn-sm size-btn" data-size="@s">@s</button>
-                        }
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">@Model.Item.Size</span>
-                    }
                 </div>
             </div>
 
@@ -147,7 +136,6 @@
 @section Scripts {
     <script>
                 const sizeBtns = document.querySelectorAll('.size-btn');
-                let selectedSize = '@Model.Item.Size'; // mặc định nếu chỉ có 1 size
 
                 sizeBtns.forEach(btn => {
                     btn.addEventListener('click', () => {

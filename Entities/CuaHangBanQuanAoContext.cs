@@ -31,6 +31,8 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
     public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
+    public virtual DbSet<ProductVariant> ProductVariants { get; set; }
+
     public virtual DbSet<Storage> Storages { get; set; }
 
     public virtual DbSet<Supplier> Suppliers { get; set; }
@@ -145,12 +147,12 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.ItemsId).HasColumnName("ItemsID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.Image).HasMaxLength(100);
             entity.Property(e => e.ItemsName)
                 .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Size)
-                .HasMaxLength(5)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Category).WithMany(p => p.Items)
@@ -197,7 +199,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC0744DDC862");
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07B046A1E2");
 
             entity.ToTable("PasswordResetToken");
 
@@ -212,6 +214,24 @@ public partial class CuaHangBanQuanAoContext : DbContext
                 .HasConstraintName("FK_RefreshToken_Account");
         });
 
+        modelBuilder.Entity<ProductVariant>(entity =>
+        {
+            entity.HasKey(e => e.ProductVariantsId).HasName("PK__ProductV__980BBDC77E00FBBE");
+
+            entity.Property(e => e.ProductVariantsId).HasColumnName("ProductVariantsID");
+            entity.Property(e => e.Color).HasMaxLength(20);
+            entity.Property(e => e.PriceModifier).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.Size)
+                .HasMaxLength(5)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Product).WithMany(p => p.ProductVariants)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ProductVa__Produ__236943A5");
+        });
+
         modelBuilder.Entity<Storage>(entity =>
         {
             entity.HasKey(e => e.StorageId).HasName("pk_Storage_Storage");
@@ -220,16 +240,16 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.StorageId).HasColumnName("StorageID");
             entity.Property(e => e.ImportDate).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.ItemsId).HasColumnName("ItemsID");
+            entity.Property(e => e.ProductVariantsId).HasColumnName("ProductVariantsID");
             entity.Property(e => e.SupplierId).HasColumnName("SupplierID");
 
-            entity.HasOne(d => d.Items).WithMany(p => p.Storages)
-                .HasForeignKey(d => d.ItemsId)
+            entity.HasOne(d => d.ProductVariants).WithMany(p => p.Storages)
+                .HasForeignKey(d => d.ProductVariantsId)
                 .HasConstraintName("fk_Storage_ItemsID");
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.Storages)
                 .HasForeignKey(d => d.SupplierId)
-                .HasConstraintName("FK__Storage__Supplie__48CFD27E");
+                .HasConstraintName("FK__Storage__Supplie__5AEE82B9");
         });
 
         modelBuilder.Entity<Supplier>(entity =>

@@ -21,14 +21,11 @@ namespace CuaHangQuanAo.Controllers
 
             var query = _context.Storages
                 .Include(s => s.Supplier)
-                .Include(s => s.Items)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 query = query.Where(s =>
-                    (s.Items.ItemsName != null && s.Items.ItemsName.Contains(searchTerm)) ||
-                    s.Items.ItemsId.ToString().Contains(searchTerm) ||
                     (s.Supplier.SupplierName != null && s.Supplier.SupplierName.Contains(searchTerm))
                 );
             }
@@ -79,13 +76,11 @@ namespace CuaHangQuanAo.Controllers
                     .Select(i => new
                     {
                         i.ItemsId,
-                        DisplayName = i.ItemsName + (string.IsNullOrEmpty(i.Size) ? "" : " - Size: " + i.Size),
-                        i.Size,
+                        DisplayName = i.ItemsName,
                         i.SellPrice,
                         i.CategoryId
                     })
                     .OrderBy(i => i.DisplayName)
-                    .ThenBy(i => i.Size)
                     .ToList()
                     .Cast<dynamic>() // Explicitly cast the anonymous type list to dynamic
                     .ToList();
@@ -110,9 +105,9 @@ namespace CuaHangQuanAo.Controllers
                 _context.Add(storage);
                 await _context.SaveChangesAsync();
 
-                if (updateItemPrice && estimatedSellPrice > 0 && storage.ItemsId.HasValue)
+                if (updateItemPrice && estimatedSellPrice > 0 && storage.ProductVariantsId.HasValue)
                 {
-                    var item = await _context.Items.FindAsync(storage.ItemsId);
+                    var item = await _context.Items.FindAsync(storage.ProductVariantsId);
                     if (item != null)
                     {
                         item.SellPrice = estimatedSellPrice;
@@ -170,8 +165,6 @@ namespace CuaHangQuanAo.Controllers
         {
             var storage = await _context.Storages
                 .Include(s => s.Supplier)
-                .Include(s => s.Items)
-                    .ThenInclude(i => i.Category)
                 .FirstOrDefaultAsync(m => m.StorageId == id);
 
             if (storage == null) return NotFound();
@@ -183,7 +176,6 @@ namespace CuaHangQuanAo.Controllers
         {
             var storage = await _context.Storages
                 .Include(s => s.Supplier)
-                .Include(s => s.Items)
                 .FirstOrDefaultAsync(m => m.StorageId == id);
 
             if (storage == null) return NotFound();

@@ -176,7 +176,6 @@
                             <div class="info-label">Kích thước</div>
                             <div class="info-value">
                                 <span class="badge-size">
-                                    @Model.Size
                                 </span>
                             </div>
                         </div>
@@ -190,37 +189,7 @@
                         <h4 class="section-title">
                             <i class="bi bi-box me-2"></i>Thông tin tồn kho
                         </h4>
-                        @if (Model.Storages != null && Model.Storages.Any())
-                        {
-                            <table class="table table-details">
-                                <thead>
-                                    <tr>
-                                        <th>Ngày nhập</th>
-                                        <th>Số lượng</th>
-                                        <th>Giá nhập</th>
-                                        <th>Nhà cung cấp</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var storage in Model.Storages)
-                                    {
-                                        <tr>
-                                            <td>@storage.ImportDate?.ToString("dd/MM/yyyy")</td>
-                                            <td>@storage.Quantity</td>
-                                            <td>@string.Format("{0:N0} đ", storage.ImportCost)</td>
-                                            <td>@(storage.Supplier?.SupplierName ?? "Không có")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        }
-                        else
-                        {
-                            <div class="no-data">
-                                <i class="bi bi-inbox"></i>
-                                <p class="mb-0">Chưa có thông tin tồn kho</p>
-                            </div>
-                        }
+                        
                     </div>
                 </div>
                 <div class="col-md-6">

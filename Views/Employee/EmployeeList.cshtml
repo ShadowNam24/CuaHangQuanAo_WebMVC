@@ -179,12 +179,11 @@
     <div class="employee-header">
         <div class="d-flex justify-content-between align-items-center">
             <h2><i class="bi bi-people-fill me-2"></i>Quản Lý Nhân Viên</h2>
-            <a href="~/Employee/Create" class="btn btn-primary-custom">
-                <i class="bi bi-plus-circle me-2"></i> Thêm Nhân Viên Mới
-            </a>
         </div>
     </div>
-
+    <a href=@Url.Action("Create", "Employee") class="btn btn-primary-custom">
+        <i class="bi bi-plus-circle me-2"></i> Thêm Nhân Viên Mới
+    </a>
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="AdminDashboard">Trang Chủ</a></li>

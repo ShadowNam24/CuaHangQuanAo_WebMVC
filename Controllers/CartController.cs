@@ -71,7 +71,7 @@ namespace CuaHangQuanAo.Controllers
 
             foreach (var c in cart)
             {
-                var storage = _context.Storages.FirstOrDefault(s => s.ItemsId == c.ItemsId);
+                var storage = _context.Storages.FirstOrDefault(s => s.ProductVariantsId == c.ItemsId);
                 if (storage == null || storage.Quantity < c.Quantity)
                 {
                     TempData["Error"] = $"Sản phẩm {c.ItemsName} không đủ số lượng (Còn {storage?.Quantity ?? 0})";
@@ -117,7 +117,7 @@ namespace CuaHangQuanAo.Controllers
             // Kiểm tra tồn kho lần cuối
             foreach (var c in cart)
             {
-                var storage = _context.Storages.FirstOrDefault(s => s.ItemsId == c.ItemsId);
+                var storage = _context.Storages.FirstOrDefault(s => s.ProductVariantsId == c.ItemsId);
                 if (storage == null || storage.Quantity < c.Quantity)
                 {
                     TempData["Error"] = $"Sản phẩm {c.ItemsName} không đủ số lượng (Còn {storage?.Quantity ?? 0})";
@@ -147,7 +147,7 @@ namespace CuaHangQuanAo.Controllers
                     Price = c.SellPrice
                 });
 
-                var storage = _context.Storages.FirstOrDefault(s => s.ItemsId == c.ItemsId);
+                var storage = _context.Storages.FirstOrDefault(s => s.ProductVariantsId == c.ItemsId);
                 if (storage != null)
                 {
                     storage.Quantity -= c.Quantity;

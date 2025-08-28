@@ -133,14 +133,14 @@
                         <h5 class="section-title">Chi tiết sản phẩm</h5>
 
                         <div class="mb-3">
-                            <label asp-for="ItemsId" class="form-label">
+                            <label asp-for="ProductVariantsId" class="form-label">
                                 <i class="bi bi-box-seam me-1"></i> Sản phẩm
                             </label>
-                            <select asp-for="ItemsId" class="form-select"
+                            <select asp-for="ProductVariantsId" class="form-select"
                                     asp-items="@(new SelectList(ViewBag.Items ?? new List<dynamic>(), "ItemsId", "ItemsName"))">
                                 <option value="">-- Chọn sản phẩm --</option>
                             </select>
-                            <span asp-validation-for="ItemsId" class="text-danger"></span>
+                            <span asp-validation-for="ProductVariantsId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">

@@ -121,9 +121,6 @@ namespace CuaHangQuanAo.Controllers
 
             if (f.MaxPrice is not null)
                 q = q.Where(i => i.SellPrice <= f.MaxPrice);
-
-            if (!string.IsNullOrWhiteSpace(f.Size))
-                q = q.Where(i => i.Size == f.Size);
         }
         [HttpGet("/Product/Detail/{id:int}")]
         public async Task<IActionResult> Detail(int id)

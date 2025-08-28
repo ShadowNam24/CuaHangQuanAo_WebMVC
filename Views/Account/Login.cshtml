@@ -1,7 +1,6 @@
 ﻿@model CuaHangQuanAo.Models.LoginViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
-    var returnUrl = ViewData["ReturnUrl"] as string;
     Layout = "_AuthenLayout";
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -79,14 +78,7 @@
     .auth-right {
         background: #fff;
         padding: 2.25rem 2rem;
-    
-
-    {
-        padding: 3rem 3rem;
     }
-
-    }
-
     h4.auth-title {
         font-weight: 800;
         letter-spacing: .5px;
@@ -138,9 +130,9 @@
         font-weight: 600;
     }
 
-        .btn-outline:hover {
-            border-color: #111827;
-        }
+    .btn-outline:hover {
+        border-color: #111827;
+    }
 
     .divider {
         display: flex;
@@ -150,21 +142,30 @@
         margin: 1rem 0;
     }
 
-        .divider::before, .divider::after {
-            content: "";
-            height: 1px;
-            flex: 1;
-            background: #e5e7eb;
-        }
+    .divider::before, .divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: #e5e7eb;
+    }
 
     .small-links a {
         color: #111827;
         text-decoration: none;
     }
 
-        .small-links a:hover {
-            text-decoration: underline;
-        }
+    .small-links a:hover {
+        text-decoration: underline;
+    }
+
+    .no-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+    }
 </style>
 
 <div class="auth-wrap">
@@ -210,7 +211,7 @@
                     <div class="mb-2 position-relative">
                         <i class="bi bi-shield-lock input-icon"></i>
                         <div class="input-group">
-                            <input asp-for="Password" class="form-control input-with-icon" type="password" id="LoginPassword" placeholder="Mật khẩu" />
+                            <input asp-for="Password" class="form-control input-with-icon no-select" type="password" id="LoginPassword" placeholder="Mật khẩu" />
                             <button type="button" class="btn btn-outline" id="toggleLoginPassword" title="Hiện/ẩn mật khẩu">
                                 <i class="bi bi-eye" id="LoginPasswordIcon"></i>
                             </button>
@@ -227,7 +228,7 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="LoginConfirm">
                             <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
                         </button>
                     </div>
@@ -246,19 +247,107 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        (function () {
-            const btn = document.getElementById('toggleLoginPassword');
-            const input = document.getElementById('LoginPassword');
-            const icon = document.getElementById('LoginPasswordIcon');
-            btn?.addEventListener('click', () => {
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('bi-eye'); icon.classList.add('bi-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('bi-eye-slash'); icon.classList.add('bi-eye');
+        class PasswordSecurity {
+            constructor(selector) {
+                this.inputs = document.querySelectorAll(selector);
+                this.init();
+            }
+
+            init() {
+                this.inputs.forEach(input => {
+                    this.secureInput(input);
+                    this.addToggleButton(input);
+                });
+            }
+
+            secureInput(input) {
+                const blockedEvents = [
+                    'paste', 'copy', 'cut', 'drag', 'drop',
+                    'contextmenu', 'selectstart', 'dragstart'
+                ];
+
+                blockedEvents.forEach(event => {
+                    input.addEventListener(event, this.preventAction.bind(this));
+                });
+
+                input.addEventListener('keydown', this.blockShortcuts.bind(this));
+
+                // Apply CSS protection
+                input.style.userSelect = 'none';
+                input.style.webkitUserSelect = 'none';
+                input.style.mozUserSelect = 'none';
+                input.style.webkitTouchCallout = 'none';
+                input.style.webkitTapHighlightColor = 'transparent';
+            }
+
+            addToggleButton(input) {
+                // only for password type
+                if (input.type !== "password") return;
+
+                // find sibling button by ID convention (your markup has it already)
+                const btn = document.getElementById('toggleLoginPassword');
+                const icon = document.getElementById('LoginPasswordIcon');
+
+                if (btn && icon) {
+                    btn.addEventListener('click', () => {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.replace('bi-eye', 'bi-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.replace('bi-eye-slash', 'bi-eye');
+                        }
+                    });
                 }
-            });
-        })();
+            }
+
+            preventAction(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                this.showSecurityWarning();
+                return false;
+            }
+
+            blockShortcuts(e) {
+                const blockedCombos = [
+                    { ctrl: true, key: 'c' },
+                    { ctrl: true, key: 'v' },
+                    { ctrl: true, key: 'x' },
+                    { ctrl: true, key: 'a' }
+                ];
+
+                const isBlocked = blockedCombos.some(combo =>
+                    (combo.ctrl && (e.ctrlKey || e.metaKey)) &&
+                    e.key.toLowerCase() === combo.key
+                );
+
+                if (isBlocked) {
+                    e.preventDefault();
+                    this.showSecurityWarning();
+                }
+            }
+
+            showSecurityWarning() {
+                const warning = document.createElement('div');
+                warning.className = 'alert alert-warning alert-dismissible fade show position-fixed';
+                warning.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                warning.innerHTML = `
+                    🔒 Copy/paste disabled for security reasons
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(warning);
+
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize PasswordSecurity for password + submit button
+            new PasswordSecurity('#LoginPassword, #LoginConfirm');
+        });
     </script>
 }

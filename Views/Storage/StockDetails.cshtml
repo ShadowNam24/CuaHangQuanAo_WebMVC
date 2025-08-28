@@ -141,7 +141,6 @@
 
                         <div class="mb-3 item-details">
                             <div class="info-label">Tên sản phẩm</div>
-                            <div class="info-value">@(Model.Items?.ItemsName ?? "Chưa có thông tin")</div>
                         </div>
 
                         <div class="mb-3">
@@ -154,12 +153,10 @@
 
                         <div class="mb-3">
                             <div class="info-label">Kích thước</div>
-                            <div class="info-value">@(Model.Items?.Size ?? "Chưa có thông tin")</div>
                         </div>
 
                         <div class="mb-3">
                             <div class="info-label">Danh mục</div>
-                            <div class="info-value">@(Model.Items?.Category?.NameCategory ?? "Chưa có thông tin")</div>
                         </div>
                     </div>
                 </div>
@@ -230,7 +227,6 @@
                             <div class="mb-3">
                                 <div class="info-label">Giá bán lẻ</div>
                                 <div class="info-value">
-                                    @string.Format("{0:N0} đ", Model.Items?.SellPrice ?? 0)
                                 </div>
                             </div>
                         </div>
@@ -241,15 +237,6 @@
                                     @string.Format("{0:N0} đ", Model.ImportCost)
                                 </div>
                             </div>
-                            @if (Model.Items?.SellPrice >= 0 && Model.Quantity.HasValue)
-                            {
-                                <div class="mb-3">
-                                    <div class="info-label">Tổng giá trị bán dự kiến</div>
-                                    <div class="info-value fw-bold text-success">
-                                        @string.Format("{0:N0} đ", Model.Items.SellPrice * Model.Quantity)
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
                 </div>

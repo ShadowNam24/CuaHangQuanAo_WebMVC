@@ -234,10 +234,6 @@
                                             <td>@stt</td>
                                             <td>
                                                 <div class="product-name">@(item.Items?.ItemsName ?? "Chưa có thông tin")</div>
-                                                @if (!string.IsNullOrEmpty(item.Items?.Size))
-                                                {
-                                                    <small class="text-muted">Size: @item.Items.Size</small>
-                                                }
                                             </td>
                                             <td>@string.Format("{0:N0} đ", item.Price)</td>
                                             <td><span class="product-quantity">@item.Quantity</span></td>

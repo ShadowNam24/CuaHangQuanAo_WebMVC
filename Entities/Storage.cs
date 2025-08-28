@@ -9,7 +9,7 @@ public partial class Storage
 
     public int? SupplierId { get; set; }
 
-    public int? ItemsId { get; set; }
+    public int? ProductVariantsId { get; set; }
 
     public int? Quantity { get; set; }
 
@@ -17,7 +17,7 @@ public partial class Storage
 
     public DateOnly? ImportDate { get; set; }
 
-    public virtual Item? Items { get; set; }
+    public virtual ProductVariant? ProductVariants { get; set; }
 
     public virtual Supplier? Supplier { get; set; }
 }

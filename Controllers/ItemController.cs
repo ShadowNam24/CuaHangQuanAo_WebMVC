@@ -76,13 +76,6 @@ namespace CuaHangQuanAo.Controllers
                 return View("CreateItems", item);
             }
 
-            if (string.IsNullOrWhiteSpace(item.Size))
-            {
-                ModelState.AddModelError("Size", "Kích thước sản phẩm là bắt buộc");
-                ViewBag.Categories = _context.Categories.ToList();
-                return View("CreateItems", item);
-            }
-
             // Xử lý tải lên hình ảnh
             if (ImageFile != null && ImageFile.Length > 0)
             {
@@ -109,7 +102,7 @@ namespace CuaHangQuanAo.Controllers
                     string uniqueFileName = Guid.NewGuid().ToString() + extension;
 
                     // Tạo thư mục lưu trữ nếu chưa tồn tại
-                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
                     if (!Directory.Exists(uploadsFolder))
                     {
                         Directory.CreateDirectory(uploadsFolder);
@@ -123,7 +116,7 @@ namespace CuaHangQuanAo.Controllers
                     }
 
                     // Lưu đường dẫn vào đối tượng sản phẩm
-                    item.Image = "/images/products/" + uniqueFileName;
+                    item.Image = uniqueFileName;
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +153,6 @@ namespace CuaHangQuanAo.Controllers
             var item = await _context.Items
                 .Include(i => i.Category)
                 .Include(i => i.OrdersDetails)
-                .Include(i => i.Storages)
                 .FirstOrDefaultAsync(m => m.ItemsId == id);
 
             if (item == null) return NotFound();
@@ -238,7 +230,7 @@ namespace CuaHangQuanAo.Controllers
                 catch (DbUpdateException ex)
                 {
                     bool hasOrderDetails = await _context.OrdersDetails.AnyAsync(od => od.ItemsId == id);
-                    bool hasStorage = await _context.Storages.AnyAsync(s => s.ItemsId == id);
+                    bool hasStorage = await _context.Storages.AnyAsync(s => s.ProductVariantsId == id);
 
                     if (hasOrderDetails || hasStorage)
                     {

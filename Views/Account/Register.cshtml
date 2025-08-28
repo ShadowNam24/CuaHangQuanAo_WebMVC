@@ -149,6 +149,15 @@
         .small-links a:hover {
             text-decoration: underline;
         }
+
+    .no-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+    }
 </style>
 
 <div class="auth-wrap">
@@ -204,7 +213,7 @@
                             <label asp-for="Password" class="form-label">Mật khẩu</label>
                             <div class="input-group rounded-12">
                                 <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                                <input asp-for="Password" id="registerPassword" class="form-control" type="password" placeholder="••••••••" />
+                                <input asp-for="Password" id="registerPassword" class="form-control no-select" type="password" placeholder="••••••••" />
                                 <button type="button" class="btn btn-outline" id="toggleRegisterPassword" title="Hiện/ẩn mật khẩu">
                                     <i class="bi bi-eye" id="registerPasswordIcon"></i>
                                 </button>
@@ -216,7 +225,7 @@
                             <label asp-for="ConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
                             <div class="input-group rounded-12">
                                 <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                <input asp-for="ConfirmPassword" id="registerConfirmPassword" class="form-control" type="password" placeholder="••••••••" />
+                                <input asp-for="ConfirmPassword" id="registerConfirmPassword" class="form-control no-select" type="password" placeholder="••••••••" />
                                 <button type="button" class="btn btn-outline" id="toggleRegisterConfirmPassword" title="Hiện/ẩn mật khẩu">
                                     <i class="bi bi-eye" id="registerConfirmPasswordIcon"></i>
                                 </button>
@@ -281,7 +290,7 @@
                     </div>
 
                     <div class="d-grid mt-2">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="RegisterConfirm">
                             <i class="bi bi-person-plus me-1"></i> Đăng ký
                         </button>
                     </div>
@@ -316,5 +325,101 @@
         }
         bindToggle('toggleRegisterPassword','registerPassword','registerPasswordIcon');
         bindToggle('toggleRegisterConfirmPassword','registerConfirmPassword','registerConfirmPasswordIcon');
+        class PasswordSecurity {
+            constructor(selector) {
+                this.inputs = document.querySelectorAll(selector);
+                this.init();
+            }
+
+            init() {
+                this.inputs.forEach(input => this.secureInput(input));
+            }
+
+            secureInput(input) {
+                const blockedEvents = [
+                    'paste', 'copy', 'cut', 'drag', 'drop',
+                    'contextmenu', 'selectstart', 'dragstart'
+                ];
+
+                blockedEvents.forEach(event => {
+                    input.addEventListener(event, this.preventAction.bind(this));
+                });
+
+                input.addEventListener('keydown', this.blockShortcuts.bind(this));
+
+                // Apply CSS protection
+                input.style.userSelect = 'none';
+                input.style.webkitUserSelect = 'none';
+                input.style.mozUserSelect = 'none';
+                input.style.webkitTouchCallout = 'none';
+                input.style.webkitTapHighlightColor = 'transparent';
+            }
+
+            preventAction(e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                this.showSecurityWarning();
+                return false;
+            }
+
+            blockShortcuts(e) {
+                const blockedCombos = [
+                    { ctrl: true, key: 'c' },
+                    { ctrl: true, key: 'v' },
+                    { ctrl: true, key: 'x' },
+                    { ctrl: true, key: 'a' }
+                ];
+
+                const isBlocked = blockedCombos.some(combo =>
+                    (combo.ctrl && (e.ctrlKey || e.metaKey)) &&
+                    e.key.toLowerCase() === combo.key
+                );
+
+                if (isBlocked) {
+                    e.preventDefault();
+                    this.showSecurityWarning();
+                }
+            }
+
+            showSecurityWarning() {
+                const warning = document.createElement('div');
+                warning.className = 'alert alert-warning alert-dismissible fade show position-fixed';
+                warning.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+                warning.innerHTML = `
+                    🔒 Copy/paste disabled for security reasons
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(warning);
+
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        function showWarning(message) {
+            const warning = document.createElement('div');
+            warning.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            warning.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+            warning.innerHTML = `
+                ⚠️ ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(warning);
+
+            setTimeout(() => {
+                if (warning.parentNode) {
+                    warning.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize all methods
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply Method 3 to specific inputs
+            new PasswordSecurity('#registerPassword, #RegisterConfirm');
+        });
     </script>
 }

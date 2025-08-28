@@ -27,7 +27,7 @@ namespace CuaHangQuanAo.Controllers
 
             // Lấy 5 sản phẩm sắp hết hàng (tổng tồn kho <= 10)
             var lowStockItems = await _context.Storages
-                .GroupBy(s => s.ItemsId)
+                .GroupBy(s => s.ProductVariantsId)
                 .Select(g => new
                 {
                     ItemsId = g.Key,
