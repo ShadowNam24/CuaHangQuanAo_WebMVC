@@ -2,18 +2,16 @@
 
 public class ProductListVm
 {
-    // Input filter
     public string? Q { get; set; }
     public int? CategoryId { get; set; }
     public int? MinPrice { get; set; }
     public int? MaxPrice { get; set; }
-    public string? Size { get; set; }      // chắc là lọc size
-    public string? Sort { get; set; }      // price_asc | price_desc | name_asc | name_desc
+    public string? Size { get; set; }
+    public string? Sort { get; set; } = "name_asc";
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 12;
 
-    // Output
-    public IEnumerable<Item> Items { get; set; } = Enumerable.Empty<Item>();
-    public IEnumerable<Category> Categories { get; set; } = Enumerable.Empty<Category>();
+    public List<Category> Categories { get; set; } = new();
+    public List<Item> Items { get; set; } = new();
     public int Total { get; set; }
 }

@@ -206,25 +206,39 @@
                 <div id="items-container">
                     <div class="item-row" data-item-index="0">
                         <div class="row">
-                            <div class="col-md-5">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Sản phẩm</label>
                                     <select name="OrdersDetails[0].ItemsId" class="form-select item-select" required>
                                         <option value="">-- Chọn sản phẩm --</option>
                                         @foreach (var item in ViewBag.Items ?? new List<dynamic>())
                                         {
-                                            <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName - Size: @item.Size</option>
+                                            <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName</option>
                                         }
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Size</label>
+                                    <input type="text" name="OrdersDetails[0].Size" class="form-control item-size" placeholder="Size" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="OrdersDetails[0].Size"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Màu</label>
+                                    <input type="text" name="OrdersDetails[0].Color" class="form-control item-color" placeholder="Màu" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="OrdersDetails[0].Color"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label class="form-label">Số lượng</label>
                                     <input type="number" name="OrdersDetails[0].Quantity" class="form-control item-quantity" min="1" value="1" required />
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">
@@ -298,7 +312,7 @@
                 const newItem = `
                     <div class="item-row" data-item-index="${itemIndex}">
                         <div class="row">
-                            <div class="col-md-5">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Sản phẩm</label>
                                     <select name="OrdersDetails[${itemIndex}].ItemsId" class="form-select item-select" required>
@@ -306,13 +320,25 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Size</label>
+                                    <input type="text" name="OrdersDetails[${itemIndex}].Size" class="form-control item-size" placeholder="Size" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="mb-3">
+                                    <label class="form-label">Màu</label>
+                                    <input type="text" name="OrdersDetails[${itemIndex}].Color" class="form-control item-color" placeholder="Màu" required />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label class="form-label">Số lượng</label>
                                     <input type="number" name="OrdersDetails[${itemIndex}].Quantity" class="form-control item-quantity" min="1" value="1" required />
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">

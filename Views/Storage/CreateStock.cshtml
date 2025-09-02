@@ -184,6 +184,21 @@
                             </div>
                             <span asp-validation-for="ImportCost" class="text-danger"></span>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-rulers me-1"></i> Size
+                            </label>
+                            <input type="text" name="Size" class="form-control" placeholder="Nhập size (VD: S, M, L, XL)" required />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Size"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-palette me-1"></i> Màu
+                            </label>
+                            <input type="text" name="Color" class="form-control" placeholder="Nhập màu (VD: Đỏ, Xanh, Đen)" required />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="Color"></span>
+                        </div>
                     </div>
 				</div>
                         <!-- Phần tính giá bán - Cải tiến -->
@@ -272,6 +287,33 @@
                 var isChecked = $(this).prop("checked");
                 $("#estimatedSellPrice").prop("disabled", !isChecked);
                 $("#profitPercentage").prop("disabled", !isChecked);
+            });
+
+            // Validation for Size and Color
+            $("form").on("submit", function(e) {
+                let valid = true;
+                const size = $("input[name='Size']").val().trim();
+                const color = $("input[name='Color']").val().trim();
+
+                if (!size) {
+                    $("input[name='Size']").addClass("is-invalid");
+                    $("input[name='Size']").next(".field-validation-valid").text("Vui lòng nhập size.");
+                    valid = false;
+                } else {
+                    $("input[name='Size']").removeClass("is-invalid");
+                    $("input[name='Size']").next(".field-validation-valid").text("");
+                }
+
+                if (!color) {
+                    $("input[name='Color']").addClass("is-invalid");
+                    $("input[name='Color']").next(".field-validation-valid").text("Vui lòng nhập màu.");
+                    valid = false;
+                } else {
+                    $("input[name='Color']").removeClass("is-invalid");
+                    $("input[name='Color']").next(".field-validation-valid").text("");
+                }
+
+                if (!valid) e.preventDefault();
             });
         });
     </script>

@@ -1,9 +1,10 @@
 using CuaHangQuanAo.Entities;
+using CuaHangQuanAo.Factory;
 using CuaHangQuanAo.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Builder;
 using CuaHangQuanAo.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ builder.Services.AddAuthorization(options =>
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IProductFactoryProvider, ProductFactoryProvider>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 // Add session support (optional)
 builder.Services.AddSession(options =>

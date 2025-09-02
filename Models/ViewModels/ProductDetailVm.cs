@@ -1,13 +1,18 @@
-﻿namespace CuaHangQuanAo.Entities;
+﻿using CuaHangQuanAo.Entities;
 
-public class ProductDetailVm
+namespace CuaHangQuanAo.Models.ViewModels
 {
-    public Item Item { get; set; } = null!;
-    public IEnumerable<Item> Related { get; set; } = Enumerable.Empty<Item>();
+    public class ProductDetailVm
+    {
+        public Item Item { get; set; } = null!;
+        public List<Item> Related { get; set; } = new();
+        public List<string> Gallery { get; set; } = new();
+        public double Rating { get; set; } = 4.2;
+        public int RatingCount { get; set; } = 156;
 
-    // Các lựa chọn hiển thị
-    public List<string> Sizes { get; set; } = new();            // S, M, L... hoặc 38,39...
-    public List<string> Gallery { get; set; } = new();          // Url ảnh (placeholder nếu chưa có)
-    public double Rating { get; set; } = 4.5;                   // demo
-    public int RatingCount { get; set; } = 46;                  // demo
+        // Storage-based variants
+        public List<ProductVariantsInfo> AvailableVariants { get; set; } = new();
+        public List<string> AvailableColors { get; set; } = new();
+        public List<string> AvailableSizes { get; set; } = new();
+    }
 }
