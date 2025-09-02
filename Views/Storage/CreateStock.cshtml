@@ -1,4 +1,4 @@
-﻿@model CuaHangQuanAo.Entities.Storage
+﻿@model CuaHangQuanAo.Models.ViewModels.StorageCreateVm
 @{
     ViewData["Title"] = "Thêm phiếu nhập kho";
 	Layout = "_AdminLayout";
@@ -40,64 +40,49 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-    .form-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
+    .size-color-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+        margin-top: 8px;
     }
 
-    .section-title {
-        position: relative;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 2px;
-            width: 50px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        }
-
-    .input-group-text {
-        background-color: #f8f9fa;
-    }
-
-    .btn-outline-return {
-        border-radius: 50px;
-        padding: 0.6rem 1.5rem;
+    .size-btn, .color-btn {
+        padding: 8px 12px;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
         transition: all 0.2s;
+        text-align: center;
+        font-size: 0.85rem;
     }
 
-        .btn-outline-return:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        .size-btn:hover, .color-btn:hover {
+            border-color: #6a11cb;
+            background: #f8f9ff;
         }
 
-    .price-calculator {
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-top: 1rem;
-        border-left: 4px solid #6a11cb;
+        .size-btn.active, .color-btn.active {
+            border-color: #6a11cb;
+            background: #6a11cb;
+            color: white;
+        }
+
+    .quick-add-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        border-left: 4px solid #17a2b8;
     }
 
-    .profit-slider {
-        width: 60px;
-        display: inline-block;
-        margin: 0 5px;
-    }
-
-    .form-check-input:checked {
-        background-color: #6a11cb;
-        border-color: #6a11cb;
-    }
-
-    .form-switch .form-check-input:focus {
-        border-color: rgba(106, 17, 203, 0.25);
-        box-shadow: 0 0 0 0.25rem rgba(106, 17, 203, 0.25);
+    .product-info-display {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        display: none;
     }
 </style>
 
@@ -118,7 +103,7 @@
         </div>
 
         <div class="p-4">
-            <form asp-controller="Storage" asp-action="Functions_Create" method="post">
+            <form asp-controller="Storage" asp-action="Functions_Create" method="post" id="storageForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row mb-4">
@@ -126,194 +111,439 @@
                         <h5 class="section-title">Thông tin cơ bản</h5>
 
                         <div class="mb-3">
-                            <label asp-for="SupplierId" class="form-label">
+                            <label class="form-label">
                                 <i class="bi bi-building me-1"></i> Nhà cung cấp
                             </label>
-                            <select asp-for="SupplierId" class="form-select"
-                                    asp-items="@(new SelectList(ViewBag.Suppliers ?? new List<dynamic>(), "SupplierId", "SupplierName"))">
+                            <select name="supplierId" class="form-select" required>
                                 <option value="">-- Chọn nhà cung cấp --</option>
+                                @foreach (var supplier in Model.Suppliers)
+                                {
+                                    <option value="@supplier.SupplierId">@supplier.SupplierName</option>
+                                }
                             </select>
-                            <span asp-validation-for="SupplierId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="ImportDate" class="form-label">
+                            <label class="form-label">
                                 <i class="bi bi-calendar me-1"></i> Ngày nhập
                             </label>
-                            <input asp-for="ImportDate" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                            <span asp-validation-for="ImportDate" class="text-danger"></span>
+                            <input name="importDate" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <h5 class="section-title">Chi tiết sản phẩm</h5>
                         <div class="mb-3">
-                            <label asp-for="ProductVariantsId" class="form-label">
+                            <label class="form-label">
                                 <i class="bi bi-box-seam me-1"></i> Sản phẩm
                             </label>
-                            <select asp-for="ProductVariantsId" class="form-control">
+                            <select name="productId" id="productSelect" class="form-select" required>
                                 <option value="">-- Chọn sản phẩm --</option>
-                                @foreach (var category in ViewBag.ItemsByCategory as Dictionary<string, List<dynamic>>)
+                                @foreach (var category in Model.ItemsByCategory)
                                 {
                                     <optgroup label="@category.Key">
                                         @foreach (var item in category.Value)
                                         {
-                                            <option value="@item.ItemsId">@item.DisplayName</option>
+                                            <option value="@item.ItemsId" data-category="@item.CategoryId" data-price="@item.SellPrice">
+                                                @item.DisplayName - @string.Format("{0:N0} đ", item.SellPrice)
+                                            </option>
                                         }
                                     </optgroup>
                                 }
                             </select>
-                            <span asp-validation-for="ProductVariantsId" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Quantity" class="form-label">
-                                <i class="bi bi-123 me-1"></i> Số lượng
-                            </label>
-                            <input asp-for="Quantity" class="form-control" type="number" min="1" id="Quantity" />
-                            <span asp-validation-for="Quantity" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="ImportCost" class="form-label">
-                                <i class="bi bi-cash me-1"></i> Chi phí nhập
-                            </label>
-                            <div class="input-group">
-                                <input asp-for="ImportCost" class="form-control" type="number" min="0" id="ImportCost" />
-                                <span class="input-group-text">VNĐ</span>
+                        <!-- Product Info Display -->
+                        <div class="product-info-display" id="productInfoDisplay">
+                            <h6><i class="bi bi-info-circle me-1"></i> Thông tin sản phẩm</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Danh mục:</small>
+                                    <div class="fw-semibold" id="productCategory"></div>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Giá bán hiện tại:</small>
+                                    <div class="fw-semibold text-success" id="currentPrice"></div>
+                                </div>
                             </div>
-                            <span asp-validation-for="ImportCost" class="text-danger"></span>
                         </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="section-title">Chi tiết nhập kho</h5>
 
                         <div class="mb-3">
                             <label class="form-label">
                                 <i class="bi bi-rulers me-1"></i> Size
                             </label>
-                            <input type="text" name="Size" class="form-control" placeholder="Nhập size (VD: S, M, L, XL)" required />
-                            <span class="text-danger field-validation-valid" data-valmsg-for="Size"></span>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="text" name="size" id="sizeInput" class="form-control" placeholder="Nhập size" required />
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="showRecommendedSizes">
+                                    <i class="bi bi-lightbulb"></i>
+                                </button>
+                            </div>
+                            <div class="size-color-grid" id="recommendedSizes" style="display: none;"></div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">
                                 <i class="bi bi-palette me-1"></i> Màu
                             </label>
-                            <input type="text" name="Color" class="form-control" placeholder="Nhập màu (VD: Đỏ, Xanh, Đen)" required />
-                            <span class="text-danger field-validation-valid" data-valmsg-for="Color"></span>
+                            <div class="d-flex gap-2 align-items-center">
+                                <input type="text" name="color" id="colorInput" class="form-control" placeholder="Nhập màu" required />
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="showRecommendedColors">
+                                    <i class="bi bi-lightbulb"></i>
+                                </button>
+                            </div>
+                            <div class="size-color-grid" id="recommendedColors" style="display: none;"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-123 me-1"></i> Số lượng
+                            </label>
+                            <input name="quantity" id="quantityInput" class="form-control" type="number" min="1" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-cash me-1"></i> Chi phí nhập (VNĐ)
+                            </label>
+                            <input name="importCost" id="importCostInput" class="form-control" type="number" min="0" required />
                         </div>
                     </div>
-				</div>
-                        <!-- Phần tính giá bán - Cải tiến -->
-                        <!-- Phần tính giá bán -->
-                        <div class="price-calculator">
-                            <h6><i class="bi bi-calculator me-1"></i> Ước tính giá bán</h6>
+                </div>
 
-                            <div class="mb-2">
-                                <label class="form-label">Tỷ lệ lợi nhuận:</label>
-                                <div class="d-flex align-items-center">
-                                    <input id="profitPercentage" type="number" min="0" max="100" step="1" value="30"
-                                           class="form-control form-control-sm" style="width: 80px;">
-                                    <span class="ms-2">%</span>
-                                </div>
-                            </div>
+                <!-- Price Calculator Section -->
+                <div class="price-calculator">
+                    <h6><i class="bi bi-calculator me-1"></i> Ước tính giá bán</h6>
 
-                            <div class="mb-2">
-                                <label class="form-label">Giá bán ước tính:</label>
-                                <div class="input-group">
-                                    <input id="estimatedSellPrice" name="estimatedSellPrice" class="form-control" type="number" readonly />
-                                    <span class="input-group-text">VNĐ</span>
-                                </div>
-                                <div class="form-text">
-                                    <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" id="updateItemPrice" name="updateItemPrice" value="true" checked>
-                                        <label class="form-check-label" for="updateItemPrice">
-                                            Cập nhật giá bán cho sản phẩm này
-                                        </label>
-                                    </div>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">Tỷ lệ lợi nhuận (%):</label>
+                            <input id="profitPercentage" type="number" min="0" max="200" step="5" value="30" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Giá bán ước tính:</label>
+                            <div class="input-group">
+                                <input id="estimatedSellPrice" name="estimatedSellPrice" class="form-control" type="number" readonly />
+                                <span class="input-group-text">VNĐ</span>
                             </div>
                         </div>
-
-                        <div class="border-top pt-4 d-flex justify-content-between">
-                            <a href="/Storage/StockRefill" class="btn btn-outline-secondary btn-outline-return">
-                                <i class="bi bi-arrow-left me-1"></i> Quay lại
-                            </a>
-                            <button type="submit" class="btn btn-gradient">
-                                <i class="bi bi-save me-1"></i> Lưu phiếu nhập
-                            </button>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="updateItemPrice" name="updateItemPrice" value="true" checked>
+                                <label class="form-check-label" for="updateItemPrice">
+                                    Cập nhật giá bán sản phẩm
+                                </label>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Quick Add Multiple Variants -->
+                <div class="quick-add-section">
+                    <h6><i class="bi bi-lightning me-1"></i> Nhập nhanh nhiều biến thể</h6>
+                    <p class="text-muted small">Chọn nhiều size và màu để tạo tất cả các biến thể cùng lúc</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Chọn nhiều Size:</label>
+                            <div class="size-color-grid" id="bulkSizeSelection"></div>
+                            <input type="hidden" name="selectedSizes" id="selectedSizesInput" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Chọn nhiều Màu:</label>
+                            <div class="size-color-grid" id="bulkColorSelection"></div>
+                            <input type="hidden" name="selectedColors" id="selectedColorsInput" />
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-info" id="bulkAddBtn" disabled>
+                            <i class="bi bi-grid-3x3-gap me-1"></i> Tạo tất cả biến thể đã chọn
+                        </button>
+                        <small class="text-muted ms-2" id="bulkAddInfo"></small>
+                    </div>
+                </div>
+
+                <div class="border-top pt-4 d-flex justify-content-between">
+                    <a href="/Storage/StockRefill" class="btn btn-outline-secondary btn-outline-return">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại
+                    </a>
+                    <div>
+                        <button type="submit" class="btn btn-gradient me-2">
+                            <i class="bi bi-save me-1"></i> Lưu phiếu nhập
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
     <script>
-        $(document).ready(function() {
-            // Tính toán giá bán khi giá nhập hoặc tỷ lệ lợi nhuận thay đổi
-            $("#ImportCost, #profitPercentage").on("input", function() {
-                calculateSellPrice();
+        document.addEventListener('DOMContentLoaded', function() {
+            let selectedProduct = null;
+            let recommendedSizes = [];
+            let recommendedColors = [];
+            let selectedBulkSizes = [];
+            let selectedBulkColors = [];
+
+            // Product selection handler
+            document.getElementById('productSelect').addEventListener('change', async function() {
+                const productId = this.value;
+                const selectedOption = this.options[this.selectedIndex];
+
+                if (!productId) {
+                    document.getElementById('productInfoDisplay').style.display = 'none';
+                    clearRecommendations();
+                    return;
+                }
+
+                const categoryId = selectedOption.getAttribute('data-category');
+                const currentPrice = selectedOption.getAttribute('data-price');
+
+                try {
+                    // Get product info and recommendations from factory
+                    const response = await fetch(`/Storage/GetProductInfo?productId=${productId}`);
+                    const productInfo = await response.json();
+
+                    // Display product info
+                    document.getElementById('productCategory').textContent = productInfo.categoryName;
+                    document.getElementById('currentPrice').textContent = formatCurrency(productInfo.currentPrice);
+                    document.getElementById('productInfoDisplay').style.display = 'block';
+
+                    // Set recommended values from factory
+                    recommendedSizes = productInfo.recommendedSizes;
+                    recommendedColors = productInfo.recommendedColors;
+
+                    document.getElementById('quantityInput').value = productInfo.defaultQuantity;
+                    document.getElementById('importCostInput').value = productInfo.estimatedImportCost;
+
+                    // Populate bulk selection areas
+                    populateBulkSelection();
+                    calculateSellPrice();
+
+                } catch (error) {
+                    console.error('Error loading product info:', error);
+                }
             });
 
-            // Hiển thị thông tin sản phẩm hiện tại khi chọn
-            $("#ItemsId").on("change", function() {
-                // Reset giá nhập để người dùng nhập mới
-                $("#ImportCost").val('');
-                $("#ImportCost").focus();
-
-                // Reset giá bán ước tính
-                $("#estimatedSellPrice").val('');
+            // Show/hide recommended sizes
+            document.getElementById('showRecommendedSizes').addEventListener('click', function() {
+                const container = document.getElementById('recommendedSizes');
+                if (container.style.display === 'none') {
+                    container.style.display = 'block';
+                    populateRecommendedSizes();
+                } else {
+                    container.style.display = 'none';
+                }
             });
 
-            // Tính toán ban đầu khi trang tải xong
-            setTimeout(function() {
-                calculateSellPrice();
-            }, 500);
+            // Show/hide recommended colors
+            document.getElementById('showRecommendedColors').addEventListener('click', function() {
+                const container = document.getElementById('recommendedColors');
+                if (container.style.display === 'none') {
+                    container.style.display = 'block';
+                    populateRecommendedColors();
+                } else {
+                    container.style.display = 'none';
+                }
+            });
 
-            function calculateSellPrice() {
-                var importCost = parseFloat($("#ImportCost").val()) || 0;
-                var profitPercentage = parseFloat($("#profitPercentage").val()) || 0;
+            function populateRecommendedSizes() {
+                const container = document.getElementById('recommendedSizes');
+                container.innerHTML = '';
 
-                // Tính toán giá bán = giá nhập + (giá nhập * tỷ lệ lợi nhuận / 100)
-                var sellPrice = importCost + (importCost * profitPercentage / 100);
-
-                // Làm tròn và hiển thị
-                $("#estimatedSellPrice").val(Math.round(sellPrice));
+                recommendedSizes.forEach(size => {
+                    const btn = document.createElement('div');
+                    btn.className = 'size-btn';
+                    btn.textContent = size;
+                    btn.addEventListener('click', () => {
+                        document.getElementById('sizeInput').value = size;
+                        container.style.display = 'none';
+                    });
+                    container.appendChild(btn);
+                });
             }
 
-            // Hiển thị/ẩn phần cài đặt giá bán dựa trên trạng thái checkbox
-            $("#updateItemPrice").on("change", function() {
-                var isChecked = $(this).prop("checked");
-                $("#estimatedSellPrice").prop("disabled", !isChecked);
-                $("#profitPercentage").prop("disabled", !isChecked);
+            function populateRecommendedColors() {
+                const container = document.getElementById('recommendedColors');
+                container.innerHTML = '';
+
+                recommendedColors.forEach(color => {
+                    const btn = document.createElement('div');
+                    btn.className = 'color-btn';
+                    btn.textContent = color;
+                    btn.addEventListener('click', () => {
+                        document.getElementById('colorInput').value = color;
+                        container.style.display = 'none';
+                    });
+                    container.appendChild(btn);
+                });
+            }
+
+            function populateBulkSelection() {
+                // Populate bulk size selection
+                const bulkSizeContainer = document.getElementById('bulkSizeSelection');
+                bulkSizeContainer.innerHTML = '';
+
+                recommendedSizes.forEach(size => {
+                    const btn = document.createElement('div');
+                    btn.className = 'size-btn';
+                    btn.textContent = size;
+                    btn.setAttribute('data-size', size);
+                    btn.addEventListener('click', () => toggleBulkSize(btn, size));
+                    bulkSizeContainer.appendChild(btn);
+                });
+
+                // Populate bulk color selection
+                const bulkColorContainer = document.getElementById('bulkColorSelection');
+                bulkColorContainer.innerHTML = '';
+
+                recommendedColors.forEach(color => {
+                    const btn = document.createElement('div');
+                    btn.className = 'color-btn';
+                    btn.textContent = color;
+                    btn.setAttribute('data-color', color);
+                    btn.addEventListener('click', () => toggleBulkColor(btn, color));
+                    bulkColorContainer.appendChild(btn);
+                });
+            }
+
+            function toggleBulkSize(btn, size) {
+                btn.classList.toggle('active');
+                if (btn.classList.contains('active')) {
+                    selectedBulkSizes.push(size);
+                } else {
+                    selectedBulkSizes = selectedBulkSizes.filter(s => s !== size);
+                }
+                updateBulkAddButton();
+                document.getElementById('selectedSizesInput').value = selectedBulkSizes.join(',');
+            }
+
+            function toggleBulkColor(btn, color) {
+                btn.classList.toggle('active');
+                if (btn.classList.contains('active')) {
+                    selectedBulkColors.push(color);
+                } else {
+                    selectedBulkColors = selectedBulkColors.filter(c => c !== color);
+                }
+                updateBulkAddButton();
+                document.getElementById('selectedColorsInput').value = selectedBulkColors.join(',');
+            }
+
+            function updateBulkAddButton() {
+                const bulkBtn = document.getElementById('bulkAddBtn');
+                const infoSpan = document.getElementById('bulkAddInfo');
+
+                if (selectedBulkSizes.length > 0 && selectedBulkColors.length > 0) {
+                    const totalVariants = selectedBulkSizes.length * selectedBulkColors.length;
+                    bulkBtn.disabled = false;
+                    infoSpan.textContent = `Sẽ tạo ${totalVariants} biến thể`;
+                } else {
+                    bulkBtn.disabled = true;
+                    infoSpan.textContent = 'Chọn ít nhất 1 size và 1 màu';
+                }
+            }
+
+            // Bulk add functionality
+            document.getElementById('bulkAddBtn').addEventListener('click', async function() {
+                const productId = document.getElementById('productSelect').value;
+                const supplierId = document.querySelector('select[name="supplierId"]').value;
+                const quantity = parseInt(document.getElementById('quantityInput').value) || 0;
+                const importCost = parseInt(document.getElementById('importCostInput').value) || 0;
+
+                if (!productId || !supplierId || quantity <= 0 || importCost <= 0) {
+                    alert('Vui lòng điền đầy đủ thông tin sản phẩm, nhà cung cấp, số lượng và chi phí nhập');
+                    return;
+                }
+
+                if (selectedBulkSizes.length === 0 || selectedBulkColors.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 size và 1 màu');
+                    return;
+                }
+
+                this.disabled = true;
+                this.innerHTML = '<i class="spinner-border spinner-border-sm me-1"></i> Đang xử lý...';
+
+                try {
+                    const response = await fetch('/Storage/BulkImport', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            productId: productId,
+                            supplierId: supplierId,
+                            'sizes': selectedBulkSizes.join(','),
+                            'colors': selectedBulkColors.join(','),
+                            baseQuantity: quantity,
+                            baseImportCost: importCost
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(`✅ ${result.message}`);
+                        window.location.href = '/Storage/StockRefill';
+                    } else {
+                        alert(`❌ ${result.message}\nChi tiết lỗi:\n${result.errors.join('\n')}`);
+                    }
+                } catch (error) {
+                    alert('Lỗi khi thực hiện bulk import: ' + error.message);
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = '<i class="bi bi-grid-3x3-gap me-1"></i> Tạo tất cả biến thể đã chọn';
+                }
             });
 
-            // Validation for Size and Color
-            $("form").on("submit", function(e) {
-                let valid = true;
-                const size = $("input[name='Size']").val().trim();
-                const color = $("input[name='Color']").val().trim();
+            // Price calculation
+            function calculateSellPrice() {
+                const importCost = parseFloat(document.getElementById('importCostInput').value) || 0;
+                const profitPercentage = parseFloat(document.getElementById('profitPercentage').value) || 0;
 
-                if (!size) {
-                    $("input[name='Size']").addClass("is-invalid");
-                    $("input[name='Size']").next(".field-validation-valid").text("Vui lòng nhập size.");
-                    valid = false;
-                } else {
-                    $("input[name='Size']").removeClass("is-invalid");
-                    $("input[name='Size']").next(".field-validation-valid").text("");
+                const sellPrice = importCost + (importCost * profitPercentage / 100);
+                document.getElementById('estimatedSellPrice').value = Math.round(sellPrice);
+            }
+
+            // Event listeners for price calculation
+            document.getElementById('importCostInput').addEventListener('input', calculateSellPrice);
+            document.getElementById('profitPercentage').addEventListener('input', calculateSellPrice);
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+            }
+
+            function clearRecommendations() {
+                recommendedSizes = [];
+                recommendedColors = [];
+                selectedBulkSizes = [];
+                selectedBulkColors = [];
+                document.getElementById('bulkSizeSelection').innerHTML = '';
+                document.getElementById('bulkColorSelection').innerHTML = '';
+                document.getElementById('recommendedSizes').style.display = 'none';
+                document.getElementById('recommendedColors').style.display = 'none';
+                updateBulkAddButton();
+            }
+
+            // Form validation
+            document.getElementById('storageForm').addEventListener('submit', function(e) {
+                const productId = document.getElementById('productSelect').value;
+                const size = document.getElementById('sizeInput').value.trim();
+                const color = document.getElementById('colorInput').value.trim();
+
+                if (!productId) {
+                    alert('Vui lòng chọn sản phẩm');
+                    e.preventDefault();
+                    return;
                 }
 
-                if (!color) {
-                    $("input[name='Color']").addClass("is-invalid");
-                    $("input[name='Color']").next(".field-validation-valid").text("Vui lòng nhập màu.");
-                    valid = false;
-                } else {
-                    $("input[name='Color']").removeClass("is-invalid");
-                    $("input[name='Color']").next(".field-validation-valid").text("");
+                if (!size || !color) {
+                    alert('Vui lòng nhập đầy đủ size và màu');
+                    e.preventDefault();
+                    return;
                 }
-
-                if (!valid) e.preventDefault();
             });
         });
     </script>

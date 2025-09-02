@@ -1,3 +1,4 @@
+using CuaHangQuanAo.DesignPatterns;
 using CuaHangQuanAo.Entities;
 using CuaHangQuanAo.Factory;
 using CuaHangQuanAo.Models;
@@ -20,7 +21,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.ExpireTimeSpan = TimeSpan.FromHours(1);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -36,6 +37,8 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductFactoryProvider, ProductFactoryProvider>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IStorageFactoryProvider, StorageFactoryProvider>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 
 // Add session support (optional)
 builder.Services.AddSession(options =>

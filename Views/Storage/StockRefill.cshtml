@@ -1,17 +1,15 @@
-﻿@model IEnumerable<CuaHangQuanAo.Entities.Storage>
+﻿@model CuaHangQuanAo.Models.ViewModels.StorageListVm
 @{
     ViewData["Title"] = "Danh sách nhập kho";
-	Layout = "_AdminLayout";
-    // Thông tin phân trang
-    int currentPage = ViewBag.CurrentPage ?? 1;
-    int totalPages = ViewBag.TotalPages ?? 1;
-    int totalRecords = ViewBag.TotalRecords ?? 0;
-    int pageSize = ViewBag.PageSize ?? 20;
+    Layout = "_AdminLayout";
+    int currentPage = Model.Page;
+    int totalPages = Model.TotalPages;
+    int totalRecords = Model.TotalRecords;
+    int pageSize = Model.PageSize;
     int startRecord = (currentPage - 1) * pageSize + 1;
     int endRecord = Math.Min(currentPage * pageSize, totalRecords);
 }
-
-<!-- một chút CSS -->
+<!-- CSS omitted for brevity, keep as is -->
 <style>
     .page-title-box {
         background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -282,7 +280,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -290,7 +287,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
-    
+
     <div class="page-title-box d-flex justify-content-between align-items-center">
         <div>
             <h2 class="mb-1 fw-bold">
@@ -302,7 +299,7 @@
             <i class="bi bi-plus-circle-fill me-2"></i> Thêm phiếu nhập
         </a>
     </div>
-    
+
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card shadow-sm mb-3">
@@ -328,7 +325,7 @@
                         </div>
                         <div class="ms-3">
                             <h6 class="mb-1 text-muted">Tổng chi phí nhập</h6>
-                            <h4 class="mb-0 fw-bold">@string.Format("{0:N0} đ", ViewBag.TotalCost ?? Model?.Sum(x => x.ImportCost) ?? 0)</h4>
+                            <h4 class="mb-0 fw-bold">@string.Format("{0:N0} đ", Model.TotalCost)</h4>
                         </div>
                     </div>
                 </div>
@@ -344,7 +341,7 @@
                         <div class="ms-3">
                             <h6 class="mb-1 text-muted">Lần nhập gần nhất</h6>
                             <h4 class="mb-0 fw-bold">
-                                @(ViewBag.LatestImportDate ?? Model?.Max(x => x.ImportDate)?.ToString("dd/MM/yyyy") ?? "Chưa có")
+                                @(Model.LatestImportDate ?? "Chưa có")
                             </h4>
                         </div>
                     </div>
@@ -363,7 +360,7 @@
                 <div class="input-group" style="width: 300px;">
                     <form method="get" class="d-flex w-100">
                         <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm..."
-                               name="searchTerm" value="@ViewBag.SearchTerm">
+                               name="searchTerm" value="@Model.SearchTerm">
                         <button class="btn btn-outline-secondary" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
@@ -398,10 +395,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model != null && Model.Any())
+                        @if (Model.Storages != null && Model.Storages.Any())
                         {
                             int stt = (currentPage - 1) * pageSize + 1;
-                            foreach (var item in Model)
+                            foreach (var item in Model.Storages)
                             {
                                 <tr>
                                     <td class="fw-bold text-secondary">@stt</td>
@@ -417,6 +414,11 @@
                                                 <i class="bi bi-box text-primary"></i>
                                             </div>
                                             <div class="product-details">
+                                                <span class="product-name">@item.ProductVariants?.Product?.ItemsName</span>
+                                                <span class="product-meta">
+                                                    Size: @item.ProductVariants?.Size,
+                                                    Color: @item.ProductVariants?.Color
+                                                </span>
                                             </div>
                                         </div>
                                     </td>
@@ -448,7 +450,6 @@
                                                 <i class="bi bi-trash me-1"></i> Xóa
                                             </a>
                                         </div>
-
                                     </td>
                                 </tr>
                                 stt++;
@@ -470,9 +471,9 @@
         </div>
         <div class="card-footer bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Hiển thị @(Model?.Count() ?? 0) phiếu nhập kho</span>
+                <span class="text-muted small">Hiển thị @(Model.Storages?.Count() ?? 0) phiếu nhập kho</span>
 
-                @if (ViewBag.LowStockOnly == true)
+                @if (Model.LowStockOnly)
                 {
                     <div class="alert alert-warning mb-4">
                         <div class="d-flex align-items-center">
@@ -490,43 +491,33 @@
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
-                        Hiển thị @ViewBag.PageSize phiếu nhập kho
+                        Hiển thị @Model.PageSize phiếu nhập kho
                     </div>
                     <nav>
                         <ul class="pagination">
-                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                                <a class="page-link" href="@Url.Action("StockRefill", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize, searchTerm = ViewBag.SearchTerm, lowStockOnly = ViewBag.LowStockOnly })">«</a>
+                            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("StockRefill", new { page = Model.Page - 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, lowStockOnly = Model.LowStockOnly })">«</a>
                             </li>
-                            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                            @for (int i = 1; i <= Model.TotalPages; i++)
                             {
-                                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                    <a class="page-link" href="@Url.Action("StockRefill", new { page = i, pageSize = ViewBag.PageSize, searchTerm = ViewBag.SearchTerm, lowStockOnly = ViewBag.LowStockOnly })">@i</a>
+                                <li class="page-item @(i == Model.Page ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("StockRefill", new { page = i, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, lowStockOnly = Model.LowStockOnly })">@i</a>
                                 </li>
                             }
-                            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                                <a class="page-link" href="@Url.Action("StockRefill", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize, searchTerm = ViewBag.SearchTerm, lowStockOnly = ViewBag.LowStockOnly })">»</a>
+                            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" href="@Url.Action("StockRefill", new { page = Model.Page + 1, pageSize = Model.PageSize, searchTerm = Model.SearchTerm, lowStockOnly = Model.LowStockOnly })">»</a>
                             </li>
                         </ul>
                     </nav>
                 </div>
-
-
             </div>
         </div>
     </div>
 </div>
 
-<!-- Script -->
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $("#searchInput").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#storageTable tbody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-
             setTimeout(function () {
                 $(".alert").alert('close');
             }, 5000);
