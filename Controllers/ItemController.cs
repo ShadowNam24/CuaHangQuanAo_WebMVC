@@ -90,6 +90,36 @@ namespace CuaHangQuanAo.Controllers
             }
         }
 
+        // Add to ItemController.cs
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory([FromBody] Category category)
+        {
+            if (string.IsNullOrWhiteSpace(category.NameCategory))
+            {
+                return BadRequest(new { success = false, message = "Tên danh mục không được để trống" });
+            }
+
+            try
+            {
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+
+                var allCategories = await _context.Categories.OrderBy(c => c.NameCategory).ToListAsync();
+                return Json(new
+                {
+                    success = true,
+                    message = "Tạo danh mục thành công",
+                    newCategory = category,
+                    categories = allCategories
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = $"Lỗi khi tạo danh mục: {ex.Message}" });
+            }
+        }
+
+
 
         // GET: /CreateItems/Functions_Details/5
         public async Task<IActionResult> ItemDetails(int id)

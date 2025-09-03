@@ -99,12 +99,59 @@
         color: #6c757d;
         margin-bottom: 10px;
     }
-</style>
 
+    .modal-header {
+        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        color: white;
+    }
+
+    .modal-title {
+        font-weight: 600;
+    }
+
+    .btn-add-category {
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #4B0082;
+        transition: all 0.2s;
+    }
+
+        .btn-add-category:hover {
+            color: #9370DB;
+    }
+</style>
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalLabel">Thêm danh mục sản phẩm mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="categoryModalAlert" class="alert d-none" role="alert"></div>
+                <div class="mb-3">
+                    <label for="categoryName" class="form-label">Tên danh mục</label>
+                    <input type="text" class="form-control" id="categoryName" placeholder="Nhập tên danh mục sản phẩm">
+                    <div class="invalid-feedback">
+                        Vui lòng nhập tên danh mục.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" id="btnSaveCategory" class="btn btn-primary">
+                    <span id="btnSaveCategoryText">Lưu danh mục</span>
+                    <span id="btnSaveCategorySpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Category Modal -->
 <div class="container py-4">
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="@Url.Action("Item", "CreateItems")">Danh sách sản phẩm</a></li>
+            <li class="breadcrumb-item"><a href="@Url.Action("Items", "Item")">Danh sách sản phẩm</a></li>
             <li class="breadcrumb-item active" aria-current="page">Thêm sản phẩm mới</li>
         </ol>
     </nav>
@@ -135,8 +182,8 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <select asp-for="CategoryId" class="form-select" required>
+                            <div class="form-floating mb-3 d-flex">
+                                <select asp-for="CategoryId" id="CategoryId" class="form-select" required>
                                     <option value="">-- Chọn danh mục --</option>
                                     @foreach (var category in ViewBag.Categories)
                                     {
@@ -144,6 +191,10 @@
                                     }
                                 </select>
                                 <label asp-for="CategoryId">Danh mục sản phẩm</label>
+                                <button type="button" class="btn btn-link ms-2 p-0 mt-2" id="btnAddCategory"
+                                        data-bs-toggle="modal" data-bs-target="#categoryModal" title="Thêm danh mục mới">
+                                    <i class="bi bi-plus-circle-fill btn-add-category"></i>
+                                </button>
                                 <span asp-validation-for="CategoryId" class="validation-message"></span>
                             </div>
                         </div>
@@ -252,6 +303,100 @@
                 if (file) {
                     $('#image-upload')[0].files = e.originalEvent.dataTransfer.files;
                     $('#image-upload').trigger('change');
+                }
+            });
+
+            // Category modal handling
+            $('#categoryModal').on('shown.bs.modal', function () {
+                $('#categoryName').focus();
+                $('#categoryModalAlert').addClass('d-none');
+                $('#categoryName').val('');
+                $('#categoryName').removeClass('is-invalid');
+            });
+
+            // Save category button
+            $('#btnSaveCategory').click(function() {
+                const categoryName = $('#categoryName').val().trim();
+
+                if (!categoryName) {
+                    $('#categoryName').addClass('is-invalid');
+                    return;
+                }
+
+                $('#categoryName').removeClass('is-invalid');
+
+                // Show loading state
+                $('#btnSaveCategoryText').addClass('d-none');
+                $('#btnSaveCategorySpinner').removeClass('d-none');
+                $('#btnSaveCategory').attr('disabled', true);
+
+                // AJAX request to create category
+                $.ajax({
+                    url: '@Url.Action("CreateCategory", "Item")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ NameCategory: categoryName }),
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message
+                            $('#categoryModalAlert')
+                                .removeClass('d-none alert-danger')
+                                .addClass('alert-success')
+                                .text(response.message);
+
+                            // Update the category dropdown
+                            const $categorySelect = $('#CategoryId');
+                            $categorySelect.empty();
+                            $categorySelect.append($('<option>', {
+                                value: '',
+                                text: '-- Chọn danh mục --'
+                            }));
+
+                            $.each(response.categories, function (i, category) {
+                                $categorySelect.append($('<option>', {
+                                    value: category.categoryId,
+                                    text: category.nameCategory
+                                }));
+                            });
+
+                            // Select the newly created category
+                            $categorySelect.val(response.newCategory.categoryId);
+
+                            // Close the modal after a delay
+                            setTimeout(function() {
+                                $('#categoryModal').modal('hide');
+                            }, 1500);
+                        } else {
+                            $('#categoryModalAlert')
+                                .removeClass('d-none alert-success')
+                                .addClass('alert-danger')
+                                .text(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Đã xảy ra lỗi khi tạo danh mục';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        $('#categoryModalAlert')
+                            .removeClass('d-none alert-success')
+                            .addClass('alert-danger')
+                            .text(errorMsg);
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $('#btnSaveCategoryText').removeClass('d-none');
+                        $('#btnSaveCategorySpinner').addClass('d-none');
+                        $('#btnSaveCategory').attr('disabled', false);
+                    }
+                });
+            });
+
+            // Allow Enter key to submit the category form
+            $('#categoryName').keypress(function(event) {
+                if (event.which === 13) {
+                    event.preventDefault();
+                    $('#btnSaveCategory').click();
                 }
             });
         });
