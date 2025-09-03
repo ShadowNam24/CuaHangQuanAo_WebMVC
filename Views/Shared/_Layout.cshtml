@@ -11,124 +11,158 @@
 </head>
 <body>
     <header>
-        <!-- sticky + shadow -->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-red sticky-top shadow-sm">
-            <div class="container-fluid">
-
-                <!-- Brand -->
+        <!-- Modern navbar with better aesthetics -->
+        <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: linear-gradient(135deg, #0a2463 0%, #3e92cc 100%);">
+            <div class="container">
+                <!-- Enhanced Brand with animation -->
                 <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
-                    <img class="logo me-2" src="~/Images/demo/logo.svg" onerror="this.style.display='none';" alt="logo">
-                    <span class="fw-bold">CuaHangQuanAo</span>
+                    <img class="logo me-2" src="~/Images/demo/logo.svg" onerror="this.style.display='none';" alt="logo"
+                         style="width: 42px; height: auto; transition: all 0.3s ease-in-out;">
+                    <span class="fw-bold fs-4" style="letter-spacing: 0.8px; background: linear-gradient(to right, #fff, #e6e6e6);
+                       -webkit-background-clip: text; background-clip: text; color: transparent;">CuaHangQuanAo</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-
-                    <!-- Search -->
-                    <div class="container my-4">
-                        <div class="position-relative mx-auto" style="max-width:720px;">
-                            <input id="homeSearch" type="search" class="form-control form-control-lg"
-                                   placeholder="Tìm sản phẩm bạn muốn... (gõ để tìm nhanh)">
-                            <!-- dropdown gợi ý -->
-                            <div id="suggestBox" class="list-group position-absolute w-100 shadow-sm"
+                    <!-- Enhanced Search Box -->
+                    <div class="mx-auto my-3 my-lg-0" style="max-width: 50%;">
+                        <div class="position-relative">
+                            <div class="input-group">
+                                <input id="homeSearch" type="search" class="form-control form-control-lg border-0 shadow-none"
+                                       placeholder="Tìm sản phẩm bạn muốn... (gõ để tìm nhanh)"
+                                       style="border-radius: 25px 0 0 25px; background-color: rgba(255,255,255,0.15); color: #fff;">
+                                <button class="btn btn-light px-3" type="button" style="border-radius: 0 25px 25px 0; background: rgba(255,255,255,0.25); border: none;">
+                                    <i class="bi bi-search text-white"></i>
+                                </button>
+                            </div>
+                            <!-- Dropdown suggestion box -->
+                            <div id="suggestBox" class="list-group position-absolute w-100 shadow-sm rounded-3 mt-1"
                                  style="z-index:1000; display:none; max-height:360px; overflow:auto;"></div>
                         </div>
-                        <div id="ajaxResults" class="mt-4"></div>
+                        <div id="ajaxResults" class="mt-2"></div>
                     </div>
 
-                    <!-- Nav items -->
+                    <!-- Enhanced Nav items with hover effects -->
                     <ul class="navbar-nav ms-auto align-items-lg-center">
-
-                        <!-- Áo -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="aoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Áo
+                        <!-- Categories with subtle hover animations -->
+                        <li class="nav-item dropdown mx-1">
+                            <a class="nav-link dropdown-toggle text-white fw-medium position-relative" href="#" id="aoDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               style="transition: all 0.3s ease;">
+                                <i class="bi bi-tshirt me-1"></i> Áo
+                                <span class="position-absolute" style="height: 2px; width: 0; background: #fff; bottom: 0; left: 50%;
+                                   transform: translateX(-50%); transition: width 0.3s ease;"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="aoDropdown">
-                                <!-- Thay CategoryId cho khớp DB của bạn -->
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="7">Áo thun</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="5">Áo sơ mi</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="4">Áo polo</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="áo khoác">Áo khoác</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2 animate__animated animate__fadeIn"
+                                style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                aria-labelledby="aoDropdown">
+                                <li><a class="dropdown-item py-2 hover-bg-light" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="7">Áo thun</a></li>
+                                <li><a class="dropdown-item py-2 hover-bg-light" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="5">Áo sơ mi</a></li>
+                                <li><a class="dropdown-item py-2 hover-bg-light" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="4">Áo polo</a></li>
+                                <li><a class="dropdown-item py-2 hover-bg-light" asp-controller="Product" asp-action="QuanAo" asp-route-q="áo khoác">Áo khoác</a></li>
                             </ul>
                         </li>
 
-                        <!-- Quần -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="quanDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Quần
+                        <li class="nav-item dropdown mx-1">
+                            <a class="nav-link dropdown-toggle text-white fw-medium position-relative" href="#" id="quanDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               style="transition: all 0.3s ease;">
+                                <i class="bi bi-handbag me-1"></i> Quần
+                                <span class="position-absolute" style="height: 2px; width: 0; background: #fff; bottom: 0; left: 50%;
+                                   transform: translateX(-50%); transition: width 0.3s ease;"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quanDropdown">
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="jeans">Quần jeans</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-q="short">Quần short</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="3">Quần tây</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2"
+                                style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                aria-labelledby="quanDropdown">
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="QuanAo" asp-route-q="jeans">Quần jeans</a></li>
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="QuanAo" asp-route-q="short">Quần short</a></li>
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="3">Quần tây</a></li>
                             </ul>
                         </li>
 
-                        <!-- Phụ kiện (GỘP Giày + Thắt lưng) -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="phuKienDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Phụ kiện
+                        <li class="nav-item dropdown mx-1">
+                            <a class="nav-link dropdown-toggle text-white fw-medium position-relative" href="#" id="phuKienDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               style="transition: all 0.3s ease;">
+                                <i class="bi bi-gem me-1"></i> Phụ kiện
+                                <span class="position-absolute" style="height: 2px; width: 0; background: #fff; bottom: 0; left: 50%;
+                                   transform: translateX(-50%); transition: width 0.3s ease;"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="phuKienDropdown">
-                                <!-- Nếu bạn muốn lọc theo loại trong trang PhuKien, dùng CategoryId phù hợp DB -->
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2"
+                                style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                aria-labelledby="phuKienDropdown">
                                 <li>
-                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="8">
-                                        Giày
+                                    <a class="dropdown-item py-2" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="8">
+                                        <i class="bi bi-shoe-1 me-2"></i> Giày
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="9">
-                                        Thắt lưng
+                                    <a class="dropdown-item py-2" asp-controller="Product" asp-action="PhuKien" asp-route-CategoryId="9">
+                                        <i class="bi bi-award me-2"></i> Thắt lưng
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider" /></li>
+                                <li><hr class="dropdown-divider opacity-25" /></li>
                                 <li>
-                                    <a class="dropdown-item" asp-controller="Product" asp-action="PhuKien">
-                                        Tất cả phụ kiện
+                                    <a class="dropdown-item py-2" asp-controller="Product" asp-action="PhuKien">
+                                        <i class="bi bi-grid me-2"></i> Tất cả phụ kiện
                                     </a>
                                 </li>
                             </ul>
                         </li>
 
-                        <!-- Suit -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="suitDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Suit
+                        <li class="nav-item dropdown mx-1">
+                            <a class="nav-link dropdown-toggle text-white fw-medium position-relative" href="#" id="suitDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                               style="transition: all 0.3s ease;">
+                                <i class="bi bi-suit-heart me-1"></i> Suit
+                                <span class="position-absolute" style="height: 2px; width: 0; background: #fff; bottom: 0; left: 50%;
+                                   transform: translateX(-50%); transition: width 0.3s ease;"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="suitDropdown">
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="2">Suit luxury</a></li>
-                                <li><a class="dropdown-item" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="1">BST Vest</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2"
+                                style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                aria-labelledby="suitDropdown">
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="2">Suit luxury</a></li>
+                                <li><a class="dropdown-item py-2" asp-controller="Product" asp-action="QuanAo" asp-route-CategoryId="1">BST Vest</a></li>
                             </ul>
                         </li>
 
-                        <!-- Auth buttons -->
+                        <!-- Enhanced Auth buttons -->
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-white" asp-controller="Cart" asp-action="Index">
-                                    <i class="bi bi-cart"></i> Giỏ hàng
+                            <li class="nav-item mx-1">
+                                <a class="nav-link text-white position-relative" asp-controller="Cart" asp-action="Index">
+                                    <i class="bi bi-cart-fill fs-5"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                                          style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000;">
+                                        0
+                                        <span class="visually-hidden">items in cart</span>
+                                    </span>
                                 </a>
                             </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-circle"></i> @User.Identity.Name
+                            <li class="nav-item dropdown mx-1">
+                                <a class="nav-link dropdown-toggle text-white" href="#" id="userDropdown"
+                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle fs-5 me-1"></i>
+                                    <span class="d-none d-lg-inline" style="font-weight: 500;">@User.Identity.Name</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2"
+                                    style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);"
+                                    aria-labelledby="userDropdown">
                                     <li>
-                                        <a class="dropdown-item" asp-controller="Profile" asp-action="Index">
-                                            <i class="bi bi-person"></i> Profile
+                                        <a class="dropdown-item py-2" asp-controller="Profile" asp-action="Index">
+                                            <i class="bi bi-person-badge me-2 text-primary"></i> Profile
                                         </a>
                                     </li>
+                                    <li><hr class="dropdown-divider opacity-25" /></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                            <button type="submit" class="dropdown-item py-2 text-danger">
+                                                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
                                             </button>
                                         </form>
                                     </li>
@@ -138,10 +172,18 @@
                         else
                         {
                             <li class="nav-item ms-lg-2">
-                                <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-outline-light rounded-pill px-3 me-2">Signup</a>
+                                <a asp-controller="Account" asp-action="Register"
+                                   class="btn btn-sm btn-outline-light rounded-pill px-3 me-2 fw-medium"
+                                   style="border-width: 2px; transition: all 0.3s ease;">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Signup
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-sm btn-warning rounded-pill px-3">Login</a>
+                                <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
+                                   class="btn btn-sm rounded-pill px-3 fw-medium"
+                                   style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3); transition: all 0.3s ease;">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                                </a>
                             </li>
                         }
                     </ul>
@@ -149,6 +191,52 @@
             </div>
         </nav>
     </header>
+
+    <!-- Add this to the head section of the document -->
+    <style>
+        /* Hover effect for nav items */
+        .navbar-nav .nav-link:hover .position-absolute {
+            width: 80%;
+        }
+
+        /* Subtle hover animation for dropdown items */
+        .dropdown-item {
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+            .dropdown-item:hover {
+                background-color: rgba(0, 123, 255, 0.08);
+                transform: translateX(5px);
+            }
+
+        /* Enhanced search input placeholder */
+        #homeSearch::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Smooth transition for buttons */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-light:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Logo hover animation */
+        .navbar-brand:hover img {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Enhanced navbar shadow */
+        .navbar {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+
+
 
     <div class="container">
         <main role="main" class="pb-3">

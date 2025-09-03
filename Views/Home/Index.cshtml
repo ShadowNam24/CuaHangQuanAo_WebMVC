@@ -1,41 +1,459 @@
 ﻿@model CuaHangQuanAo.Entities.HomeIndexVm
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<!-- SEARCH AJAX (trang chủ) -->
-
-
 <style>
-    .fashion-hero {
-        background-size: cover;
-        color: #fff;
-        padding: 80px 0;
+    /* Reset và các biến CSS */
+    :root {
+        --primary: #3e92cc;
+        --primary-dark: #0a2463;
+        --secondary: #38b6ff;
+        --accent: #ff8c42;
+        --dark: #212529;
+        --light: #f8f9fa;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --gray: #6c757d;
+        --border-radius: 12px;
+        --box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        --transition: all 0.3s ease;
+    }
+
+    /* Hero section */
+    .hero-section {
+        position: relative;
+        background: linear-gradient(135deg, var(--light) 0%, #e6e6e6 100%);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: 4rem;
+        box-shadow: var(--box-shadow);
+    }
+
+    .hero-content {
+        padding: 4rem 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-weight: 800;
+        margin-bottom: 1rem;
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: var(--dark);
+    }
+
+    .hero-btn {
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 1rem;
+        margin-bottom: 1rem;
         text-align: center;
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
-        margin-bottom: 40px;
-        height: 550px;
     }
 
-    #fashion-hero-carousel {
-        background: linear-gradient(135deg, #FFFFFF 40%, #808080 100%);
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.12);
-        margin-bottom: 40px;
-        padding-top: 16px;
-        padding-bottom: 16px;
+    .hero-btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(62, 146, 204, 0.4);
     }
 
-        #fashion-hero-carousel .carousel-item {
-            min-height: 500px;
+        .hero-btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(62, 146, 204, 0.6);
+            color: white;
         }
 
-        #fashion-hero-carousel h1, #fashion-hero-carousel p {
-            animation: fadeInUp 1s ease;
+    .hero-btn-outline {
+        background: transparent;
+        color: var(--dark);
+        border: 2px solid var(--dark);
+    }
+
+        .hero-btn-outline:hover {
+            background: var(--dark);
+            color: white;
+            transform: translateY(-3px);
         }
 
+    .hero-image {
+        border-radius: var(--border-radius);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transition: var(--transition);
+    }
+
+        .hero-image:hover {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+    /* Các phần khuyến mãi */
+    .promo-section {
+        position: relative;
+        margin: 5rem 0;
+    }
+
+    .promo-card {
+        position: relative;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        height: 400px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .promo-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        transition: var(--transition);
+    }
+
+    .promo-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+        z-index: 2;
+    }
+
+    .promo-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 2rem;
+        z-index: 3;
+        color: white;
+    }
+
+    .promo-badge {
+        display: inline-block;
+        background: var(--accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        transform: translateY(0);
+        transition: var(--transition);
+    }
+
+    .promo-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .promo-text {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        max-width: 90%;
+    }
+
+    .promo-btn {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background: white;
+        color: var(--dark);
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        transform: translateY(0);
+    }
+
+    .promo-card:hover .promo-image {
+        transform: scale(1.05);
+    }
+
+    .promo-card:hover .promo-badge {
+        transform: translateY(-5px);
+    }
+
+    .promo-btn:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* Phần tiêu đề của mỗi phần */
+    .section-title {
+        position: relative;
+        text-align: center;
+        margin-bottom: 3rem;
+        padding-bottom: 1rem;
+    }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 50px;
+        }
+
+    .section-subtitle {
+        font-size: 1.1rem;
+        color: var(--gray);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Sản phẩm */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .product-card {
+        position: relative;
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--box-shadow);
+        }
+
+    .product-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: var(--primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        padding-top: 100%; /* 1:1 Aspect ratio */
+    }
+
+    .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+
+    .product-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .product-category {
+        font-size: 0.8rem;
+        color: var(--gray);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+        text-decoration: none;
+        transition: var(--transition);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+        .product-title:hover {
+            color: var(--primary);
+        }
+
+    .product-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .product-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .product-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 50px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .product-btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+
+        .product-btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(10, 36, 99, 0.2);
+            color: white;
+        }
+
+    .product-btn-outline {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+    }
+
+        .product-btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+    .see-more-container {
+        text-align: center;
+        margin-top: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .see-more-btn {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background: var(--dark);
+        color: white;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        margin: 0 0.5rem 1rem 0.5rem;
+    }
+
+        .see-more-btn:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(62, 146, 204, 0.3);
+            color: white;
+        }
+
+    /* Thiết kế responsive */
+    @@media (max-width: 992px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 2rem;
+        }
+
+        .promo-title {
+            font-size: 2rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .hero-content {
+            padding: 3rem 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .promo-title {
+            font-size: 1.75rem;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .hero-content {
+            padding: 2rem 1rem;
+        }
+
+        .hero-title {
+            font-size: 1.5rem;
+        }
+
+        .hero-btn {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .promo-title {
+            font-size: 1.5rem;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+    }
+
+    /* Animation */
     @@keyframes fadeInUp {
         from {
             opacity: 0;
@@ -48,269 +466,173 @@
         }
     }
 
-    .title {
-        font-size: 1.6rem;
-        font-weight: 700;
-        text-align: center;
-        margin: 48px auto 24px auto;
-        letter-spacing: 1px;
-        color: #000;
-        border-radius: 10px;
-        box-shadow: 0 2px 12px rgba(44,62,80,.12);
-        padding: 12px 0;
-        max-width: 700px;
-        width: 100%;
+    .animate-fadeInUp {
+        animation: fadeInUp 1s ease;
     }
 
-        .title::after {
-            content: "";
-            display: block;
-            width: 100px;
-            height: 3px;
-            background: #000;
-            margin: 5px auto 0;
-            border-radius: 2px;
-            opacity: .7;
-        }
-
-    .products {
-        display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-        gap: 32px;
-        max-width: 1100px;
-        margin: auto;
+    .delay-1 {
+        animation-delay: 0.2s;
     }
 
-    .product-card {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 4px 16px rgba(44,62,80,.08);
-        padding: 24px;
-        text-align: center;
-        transition: transform .3s, box-shadow .3s;
-        position: relative;
-        overflow: hidden;
+    .delay-2 {
+        animation-delay: 0.2s;
     }
 
-        .product-card:hover {
-            transform: translateY(-8px) scale(1.03);
-            box-shadow: 0 8px 32px rgba(44,62,80,.16);
-        }
-
-    .product-img {
-        width: 100%;
-        height: 180px;
-        object-fit: cover;
-        margin-bottom: 16px;
-        border-radius: 8px;
+    .delay-3 {
+        animation-delay: 0.2s;
     }
-
-    .product-title {
-        font-size: 1.15rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #222;
-    }
-
-    .product-price {
-        color: #e67e22;
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
-
-    .product-btn {
-        background: #222;
-        color: #fff;
-        padding: 10px 24px;
-        border: none;
-        border-radius: 50px;
-        font-size: .95rem;
-        cursor: pointer;
-        transition: all .3s;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(44,62,80,.08);
-        text-decoration: none;
-        display: inline-block;
-    }
-
-        .product-btn:hover {
-            background: #e67e22;
-            color: #fff;
-            transform: scale(1.08);
-        }
-
-    .promo-section {
-        display: flex;
-        align-items: stretch;
-        justify-content: center;
-        gap: 32px;
-        margin: 48px 0;
-    }
-
-    .promo-left {
-        background: url('/Images/demo/bg-fashion.jpg') center center no-repeat;
-        flex: 2;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(44,62,80,.10);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 48px 24px;
-        position: relative;
-        min-height: 420px;
-    }
-
-    .promo-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(34,34,34,.7);
-        border-radius: 12px;
-        z-index: 1;
-    }
-
-    .promo-content {
-        position: relative;
-        z-index: 2;
-        color: #fff;
-        text-align: center;
-        width: 100%;
-    }
-
-    .promo-title {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 16px;
-        letter-spacing: 2px;
-    }
-
-    .promo-desc {
-        font-size: 1.2rem;
-        margin-bottom: 32px;
-        font-weight: 500;
-    }
-
-    .promo-btn {
-        background: #222;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        padding: 16px 48px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-        .promo-btn:hover {
-            background: #e67e22;
-            color: #fff;
-        }
-
-    .promo-right {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .promo-img-box {
-        width: 100%;
-        max-width: 420px;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 24px rgba(44,62,80,.18);
-    }
-
-        .promo-img-box img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
 </style>
 
-<!-- Carousel -->
-<div id="fashion-hero-carousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <div class="container">
-                <div class="row align-items-center p-5">
-                    <div class="col-lg-6">
-                        <h1 class="display-4 fw-bold text-success">Welcome to My World</h1>
-                        <p class="lead">Discover the latest trends and timeless styles.</p>
-                        <!-- Chỉ còn 2 nút -->
-                        <div class="d-flex flex-wrap gap-2">
-                            <a class="btn btn-success btn-lg" asp-controller="Product" asp-action="QuanAo">Shop Quần áo</a>
-                            <a class="btn btn-outline-dark btn-lg" asp-controller="Product" asp-action="PhuKien">Shop Phụ kiện</a>
-                        </div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center py-5">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title animate-fadeInUp">Phong Cách Thời Trang Mới</h1>
+                <p class="hero-subtitle animate-fadeInUp delay-1">Khám phá bộ sưu tập mới nhất với thiết kế độc đáo và chất lượng cao cấp</p>
+                <div class="animate-fadeInUp delay-2">
+                    <a href="@Url.Action("QuanAo", "Product")" class="hero-btn hero-btn-primary">
+                        <i class="bi bi-bag me-2"></i>Khám Phá Ngay
+                    </a>
+                    <a href="@Url.Action("PhuKien", "Product")" class="hero-btn hero-btn-outline">
+                        <i class="bi bi-gem me-2"></i>Xem Phụ Kiện
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center animate-fadeInUp delay-3">
+                <img src="~/Images/demo/demo.webp" class="img-fluid hero-image" alt="Fashion Collection">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Promo Section -->
+<section class="promo-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 mb-4">
+                <div class="promo-card">
+
+                    <div class="video-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; overflow: hidden;">
+                        <video autoplay muted loop playsinline class="promo-video" style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="~/Videos/ADAM STORE I THỜI TRANG CHO QUÝ ÔNG HIỆN ĐẠI.mp4" type="video/mp4">
+                            <source src="~/videos/fashion-promo.webm" type="video/webm">
+                            <!-- Hình ảnh dự phòng khi trình duyệt không hỗ trợ video -->
+                            <img src="~/Images/demo/bg-fashion.jpg" alt="Summer Collection" class="promo-image">
+                        </video>
                     </div>
-                    <div class="col-lg-6">
-                        <img src="~/Images/demo/demo.webp" class="img-fluid rounded shadow" alt="Fashion 1" />
+                    <div class="promo-overlay"></div>
+                    <div class="promo-content">
+                        <span class="promo-badge">Khuyến mãi lớn</span>
+                        <h2 class="promo-title">GIẢM GIÁ LÊN ĐẾN 50%</h2>
+                        <p class="promo-text">Bộ sưu tập thời trang mùa hè với những thiết kế độc quyền dành cho bạn</p>
+                        <a href="@Url.Action("QuanAo", "Product")" class="promo-btn">Mua Ngay</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="promo-card">
+                    <img src="~/Images/demo/demo.webp" alt="Accessories" class="promo-image">
+                    <div class="promo-overlay"></div>
+                    <div class="promo-content">
+                        <span class="promo-badge">Mới Về</span>
+                        <h2 class="promo-title">Phụ Kiện</h2>
+                        <p class="promo-text">Hoàn thiện phong cách của bạn</p>
+                        <a href="@Url.Action("PhuKien", "Product")" class="promo-btn">Khám Phá</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Promo -->
-<div class="promo-section">
-    <div class="promo-left">
-        <div class="promo-overlay"></div>
-        <div class="promo-content">
-            <div class="promo-title">GIẢM 50%</div>
-            <div class="promo-desc">Thời trang Shop giảm từ 35% lên đến 50% đối với bộ sưu tập hè</div>
-            <a class="promo-btn" asp-controller="Product" asp-action="PhuKien">XEM TẤT CẢ PHỤ KIỆN</a>
+
+<!-- New Products Section -->
+<section class="new-products-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Sản Phẩm Mới Nhất</h2>
+            <p class="section-subtitle">Khám phá những sản phẩm mới nhất từ bộ sưu tập của chúng tôi</p>
+        </div>
+
+        <div class="product-grid">
+            @foreach (var product in Model.NewProducts)
+            {
+                <div class="product-card">
+                    <span class="product-badge">Mới</span>
+                    <div class="product-image-wrapper">
+                        <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId">
+                            <img src="~/Images/Ao Polo co vanh.jpg" alt="@product.ItemsName" class="product-image">
+                        </a>
+                    </div>
+                    <div class="product-body">
+                        <span class="product-category">@product.Category?.NameCategory</span>
+                        <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId" class="product-title">@product.ItemsName</a>
+                        <div class="product-price">@string.Format("{0:N0} ₫", product.SellPrice)</div>
+                        <div class="product-actions">
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId" class="product-btn product-btn-primary">
+                                <i class="bi bi-bag-plus me-2"></i>Mua Ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="see-more-container">
+            <a asp-controller="Product" asp-action="QuanAo" class="see-more-btn">
+                <i class="bi bi-grid me-2"></i>Xem Thêm Quần Áo
+            </a>
+            <a asp-controller="Product" asp-action="PhuKien" class="see-more-btn">
+                <i class="bi bi-gem me-2"></i>Xem Thêm Phụ Kiện
+            </a>
         </div>
     </div>
-</div>
+</section>
 
-<!-- New Products -->
-<div class="title">SẢN PHẨM MỚI</div>
-<div class="products">
-    @foreach (var p in Model.NewProducts)
-    {
-        <div class="product-card">
-            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                <img src="~/Images/@p.Image" alt="@p.ItemsName" class="product-img" />
-            </a>
-            <div class="product-title">
-                <a class="text-dark text-decoration-none"
-                   asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">@p.ItemsName</a>
-            </div>
-            <div class="product-price">@string.Format("{0:N0} đ", p.SellPrice)</div>
-            <a class="product-btn" asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">Buy Now</a>
+<!-- Hot Products Section -->
+<section class="hot-products-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Sản Phẩm Bán Chạy</h2>
+            <p class="section-subtitle">Những sản phẩm được yêu thích nhất của chúng tôi</p>
         </div>
-    }
-</div>
-<div class="text-center mt-3">
-    <a class="product-btn" asp-controller="Product" asp-action="QuanAo">Xem thêm quần áo</a>
-    <a class="product-btn ms-2" asp-controller="Product" asp-action="PhuKien">Xem thêm phụ kiện</a>
-</div>
 
-<!-- Hot Products -->
-<div class="title">SẢN PHẨM BÁN CHẠY</div>
-<div class="products">
-    @foreach (var p in Model.HotProducts)
-    {
-        <div class="product-card">
-            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                <img src="~/Images/@p.Image" alt="@p.ItemsName" class="product-img" />
-            </a>
-            <div class="product-title">
-                <a class="text-dark text-decoration-none"
-                   asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">@p.ItemsName</a>
-            </div>
-            <div class="product-price">@string.Format("{0:N0} đ", p.SellPrice)</div>
-            <a class="product-btn" asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">Buy Now</a>
+        <div class="product-grid">
+            @foreach (var product in Model.HotProducts)
+            {
+                <div class="product-card">
+                    <span class="product-badge" style="background-color: #ff6b6b;">Hot</span>
+                    <div class="product-image-wrapper">
+                        <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId">
+                            <img src="~/Images/Ao Polo co vanh.jpg" alt="@product.ItemsName" class="product-image">
+                        </a>
+                    </div>
+                    <div class="product-body">
+                        <span class="product-category">@product.Category?.NameCategory</span>
+                        <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId" class="product-title">@product.ItemsName</a>
+                        <div class="product-price">@string.Format("{0:N0} ₫", product.SellPrice)</div>
+                        <div class="product-actions">
+                            <a asp-controller="Product" asp-action="Detail" asp-route-id="@product.ItemsId" class="product-btn product-btn-primary">
+                                <i class="bi bi-bag-plus me-2"></i>Mua Ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
-<div class="text-center mt-3">
-    <a class="product-btn" asp-controller="Product" asp-action="QuanAo">Xem thêm quần áo</a>
-    <a class="product-btn ms-2" asp-controller="Product" asp-action="PhuKien">Xem thêm phụ kiện</a>
-</div>
+
+        <div class="see-more-container">
+            <a asp-controller="Product" asp-action="QuanAo" class="see-more-btn">
+                <i class="bi bi-grid me-2"></i>Xem Thêm Quần Áo
+            </a>
+            <a asp-controller="Product" asp-action="PhuKien" class="see-more-btn">
+                <i class="bi bi-gem me-2"></i>Xem Thêm Phụ Kiện
+            </a>
+        </div>
+    </div>
+</section>
+
 @section Scripts {
     <script>
         (function(){
