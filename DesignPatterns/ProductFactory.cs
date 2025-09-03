@@ -30,7 +30,6 @@ namespace CuaHangQuanAo.Factory
                 CategoryId = _categoryId,
                 ItemsName = $"New {_categoryName} Item",
                 SellPrice = 500000,
-                Image = "default-clothing.jpg",
                 CreatedDate = DateTime.Now,
                 IsAvailable = true,
                 Category = new Category
@@ -86,7 +85,6 @@ namespace CuaHangQuanAo.Factory
                 CategoryId = _categoryId,
                 ItemsName = $"New {_categoryName} Item",
                 SellPrice = 300000,
-                Image = "default-accessory.jpg",
                 CreatedDate = DateTime.Now,
                 IsAvailable = true,
                 Category = new Category

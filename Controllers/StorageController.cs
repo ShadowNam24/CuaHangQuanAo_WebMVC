@@ -310,12 +310,12 @@ namespace CuaHangQuanAo.Controllers
 
         // Bulk import method using factory pattern
         [HttpPost]
-        public async Task<IActionResult> BulkImport(int productId, int supplierId, string sizes, string colors, int baseQuantity, int baseImportCost)
+        public async Task<IActionResult> BulkImport(int productId, int supplierId, string sizes, string colors, int baseQuantity, int baseImportCost, decimal estimatedSellPrice = 0, bool updateItemPrice = false)
         {
             // Split comma-separated values into lists
             var sizeList = string.IsNullOrWhiteSpace(sizes)
-                ? new List<string>()
-                : sizes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        ? new List<string>()
+        : sizes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
 
             var colorList = string.IsNullOrWhiteSpace(colors)
                 ? new List<string>()
@@ -350,6 +350,18 @@ namespace CuaHangQuanAo.Controllers
                     {
                         errors.Add($"Size {size}, Color {color}: {ex.Message}");
                     }
+                }
+            }
+
+            // Update product sell price if requested
+            if (updateItemPrice && estimatedSellPrice > 0)
+            {
+                var item = await _context.Items.FindAsync(productId);
+                if (item != null)
+                {
+                    item.SellPrice = (int)estimatedSellPrice;
+                    _context.Update(item);
+                    await _context.SaveChangesAsync();
                 }
             }
 

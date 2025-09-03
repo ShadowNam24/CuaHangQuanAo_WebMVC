@@ -10,5 +10,6 @@
         public int AvailableInStorage { get; set; }
         public decimal FinalPrice { get; set; }
         public bool IsInStock => AvailableInStorage > 0;
+        public string? Image { get; set; }
     }
 }

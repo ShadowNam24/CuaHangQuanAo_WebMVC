@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = Model.Item.ItemsName;
     var backAction = (Model.Item.CategoryId >= 1 && Model.Item.CategoryId <= 7) ? "QuanAo" : "PhuKien";
-	Layout = "_AdminLayout";
+	Layout = "_Layout";
 }
 
 <div class="container my-4">
@@ -24,18 +24,23 @@
         <div class="col-lg-7">
             <div class="card shadow-sm">
                 <div class="ratio ratio-1x1 bg-light position-relative">
-                    <img id="mainImage" src="~/Images/@Model.Item.Image" class="p-3 object-fit-contain" alt="@Model.Item.ItemsName" 
+                    @{
+                        // Show the first variant's image by default, or a fallback
+                        var defaultImage = Model.AvailableVariants.FirstOrDefault()?.Image ?? "no-image.png";
+                    }
+                    <img id="mainImage" src="~/Images/@defaultImage" class="p-3 object-fit-contain" alt="@Model.Item.ItemsName"
                          onerror="this.src='/images/no-image.png'" />
                 </div>
             </div>
 
             <div class="row row-cols-4 g-3 mt-2">
-                @for (int i = 0; i < Model.Gallery.Count; i++)
+                @for (int i = 0; i < Model.AvailableVariants.Count; i++)
                 {
+                    var variant = Model.AvailableVariants[i];
                     <div class="col">
                         <div class="thumb border rounded-3 overflow-hidden position-relative" role="button" tabindex="0"
-                             data-img="@Model.Gallery[i]">
-                            <img src="~/Images/@Model.Gallery[i]" class="w-100 object-fit-contain" style="aspect-ratio:1/1" alt="thumb @i" 
+                             data-img="@variant.Image">
+                            <img src="~/Images/@variant.Image" class="w-100 object-fit-contain" style="aspect-ratio:1/1" alt="thumb @i" 
                                  onerror="this.src='/images/no-image.png'" />
                         </div>
                     </div>
@@ -545,9 +550,12 @@
         function updateVariantInfo() {
             if (selectedColor && selectedSize) {
                 selectedVariant = variantsData.find(v => 
-                    v.Color === selectedColor && v.Size === selectedSize
-                );
-                
+                    v.Color === selectedColor && v.Size === selectedSize);
+                if (selectedVariant && selectedVariant.Image)
+                {
+                    mainImage.src = '/Images/' + selectedVariant.Image;
+                }
+
                 if (selectedVariant) {
                     // Update variant info display
                     document.getElementById('selectedColorDisplay').textContent = selectedColor;
@@ -563,7 +571,7 @@
                     }
                     
                     // Show variant info and enable add to cart
-                    variantInfo.classList.remove('d-none');
+                    variantInfo.classList.remove('d-none';
                     addCartBtn.disabled = false;
                     addCartBtn.innerHTML = '<i class="bi bi-bag me-2"></i>THÊM VÀO GIỎ HÀNG';
                     

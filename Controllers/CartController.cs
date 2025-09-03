@@ -38,7 +38,7 @@ namespace CuaHangQuanAo.Controllers
                 ItemsName = item.ItemsName ?? "Không tên",
                 Size = size,
                 Quantity = quantity,
-                SellPrice = item.SellPrice
+                SellPrice = (int)item.SellPrice
             };
 
             _cartService.AddToCart(cartItem);

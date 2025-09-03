@@ -1,17 +1,18 @@
 ﻿using System.Diagnostics;
 using CuaHangQuanAo.Models;
-using CuaHangQuanAo.Entities;            // <-- thêm
+using CuaHangQuanAo.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;     // <-- thêm
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CuaHangQuanAo.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly CuaHangBanQuanAoContext _db;   // <-- thêm
+        private readonly CuaHangBanQuanAoContext _db;
 
-        public HomeController(ILogger<HomeController> logger, CuaHangBanQuanAoContext db) // <-- sửa ctor
+        public HomeController(ILogger<HomeController> logger, CuaHangBanQuanAoContext db)
         {
             _logger = logger;
             _db = db;
@@ -19,18 +20,45 @@ namespace CuaHangQuanAo.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // NewProducts: lấy 8 món mới nhất (có thể sửa logic theo cột CreatedAt nếu có)
+            // Top 10 newly added products by CreatedDate
             var newProducts = await _db.Items
                 .Include(i => i.Category)
-                .OrderByDescending(i => i.ItemsId)
-                .Take(8)
+                .Include(i => i.ProductVariants)
+                .OrderByDescending(i => i.CreatedDate)
+                .Take(10)
+                .Select(i => new HomeProductVm
+                {
+                    ItemsId = i.ItemsId,
+                    ItemsName = i.ItemsName,
+                    SellPrice = i.SellPrice,
+                    CategoryName = i.Category.NameCategory,
+                    Image = i.ProductVariants
+                        .OrderBy(pv => pv.ProductVariantsId)
+                        .Select(pv => pv.Image)
+                        .FirstOrDefault() ?? "no-image.png",
+                    SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
+                })
                 .ToListAsync();
 
-            // HotProducts: tạm thời lấy 8 món giá cao nhất (placeholder cho “bán chạy”)
+            // Top 10 best-selling products by total quantity sold
             var hotProducts = await _db.Items
                 .Include(i => i.Category)
-                .OrderByDescending(i => i.SellPrice)
-                .Take(8)
+                .Include(i => i.ProductVariants)
+                .Include(i => i.OrdersDetails)
+                .OrderByDescending(i => i.OrdersDetails.Sum(od => od.Quantity))
+                .Take(10)
+                .Select(i => new HomeProductVm
+                {
+                    ItemsId = i.ItemsId,
+                    ItemsName = i.ItemsName,
+                    SellPrice = i.SellPrice,
+                    CategoryName = i.Category.NameCategory,
+                    Image = i.ProductVariants
+                        .OrderBy(pv => pv.ProductVariantsId)
+                        .Select(pv => pv.Image)
+                        .FirstOrDefault() ?? "no-image.png",
+                    SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
+                })
                 .ToListAsync();
 
             var vm = new HomeIndexVm
@@ -38,7 +66,7 @@ namespace CuaHangQuanAo.Controllers
                 NewProducts = newProducts,
                 HotProducts = hotProducts
             };
-            return View(vm); // <-- truyền model
+            return View(vm);
         }
 
         public IActionResult Privacy() => View();

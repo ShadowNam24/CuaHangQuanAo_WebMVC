@@ -17,6 +17,8 @@ public partial class ProductVariant
 
     public int StockQuantity { get; set; }
 
+    public string? Image { get; set; }
+
     public virtual Item Product { get; set; } = null!;
 
     public virtual ICollection<Storage> Storages { get; set; } = new List<Storage>();
