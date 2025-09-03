@@ -72,7 +72,7 @@ namespace CuaHangQuanAo.Services
                     PriceModifier = pv.PriceModifier,
                     StockQuantity = pv.StockQuantity,
                     AvailableInStorage = pv.Storages.Sum(s => s.Quantity ?? 0),
-                    FinalPrice = pv.Product.SellPrice + pv.PriceModifier
+                    FinalPrice = (int)(pv.Product.SellPrice + pv.Product.SellPrice * pv.PriceModifier)
                 })
                 .Where(v => v.AvailableInStorage > 0) // Only show variants with stock
                 .OrderBy(v => v.Size)
@@ -124,7 +124,7 @@ namespace CuaHangQuanAo.Services
                     PriceModifier = pv.PriceModifier,
                     StockQuantity = pv.StockQuantity,
                     AvailableInStorage = pv.Storages.Sum(s => s.Quantity ?? 0),
-                    FinalPrice = pv.Product.SellPrice + pv.PriceModifier
+                    FinalPrice = (int)(pv.Product.SellPrice + pv.Product.SellPrice * pv.PriceModifier)
                 })
                 .FirstOrDefaultAsync();
 
@@ -141,15 +141,13 @@ namespace CuaHangQuanAo.Services
         }
 
         // Implementation for other interface methods...
-        public async Task<Item> CreateProductAsync(int categoryId, string name, int price, string? imagePath = null)
+        public async Task<Item> CreateProductAsync(int categoryId, string name, int price)
         {
             var factory = _factoryProvider.GetFactory(categoryId);
             var product = factory.CreateProduct();
 
             product.ItemsName = name;
             product.SellPrice = price;
-            if (!string.IsNullOrEmpty(imagePath))
-                product.Image = imagePath;
 
             _context.Items.Add(product);
             await _context.SaveChangesAsync();
@@ -157,7 +155,7 @@ namespace CuaHangQuanAo.Services
             return product;
         }
 
-        public async Task<ProductVariant> CreateProductVariantAsync(int productId, string size, string color, decimal priceModifier = 0)
+        public async Task<ProductVariant> CreateProductVariantAsync(int productId, string size, string color, decimal priceModifier = 0, string? imagePath = null)
         {
             var product = await _context.Items.FindAsync(productId);
             if (product == null)
@@ -166,6 +164,8 @@ namespace CuaHangQuanAo.Services
             var factory = _factoryProvider.GetFactory(product.CategoryId);
             var variant = factory.CreateProductVariant(product, size, color);
             variant.PriceModifier = priceModifier;
+            if (!string.IsNullOrEmpty(imagePath))
+                variant.Image = imagePath;
 
             _context.ProductVariants.Add(variant);
             await _context.SaveChangesAsync();

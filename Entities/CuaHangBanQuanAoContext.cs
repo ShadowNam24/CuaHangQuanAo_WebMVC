@@ -150,7 +150,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Image).HasMaxLength(100);
+            entity.Property(e => e.IsAvailable).HasDefaultValue(true);
             entity.Property(e => e.ItemsName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -199,7 +199,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07B046A1E2");
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07127BE59B");
 
             entity.ToTable("PasswordResetToken");
 
@@ -220,6 +220,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.ProductVariantsId).HasColumnName("ProductVariantsID");
             entity.Property(e => e.Color).HasMaxLength(20);
+            entity.Property(e => e.Image).HasMaxLength(100);
             entity.Property(e => e.PriceModifier).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.Size)

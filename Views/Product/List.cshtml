@@ -78,12 +78,13 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
                 @foreach (var i in f.Items)
                 {
+                    var image = i.ProductVariants?.FirstOrDefault()?.Image ?? "no-image.png";
                     <div class="col">
                         <div class="card product-card h-100 shadow-sm">
                             <!-- Ảnh bấm được -->
                             <div class="ratio ratio-1x1 bg-light position-relative">
                                 <img class="card-img-top object-fit-contain p-3"
-                                     src="~/Images/@i.Image" alt="@i.ItemsName" />
+                                     src="~/Images/@image" alt="@i.ItemsName" />
                                 <a asp-controller="Product"
                                    asp-action="Detail"
                                    asp-route-id="@i.ItemsId"

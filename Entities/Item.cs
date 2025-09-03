@@ -11,11 +11,9 @@ public partial class Item
 
     public string ItemsName { get; set; } = null!;
 
-    public int SellPrice { get; set; }
+    public int? SellPrice { get; set; }
 
-    public string? Image { get; set; }
-
-    public DateTime? CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
     public bool IsAvailable { get; set; }
 

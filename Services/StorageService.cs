@@ -98,7 +98,7 @@ namespace CuaHangQuanAo.Services
                     PriceModifier = pv.PriceModifier,
                     StockQuantity = pv.StockQuantity,
                     AvailableInStorage = pv.Storages.Sum(s => s.Quantity ?? 0),
-                    FinalPrice = pv.Product.SellPrice + pv.PriceModifier
+                    FinalPrice = (int)(pv.Product.SellPrice + pv.Product.SellPrice * pv.PriceModifier)
                 })
                 .Where(v => v.AvailableInStorage > 0)
                 .OrderBy(v => v.Size)
@@ -123,7 +123,7 @@ namespace CuaHangQuanAo.Services
                     {
                         ItemsId = i.ItemsId,
                         DisplayName = i.ItemsName,
-                        SellPrice = i.SellPrice,
+                        SellPrice = (int)i.SellPrice,
                         CategoryId = i.CategoryId
                     })
                     .OrderBy(i => i.DisplayName)

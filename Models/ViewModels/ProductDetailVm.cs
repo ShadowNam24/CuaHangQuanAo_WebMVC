@@ -9,6 +9,7 @@ namespace CuaHangQuanAo.Models.ViewModels
         public List<string> Gallery { get; set; } = new();
         public double Rating { get; set; } = 4.2;
         public int RatingCount { get; set; } = 156;
+        public string? MainImage => Item.ProductVariants.FirstOrDefault()?.Image;
 
         // Storage-based variants
         public List<ProductVariantsInfo> AvailableVariants { get; set; } = new();
