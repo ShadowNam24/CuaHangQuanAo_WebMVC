@@ -452,6 +452,8 @@
                 const supplierId = document.querySelector('select[name="supplierId"]').value;
                 const quantity = parseInt(document.getElementById('quantityInput').value) || 0;
                 const importCost = parseInt(document.getElementById('importCostInput').value) || 0;
+                const estimatedSellPrice = document.getElementById('estimatedSellPrice').value;
+                const updateItemPrice = document.getElementById('updateItemPrice').checked ? 'true' : 'false';
 
                 if (!productId || !supplierId || quantity <= 0 || importCost <= 0) {
                     alert('Vui lòng điền đầy đủ thông tin sản phẩm, nhà cung cấp, số lượng và chi phí nhập');
@@ -478,7 +480,9 @@
                             'sizes': selectedBulkSizes.join(','),
                             'colors': selectedBulkColors.join(','),
                             baseQuantity: quantity,
-                            baseImportCost: importCost
+                            baseImportCost: importCost,
+                            estimatedSellPrice: estimatedSellPrice,
+                            updateItemPrice: updateItemPrice
                         })
                     });
 

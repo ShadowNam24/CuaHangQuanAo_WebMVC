@@ -53,7 +53,7 @@ namespace CuaHangQuanAo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateItems(Item item, IFormFile ImageFile)
+        public async Task<IActionResult> CreateItems(Item item)
         {
             if (string.IsNullOrWhiteSpace(item.ItemsName))
             {
@@ -71,6 +71,7 @@ namespace CuaHangQuanAo.Controllers
 
             try
             {
+                item.IsAvailable = true;
                 _context.Items.Add(item);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Items));
