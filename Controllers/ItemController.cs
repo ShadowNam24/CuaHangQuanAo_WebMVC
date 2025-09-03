@@ -99,7 +99,7 @@ namespace CuaHangQuanAo.Controllers
                 try
                 {
                     // Tạo tên file duy nhất để tránh trùng lặp
-                    string uniqueFileName = Guid.NewGuid().ToString() + extension;
+                    string uniqueFileName = item.ItemsName + extension;
 
                     // Tạo thư mục lưu trữ nếu chưa tồn tại
                     var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images");
@@ -219,10 +219,12 @@ namespace CuaHangQuanAo.Controllers
         public async Task<IActionResult> Functions_DeleteConfirmed(int id)
         {
             var item = await _context.Items.FindAsync(id);
+            var variants = await _context.ProductVariants.Where(pv => pv.ProductId == id).ToListAsync();
             if (item != null)
             {
                 try
                 {
+                    _context.ProductVariants.RemoveRange(variants);
                     _context.Items.Remove(item);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Items));
