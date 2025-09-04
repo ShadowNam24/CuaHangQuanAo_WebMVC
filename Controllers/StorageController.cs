@@ -240,7 +240,7 @@ namespace CuaHangQuanAo.Controllers
             {
                 ViewBag.CurrentImage = storage.ProductVariants.Image.StartsWith("http") ?
                     storage.ProductVariants.Image :
-                    $"/images/products/{storage.ProductVariants.Image}";
+                    $"/images/{storage.ProductVariants.Image}";
             }
 
             return View("~/Views/Storage/EditStock.cshtml", storage);
