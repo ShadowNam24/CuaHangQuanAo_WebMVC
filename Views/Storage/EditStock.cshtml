@@ -137,11 +137,12 @@
                                 <i class="bi bi-box-seam me-1"></i> Sản phẩm
                             </label>
                             <select asp-for="ProductVariantsId" class="form-select"
-                                    asp-items="@(new SelectList(ViewBag.Items ?? new List<dynamic>(), "ItemsId", "ItemsName"))">
+                                    asp-items="@(new SelectList(ViewBag.ProductVariants, "ProductVariantsId", "DisplayName"))">
                                 <option value="">-- Chọn sản phẩm --</option>
                             </select>
                             <span asp-validation-for="ProductVariantsId" class="text-danger"></span>
                         </div>
+
 
                         <div class="mb-3">
                             <label asp-for="Quantity" class="form-label">

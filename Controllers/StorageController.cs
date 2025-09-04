@@ -79,46 +79,54 @@ namespace CuaHangQuanAo.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Functions_Create(int productId, int supplierId, string size, string color,
-            int quantity, int importCost, decimal estimatedSellPrice, bool updateItemPrice = false)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(size) || string.IsNullOrWhiteSpace(color))
-                {
-                    ModelState.AddModelError("", "Size và Color là bắt buộc");
-                    var vm = await _storageService.PrepareCreateViewModelAsync();
-                    return View("~/Views/Storage/CreateStock.cshtml", vm);
-                }
+         [ValidateAntiForgeryToken]
+         public async Task<IActionResult> Functions_Create(int productId, int supplierId, string size, string color,
+             int quantity, int importCost, decimal estimatedSellPrice, bool updateItemPrice = false, DateTime? importDate = null)
+         {
+             try
+             {
+                 if (string.IsNullOrWhiteSpace(size) || string.IsNullOrWhiteSpace(color))
+                 {
+                     ModelState.AddModelError("", "Size và Color là bắt buộc");
+                     var vm = await _storageService.PrepareCreateViewModelAsync();
+                     return View("~/Views/Storage/CreateStock.cshtml", vm);
+                 }
+        
+                 var storage = await _storageService.CreateStorageEntryAsync(productId, supplierId, size, color, quantity, importCost);
 
-                var storage = await _storageService.CreateStorageEntryAsync(productId, supplierId, size, color, quantity, importCost);
+                // Set import date if provided
+                if (importDate.HasValue)
+                {
+                    storage.ImportDate = DateOnly.FromDateTime(importDate.Value);
+                    _context.Update(storage);
+                    await _context.SaveChangesAsync();
+                }
 
                 if (updateItemPrice && estimatedSellPrice > 0)
-                {
-                    var item = await _context.Items.FindAsync(productId);
-                    if (item != null)
-                    {
-                        item.SellPrice = (int)estimatedSellPrice;
-                        _context.Update(item);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = "Đã thêm phiếu nhập kho và cập nhật giá bán sản phẩm thành công!";
-                    }
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = "Đã thêm phiếu nhập kho thành công!";
-                }
-
-                return RedirectToAction(nameof(StockRefill));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                var vm = await _storageService.PrepareCreateViewModelAsync();
-                return View("~/Views/Storage/CreateStock.cshtml", vm);
-            }
-        }
+                 {
+                     var item = await _context.Items.FindAsync(productId);
+                     if (item != null)
+                     {
+                         item.SellPrice = (int)estimatedSellPrice;
+                         _context.Update(item);
+                         await _context.SaveChangesAsync();
+                         TempData["SuccessMessage"] = "Đã thêm phiếu nhập kho và cập nhật giá bán sản phẩm thành công!";
+                     }
+                 }
+                 else
+                 {
+                     TempData["SuccessMessage"] = "Đã thêm phiếu nhập kho thành công!";
+                 }
+        
+                 return RedirectToAction(nameof(StockRefill));
+             }
+             catch (Exception ex)
+             {
+                 ModelState.AddModelError("", ex.Message);
+                 var vm = await _storageService.PrepareCreateViewModelAsync();
+                 return View("~/Views/Storage/CreateStock.cshtml", vm);
+             }
+         }
 
         // API methods for AJAX calls
         [HttpGet]
@@ -196,7 +204,7 @@ namespace CuaHangQuanAo.Controllers
             }
         }
 
-        // Rest of existing methods...
+
         public async Task<IActionResult> Functions_Edit(int id)
         {
             var storage = await _context.Storages
@@ -207,11 +215,19 @@ namespace CuaHangQuanAo.Controllers
 
             if (storage == null) return NotFound();
 
-            var vm = await _storageService.PrepareCreateViewModelAsync();
-            vm.Storage = storage;
+            // Set up ViewBag data needed by the view
+            ViewBag.Suppliers = await _context.Suppliers.ToListAsync();
+            ViewBag.ProductVariants = await _context.ProductVariants
+                .Include(pv => pv.Product)
+                .Select(pv => new {
+                    pv.ProductVariantsId,
+                    DisplayName = $"{pv.Product.ItemsName} - {pv.Size} - {pv.Color}"
+                })
+                .ToListAsync();
 
-            return View("~/Views/Storage/EditStock.cshtml", vm);
+            return View("~/Views/Storage/EditStock.cshtml", storage);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -234,10 +250,60 @@ namespace CuaHangQuanAo.Controllers
                 return RedirectToAction(nameof(StockRefill));
             }
 
+            // FIX: Use the correct ViewModel for the view
             var vm = await _storageService.PrepareCreateViewModelAsync();
             vm.Storage = storage;
-            return View("~/Views/Storage/EditStock.cshtml", vm);
+            return View("~/Views/Storage/EditStock.cshtml", vm); // Make sure the view expects StorageCreateVm
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProductStatus(int productId, int status)
+        {
+            try
+            {
+                // Kiểm tra tính hợp lệ của status (1-3)
+                if (status < 1 || status > 3)
+                {
+                    return Json(new { success = false, message = "Trạng thái không hợp lệ." });
+                }
+
+                var product = await _context.Items.FindAsync(productId);
+
+                if (product == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+                }
+
+                // Cập nhật trạng thái
+                product.Status = status;
+
+                // Đồng thời cập nhật IsAvailable dựa trên trạng thái
+                product.IsAvailable = status == 1; // Chỉ những sản phẩm hoạt động mới Available
+
+                _context.Update(product);
+                await _context.SaveChangesAsync();
+
+                string statusText = status switch
+                {
+                    1 => "Hoạt động",
+                    2 => "Tạm ngưng",
+                    3 => "Ngưng hoàn toàn",
+                    _ => "Hoạt động"
+                };
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Đã cập nhật trạng thái sản phẩm thành {statusText}."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Lỗi: {ex.Message}" });
+            }
+        }
+
+
 
         public async Task<IActionResult> Functions_Details(int id)
         {

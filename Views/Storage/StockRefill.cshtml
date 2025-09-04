@@ -8,7 +8,44 @@
     int pageSize = Model.PageSize;
     int startRecord = (currentPage - 1) * pageSize + 1;
     int endRecord = Math.Min(currentPage * pageSize, totalRecords);
+
+    // Hàm trợ giúp để lấy tên trạng thái dựa trên mã số
+    string GetStatusText(int status)
+    {
+        return status switch
+        {
+            1 => "Hoạt động",
+            2 => "Tạm ngưng",
+            3 => "Ngưng hoàn toàn",
+            _ => "Hoạt động"
+        };
+    }
+
+    // Hàm trợ giúp để lấy class CSS cho nút trạng thái
+    string GetStatusButtonClass(int status)
+    {
+        return status switch
+        {
+            1 => "btn-outline-success",
+            2 => "btn-outline-warning",
+            3 => "btn-outline-danger",
+            _ => "btn-outline-success"
+        };
+    }
+
+    // Hàm trợ giúp để lấy biểu tượng cho trạng thái
+    string GetStatusIcon(int status)
+    {
+        return status switch
+        {
+            1 => "bi-check-circle",
+            2 => "bi-pause-circle",
+            3 => "bi-x-circle",
+            _ => "bi-check-circle"
+        };
+    }
 }
+
 <!-- CSS omitted for brevity, keep as is -->
 <style>
     .page-title-box {
@@ -270,6 +307,47 @@
         color: #718096;
     }
 
+    /* CSS cho dropdown trạng thái */
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+    }
+
+        .dropdown-item.active {
+            background-color: #f8f9fa;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+    .btn-outline-success {
+        color: #198754;
+        border-color: #198754;
+    }
+
+    .btn-outline-warning {
+        color: #fd7e14;
+        border-color: #fd7e14;
+    }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    /* Toast thông báo */
+    .toast-container {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 9999;
+    }
+
+
 </style>
 
 <div class="container py-4">
@@ -380,14 +458,17 @@
                             <th scope="col" style="width:20%">
                                 <i class="bi bi-box me-1 text-secondary"></i> Thông tin sản phẩm
                             </th>
-                            <th scope="col" style="width:20%">
+                            <th scope="col" style="width:15%">
                                 <i class="bi bi-building me-1 text-secondary"></i> Nhà cung cấp
                             </th>
-                            <th scope="col" style="width:10%" class="text-center">
+                            <th scope="col" style="width:5%" class="text-center">
                                 <i class="bi bi-123 me-1 text-secondary"></i> Số lượng
                             </th>
-                            <th scope="col" style="width:15%" class="text-center">
+                            <th scope="col" style="width:10%" class="text-center">
                                 <i class="bi bi-cash me-1 text-secondary"></i> Tổng tiền
+                            </th>
+                            <th scope="col" style="width:15%" class="text-center">
+                                <i class="bi bi-toggle-on me-1 text-secondary"></i> Trạng thái
                             </th>
                             <th scope="col" class="text-center" style="width:15%">
                                 <i class="bi bi-sliders me-1 text-secondary"></i> Hành động
@@ -438,6 +519,49 @@
                                         }
                                         <span class="fw-bold text-success">@string.Format("{0:N0} đ", total)</span>
                                     </td>
+                                    <!-- Cột trạng thái sản phẩm -->
+                                    <td class="text-center">
+                                        @{
+                                            var productId = item.ProductVariants?.Product?.ItemsId ?? 0;
+                                            var currentStatus = item.ProductVariants?.Product?.Status ?? 1;
+                                        }
+
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm @GetStatusButtonClass(currentStatus) dropdown-toggle"
+                                                    type="button"
+                                                    id="dropdownStatus_@item.StorageId"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false"
+                                                    data-product-id="@productId">
+                                                <i class="bi @GetStatusIcon(currentStatus) me-1"></i>
+                                                <span class="status-text">@GetStatusText(currentStatus)</span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownStatus_@item.StorageId">
+                                                <li>
+                                                    <a class="dropdown-item @(currentStatus == 1 ? "active" : "")"
+                                                       href="javascript:void(0)"
+                                                       onclick="updateProductStatus(@productId, 1)">
+                                                        <i class="bi bi-check-circle me-2 text-success"></i>Hoạt động
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item @(currentStatus == 2 ? "active" : "")"
+                                                       href="javascript:void(0)"
+                                                       onclick="updateProductStatus(@productId, 2)">
+                                                        <i class="bi bi-pause-circle me-2 text-warning"></i>Tạm ngưng
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item @(currentStatus == 3 ? "active" : "")"
+                                                       href="javascript:void(0)"
+                                                       onclick="updateProductStatus(@productId, 3)">
+                                                        <i class="bi bi-x-circle me-2 text-danger"></i>Ngưng hoàn toàn
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <!-- Cột hành động -->
                                     <td>
                                         <div class="action-buttons">
                                             <a class="btn btn-action detail" href="@Url.Action("Functions_Details", "Storage", new { id = item.StorageId })" title="Chi tiết">
@@ -458,7 +582,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="7" class="text-center text-muted p-5">
+                                <td colspan="8" class="text-center text-muted p-5">
                                     <i class="bi bi-inbox-fill mb-3" style="font-size: 2.5rem; opacity: 0.5;"></i>
                                     <h5>Không có dữ liệu nhập kho</h5>
                                     <p class="mb-0">Vui lòng thêm phiếu nhập kho mới hoặc thay đổi tiêu chí tìm kiếm</p>
@@ -469,6 +593,7 @@
                 </table>
             </div>
         </div>
+
         <div class="card-footer bg-white py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <span class="text-muted small">Hiển thị @(Model.Storages?.Count() ?? 0) phiếu nhập kho</span>
@@ -521,6 +646,134 @@
             setTimeout(function () {
                 $(".alert").alert('close');
             }, 5000);
+
+            // Khởi tạo toasts
+            initToasts();
         });
+
+        // Hàm cập nhật trạng thái sản phẩm
+        function updateProductStatus(productId, status) {
+            if (!productId) return;
+
+            // Hiển thị indicator đang xử lý
+            var $allButtons = $('[data-product-id="' + productId + '"]');
+            $allButtons.prop('disabled', true);
+            $allButtons.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...');
+
+            $.ajax({
+                url: '@Url.Action("UpdateProductStatus", "Storage")',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    status: status
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Hiển thị thông báo thành công
+                        showToast('Thành công', response.message, 'success');
+
+                        // Cập nhật giao diện
+                        var statusText = '';
+                        var statusIcon = '';
+                        var btnClass = '';
+
+                        switch(status) {
+                            case 1:
+                                statusText = 'Hoạt động';
+                                statusIcon = 'bi-check-circle';
+                                btnClass = 'btn-outline-success';
+                                break;
+                            case 2:
+                                statusText = 'Tạm ngưng';
+                                statusIcon = 'bi-pause-circle';
+                                btnClass = 'btn-outline-warning';
+                                break;
+                            case 3:
+                                statusText = 'Ngưng hoàn toàn';
+                                statusIcon = 'bi-x-circle';
+                                btnClass = 'btn-outline-danger';
+                                break;
+                        }
+
+                        // Cập nhật tất cả các nút có cùng productId trên trang
+                        $allButtons.each(function() {
+                            var $btn = $(this);
+                            $btn.prop('disabled', false);
+                            $btn.removeClass('btn-outline-success btn-outline-warning btn-outline-danger')
+                                .addClass(btnClass);
+                            $btn.html('<i class="bi ' + statusIcon + ' me-1"></i><span class="status-text">' + statusText + '</span>');
+
+                            // Cập nhật trạng thái active trong dropdown
+                            var $dropdownMenu = $btn.next('.dropdown-menu');
+                            $dropdownMenu.find('.dropdown-item').removeClass('active');
+                            $dropdownMenu.find('.dropdown-item').eq(status - 1).addClass('active');
+                        });
+                    } else {
+                        // Hiển thị thông báo lỗi
+                        showToast('Lỗi', response.message || 'Có lỗi xảy ra khi cập nhật trạng thái.', 'danger');
+
+                        // Khôi phục nút
+                        $allButtons.prop('disabled', false);
+                        // Tìm trạng thái hiện tại để khôi phục
+                        var $activeItem = $allButtons.first().next('.dropdown-menu').find('.dropdown-item.active');
+                        var currentStatus = $activeItem.index() + 1;
+                        var currentStatusText = $activeItem.text().trim();
+                        var currentStatusIcon = $activeItem.find('i').attr('class').split(' ').filter(cls => cls.startsWith('bi-'))[0];
+                        var currentBtnClass = 'btn-outline-' + ($activeItem.find('i').hasClass('text-success') ? 'success' :
+                                             $activeItem.find('i').hasClass('text-warning') ? 'warning' : 'danger');
+
+                        $allButtons.each(function() {
+                            var $btn = $(this);
+                            $btn.removeClass('btn-outline-success btn-outline-warning btn-outline-danger')
+                                .addClass(currentBtnClass);
+                            $btn.html('<i class="bi ' + currentStatusIcon + ' me-1"></i><span class="status-text">' + currentStatusText + '</span>');
+                        });
+                    }
+                },
+                error: function() {
+                    // Hiển thị thông báo lỗi
+                    showToast('Lỗi', 'Có lỗi xảy ra khi kết nối với máy chủ.', 'danger');
+
+                    // Khôi phục nút
+                    $allButtons.prop('disabled', false);
+                    // TODO: Khôi phục trạng thái ban đầu tương tự như phần error trong success
+                }
+            });
+        }
+
+        // Khởi tạo toasts
+        function initToasts() {
+            // Thêm container cho toasts nếu chưa có
+            if ($('.toast-container').length === 0) {
+                $('body').append('<div class="toast-container"></div>');
+            }
+        }
+
+        // Hiển thị toast thông báo
+        function showToast(title, message, type) {
+            var toastId = 'toast-' + Date.now();
+            var toastHtml = `
+                <div class="toast" id="${toastId}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-${type} text-white">
+                        <strong class="me-auto">${title}</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            $('.toast-container').append(toastHtml);
+            var toast = new bootstrap.Toast(document.getElementById(toastId), {
+                delay: 5000
+            });
+            toast.show();
+
+            // Tự động xóa toast sau khi ẩn
+            $('#' + toastId).on('hidden.bs.toast', function () {
+                $(this).remove();
+            });
+        }
     </script>
 }
