@@ -5,6 +5,9 @@ using CuaHangQuanAo.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+
 
 namespace CuaHangQuanAo.Controllers
 {
@@ -15,15 +18,22 @@ namespace CuaHangQuanAo.Controllers
         private readonly IStorageService _storageService;
         private readonly IStorageFactoryProvider _storageFactoryProvider;
 
+       
+
+        private readonly IWebHostEnvironment _hostEnvironment;
+
         public StorageController(
             CuaHangBanQuanAoContext context,
             IStorageService storageService,
-            IStorageFactoryProvider storageFactoryProvider)
+            IStorageFactoryProvider storageFactoryProvider,
+            IWebHostEnvironment hostEnvironment) // Thêm tham số này
         {
             _context = context;
             _storageService = storageService;
             _storageFactoryProvider = storageFactoryProvider;
+            _hostEnvironment = hostEnvironment;
         }
+
 
         public async Task<IActionResult> StockRefill(string searchTerm, bool lowStockOnly = false, int page = 1, int pageSize = 15)
         {
@@ -225,36 +235,140 @@ namespace CuaHangQuanAo.Controllers
                 })
                 .ToListAsync();
 
+            // Thêm hình ảnh sản phẩm hiện tại vào ViewBag nếu có
+            if (storage.ProductVariants != null && !string.IsNullOrEmpty(storage.ProductVariants.Image))
+            {
+                ViewBag.CurrentImage = storage.ProductVariants.Image.StartsWith("http") ?
+                    storage.ProductVariants.Image :
+                    $"/images/products/{storage.ProductVariants.Image}";
+            }
+
             return View("~/Views/Storage/EditStock.cshtml", storage);
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Functions_Edit(int id, Storage storage)
+        public async Task<IActionResult> Functions_Edit(int id, Storage storage, IFormFile ImageFile, bool RemoveImage = false)
         {
             if (id != storage.StorageId) return NotFound();
 
             if (ModelState.IsValid)
             {
-                _context.Update(storage);
-                await _context.SaveChangesAsync();
-
-                // Update variant stock quantity
-                if (storage.ProductVariantsId.HasValue)
+                try
                 {
-                    await _storageService.UpdateProductVariantStockAsync(storage.ProductVariantsId.Value);
-                }
+                    _context.Update(storage);
+                    await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "Cập nhật thông tin kho thành công!";
-                return RedirectToAction(nameof(StockRefill));
+                    // Update variant stock quantity
+                    if (storage.ProductVariantsId.HasValue)
+                    {
+                        await _storageService.UpdateProductVariantStockAsync(storage.ProductVariantsId.Value);
+
+                        // Xử lý tải lên hoặc xóa hình ảnh
+                        var productVariant = await _context.ProductVariants.FindAsync(storage.ProductVariantsId.Value);
+
+                        if (productVariant != null)
+                        {
+                            // Xóa hình ảnh hiện tại nếu được yêu cầu
+                            if (RemoveImage && !string.IsNullOrEmpty(productVariant.Image))
+                            {
+                                // Nếu không phải là URL, xóa file
+                                if (!productVariant.Image.StartsWith("http"))
+                                {
+                                    var imagePath = Path.Combine(_hostEnvironment.WebRootPath, "images/products", productVariant.Image);
+                                    if (System.IO.File.Exists(imagePath))
+                                    {
+                                        System.IO.File.Delete(imagePath);
+                                    }
+                                }
+                                productVariant.Image = null;
+                            }
+
+                            // Xử lý tải lên hình ảnh mới
+                            if (ImageFile != null && ImageFile.Length > 0)
+                            {
+                                // Xóa file hình ảnh cũ nếu tồn tại
+                                if (!string.IsNullOrEmpty(productVariant.Image) && !productVariant.Image.StartsWith("http"))
+                                {
+                                    var oldImagePath = Path.Combine(_hostEnvironment.WebRootPath, "images/products", productVariant.Image);
+                                    if (System.IO.File.Exists(oldImagePath))
+                                    {
+                                        System.IO.File.Delete(oldImagePath);
+                                    }
+                                }
+
+                                // Tạo tên file duy nhất
+                                string uploadsFolder = Path.Combine(_hostEnvironment.WebRootPath, "images/products");
+
+                                // Đảm bảo thư mục tồn tại
+                                if (!Directory.Exists(uploadsFolder))
+                                {
+                                    Directory.CreateDirectory(uploadsFolder);
+                                }
+
+                                string uniqueFileName = $"{Guid.NewGuid().ToString()}_{Path.GetFileName(ImageFile.FileName)}";
+                                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                                // Lưu file
+                                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await ImageFile.CopyToAsync(fileStream);
+                                }
+
+                                // Cập nhật đường dẫn ảnh trong productVariant
+                                productVariant.Image = uniqueFileName;
+                            }
+
+                            // Lưu thay đổi
+                            _context.Update(productVariant);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                    TempData["SuccessMessage"] = "Cập nhật thông tin kho thành công!";
+                    return RedirectToAction(nameof(StockRefill));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _context.Storages.AnyAsync(s => s.StorageId == id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
 
-            // FIX: Use the correct ViewModel for the view
-            var vm = await _storageService.PrepareCreateViewModelAsync();
-            vm.Storage = storage;
-            return View("~/Views/Storage/EditStock.cshtml", vm); // Make sure the view expects StorageCreateVm
+            // Nếu có lỗi, hiển thị form lại
+            ViewBag.Suppliers = await _context.Suppliers.ToListAsync();
+            ViewBag.ProductVariants = await _context.ProductVariants
+                .Include(pv => pv.Product)
+                .Select(pv => new {
+                    pv.ProductVariantsId,
+                    DisplayName = $"{pv.Product.ItemsName} - {pv.Size} - {pv.Color}"
+                })
+                .ToListAsync();
+
+            // Thêm lại thông tin hình ảnh hiện tại vào ViewBag nếu có
+            var productVariantImage = await _context.ProductVariants
+                .Where(pv => pv.ProductVariantsId == storage.ProductVariantsId)
+                .Select(pv => pv.Image)
+                .FirstOrDefaultAsync();
+
+            if (!string.IsNullOrEmpty(productVariantImage))
+            {
+                ViewBag.CurrentImage = productVariantImage.StartsWith("http") ?
+                    productVariantImage :
+                    $"/images/products/{productVariantImage}";
+            }
+
+            return View("~/Views/Storage/EditStock.cshtml", storage);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateProductStatus(int productId, int status)

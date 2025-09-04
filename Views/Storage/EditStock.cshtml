@@ -1,7 +1,7 @@
 ﻿@model CuaHangQuanAo.Entities.Storage
 @{
     ViewData["Title"] = "Sửa phiếu nhập kho";
-	Layout = "_AdminLayout";
+    Layout = "_AdminLayout";
 }
 
 <style>
@@ -31,6 +31,7 @@
         border-radius: 50px;
         padding: 0.6rem 1.5rem;
         transition: all 0.2s;
+        min-width: 160px;
     }
 
         .btn-gradient:hover {
@@ -69,12 +70,52 @@
         border-radius: 50px;
         padding: 0.6rem 1.5rem;
         transition: all 0.2s;
+        min-width: 160px;
+        text-align: center;
     }
 
         .btn-action:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+    /* Styles cho phần upload hình ảnh */
+    .image-upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        cursor: pointer;
+    }
+
+        .image-upload-container:hover {
+            border-color: #FF9500;
+        }
+
+    .image-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+        border-radius: 5px;
+        display: block;
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+
+    .current-image-container {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        background-color: #fff;
+    }
 </style>
 
 <div class="container py-4">
@@ -101,7 +142,7 @@
         </div>
 
         <div class="p-4">
-            <form asp-controller="Storage" asp-action="Functions_Edit" method="post">
+            <form asp-controller="Storage" asp-action="Functions_Edit" method="post" enctype="multipart/form-data">
                 <input type="hidden" asp-for="StorageId" />
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -165,7 +206,40 @@
                     </div>
                 </div>
 
-                <div class="border-top pt-4 d-flex justify-content-between">
+                <!-- Phần Upload Hình Ảnh -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="section-title">
+                            <i class="bi bi-image me-2"></i>Hình ảnh sản phẩm
+                        </h5>
+
+                        @if (ViewBag.CurrentImage != null)
+                        {
+                            <div class="current-image-container mb-3">
+                                <p class="mb-2 fw-bold">Ảnh sản phẩm hiện tại:</p>
+                                <img src="@ViewBag.CurrentImage" alt="Ảnh sản phẩm" class="image-preview mb-2" id="current-image" />
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" id="removeImage" name="RemoveImage">
+                                    <label class="form-check-label" for="removeImage">
+                                        Xóa ảnh hiện tại
+                                    </label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="image-upload-container" id="image-upload-container">
+                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                            <p>Nhấp để tải lên hoặc kéo và thả ảnh vào đây</p>
+                            <p class="text-muted small">Định dạng: JPG, PNG, JPEG. Kích thước tối đa: 2MB</p>
+                            <input type="file" name="ImageFile" id="image-upload" class="d-none" accept="image/png, image/jpeg, image/jpg" />
+                        </div>
+                        <img id="image-preview" class="image-preview" src="#" alt="Xem trước ảnh" style="display: none;" />
+                        <span id="image-error" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <!-- Nút điều hướng -->
+                <div class="border-top pt-4 d-flex justify-content-between align-items-center">
                     <a href="/Storage/StockRefill" class="btn btn-outline-secondary btn-action">
                         <i class="bi bi-arrow-left me-1"></i> Quay lại
                     </a>
@@ -182,17 +256,73 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         $(document).ready(function() {
-            // Auto calculate ImportCost based on quantity * unit price if needed
-            $("#Quantity").change(function() {
-                calculateTotal();
+            // Xử lý upload hình ảnh
+            $('#image-upload-container').click(function() {
+                $('#image-upload').click();
             });
 
-            function calculateTotal() {
-                // Add your calculation logic here if needed
-            }
+            $('#image-upload').change(function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+
+                    // Kiểm tra kích thước file (tối đa 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        $('#image-error').text('Kích thước tệp quá lớn. Vui lòng chọn tệp nhỏ hơn 2MB.');
+                        $('#image-preview').hide();
+                        return;
+                    }
+
+                    // Kiểm tra loại file
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                    if (!validTypes.includes(file.type)) {
+                        $('#image-error').text('Chỉ chấp nhận các định dạng JPG, JPEG hoặc PNG.');
+                        $('#image-preview').hide();
+                        return;
+                    }
+
+                    $('#image-error').text('');
+                    reader.onload = function(e) {
+                        $('#image-preview').attr('src', e.target.result);
+                        $('#image-preview').show();
+                    }
+
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Chức năng kéo và thả
+            $('#image-upload-container').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#e9ecef');
+            });
+
+            $('#image-upload-container').on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#f8f9fa');
+            });
+
+            $('#image-upload-container').on('drop', function(e) {
+                e.preventDefault();
+                $(this).css('background-color', '#f8f9fa');
+
+                const file = e.originalEvent.dataTransfer.files[0];
+                if (file) {
+                    $('#image-upload')[0].files = e.originalEvent.dataTransfer.files;
+                    $('#image-upload').trigger('change');
+                }
+            });
+
+            // Xử lý khi chọn "Xóa ảnh hiện tại"
+            $("#removeImage").change(function() {
+                if($(this).is(":checked")) {
+                    $("#current-image").css("opacity", "0.3");
+                } else {
+                    $("#current-image").css("opacity", "1");
+                }
+            });
         });
     </script>
 }

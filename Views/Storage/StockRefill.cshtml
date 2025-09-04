@@ -492,7 +492,16 @@
                                     <td>
                                         <div class="product-info">
                                             <div class="product-image">
-                                                <i class="bi bi-box text-primary"></i>
+                                                @if (!string.IsNullOrEmpty(item.ProductVariants?.Image))
+                                                {
+                                                    <img src="@(item.ProductVariants.Image.StartsWith("http") ? item.ProductVariants.Image : $"/images/products/{item.ProductVariants.Image}")"
+                                                         alt="@item.ProductVariants?.Product?.ItemsName"
+                                                         style="width: 40px; height: 40px; object-fit: cover;" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-box text-primary"></i>
+                                                }
                                             </div>
                                             <div class="product-details">
                                                 <span class="product-name">@item.ProductVariants?.Product?.ItemsName</span>
