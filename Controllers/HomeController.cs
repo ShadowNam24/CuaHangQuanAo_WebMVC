@@ -33,9 +33,10 @@ namespace CuaHangQuanAo.Controllers
                     SellPrice = i.SellPrice,
                     CategoryName = i.Category.NameCategory,
                     Image = i.ProductVariants
-                        .OrderBy(pv => pv.ProductVariantsId)
-                        .Select(pv => pv.Image)
-                        .FirstOrDefault() ?? "no-image.png",
+                    .Where(pv => !string.IsNullOrEmpty(pv.Image))
+                    .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
+                    .Select(pv => pv.Image)
+                    .FirstOrDefault() ?? "no-image.png",
                     SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
                 })
                 .ToListAsync();
@@ -54,9 +55,10 @@ namespace CuaHangQuanAo.Controllers
                     SellPrice = i.SellPrice,
                     CategoryName = i.Category.NameCategory,
                     Image = i.ProductVariants
-                        .OrderBy(pv => pv.ProductVariantsId)
-                        .Select(pv => pv.Image)
-                        .FirstOrDefault() ?? "no-image.png",
+                    .Where(pv => !string.IsNullOrEmpty(pv.Image))
+                    .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
+                    .Select(pv => pv.Image)
+                    .FirstOrDefault() ?? "no-image.png",
                     SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
                 })
                 .ToListAsync();

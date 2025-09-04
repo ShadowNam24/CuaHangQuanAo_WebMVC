@@ -11,7 +11,7 @@
         <!-- Product Image -->
         <div class="col-md-5">
             <img id="mainImage"
-                 src="~/Images/@(Model.MainImage ?? "no-img.png")"
+                 src="~/Images/products/@(Model.MainImage ?? "no-img.png")"
                  alt="@Model.Item.ItemsName"
                  class="img-fluid rounded shadow">
         </div>
@@ -56,6 +56,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+
             let productId = @Model.Item.ItemsId;
             let variants = [];
             try {
