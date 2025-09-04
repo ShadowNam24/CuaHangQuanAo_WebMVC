@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<CuaHangBanQuanAoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ChuoiKetNoi")));
@@ -35,10 +36,6 @@ builder.Services.AddAuthorization(options =>
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IProductFactoryProvider, ProductFactoryProvider>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IStorageFactoryProvider, StorageFactoryProvider>();
-builder.Services.AddScoped<IStorageService, StorageService>();
 
 // Add session support (optional)
 builder.Services.AddSession(options =>
@@ -48,12 +45,17 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddScoped<CartService>(provider =>
+{
+    var httpContextAccessor = provider.GetRequiredService<IHttpContextAccessor>();
+    return CartService.GetInstance(httpContextAccessor);
+});
+builder.Services.AddScoped<IProductFactoryProvider, ProductFactoryProvider>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IStorageFactoryProvider, StorageFactoryProvider>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
-
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();//
-builder.Services.AddScoped<CartService>();
-builder.Services.AddSession();
 
 var app = builder.Build();
 app.UseSession(); //

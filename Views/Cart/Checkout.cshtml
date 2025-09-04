@@ -1,9 +1,48 @@
 ﻿@model CuaHangQuanAo.Models.CheckoutVm
 @{
     ViewBag.Title = "Thanh toán";
+    var cartItems = ViewBag.CartItems as List<CuaHangQuanAo.Models.CartItem>;
 }
 
 <h2>Đặt Hàng</h2>
+
+@if (cartItems != null && cartItems.Any())
+{
+    <table class="table table-bordered mb-4">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Size</th>
+                <th>Màu</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Tổng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in cartItems)
+            {
+                var imgSrc = !string.IsNullOrEmpty(item.Image)
+                    ? Url.Content("~/Images/" + item.Image)
+                    : Url.Content("~/Images/no-image.png");
+                <tr>
+                    <td>
+                        <img src="@imgSrc" class="p-2 object-fit-contain" alt="@item.ItemsName"
+                             style="width:60px;max-height:60px"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")'" />
+                    </td>
+                    <td>@item.ItemsName</td>
+                    <td>@item.Size</td>
+                    <td>@item.Color</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.SellPrice.ToString("N0") VNĐ</td>
+                    <td>@item.TotalPrice.ToString("N0") VNĐ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 <form asp-action="Checkout" method="post" id="checkoutForm">
     <div class="form-group">
@@ -32,7 +71,7 @@
     <script>
         document.getElementById("checkoutForm").addEventListener("submit", function (e) {
             if (!confirm("Bạn có chắc chắn muốn đặt hàng không?")) {
-                e.preventDefault(); // Người dùng Cancel → hủy submit
+                e.preventDefault();
             } else {
                 alert("Bạn đã đặt hàng thành công!");
             }

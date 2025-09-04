@@ -154,6 +154,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.Property(e => e.ItemsName)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Status).HasDefaultValue(1);
 
             entity.HasOne(d => d.Category).WithMany(p => p.Items)
                 .HasForeignKey(d => d.CategoryId)
@@ -199,7 +200,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07127BE59B");
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC0756A440B2");
 
             entity.ToTable("PasswordResetToken");
 
@@ -250,7 +251,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.Storages)
                 .HasForeignKey(d => d.SupplierId)
-                .HasConstraintName("FK__Storage__Supplie__5AEE82B9");
+                .HasConstraintName("FK__Storage__Supplie__5DCAEF64");
         });
 
         modelBuilder.Entity<Supplier>(entity =>

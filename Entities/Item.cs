@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CuaHangQuanAo.Enums;
 
 namespace CuaHangQuanAo.Entities;
 
@@ -17,9 +16,8 @@ public partial class Item
     public DateTime CreatedDate { get; set; }
 
     public bool IsAvailable { get; set; }
-   
-    public int Status { get; set; } = (int)ProductStatus.Active;
 
+    public int Status { get; set; }
 
     public virtual Category Category { get; set; } = null!;
 

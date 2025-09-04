@@ -46,6 +46,10 @@ namespace CuaHangQuanAo.Controllers
             ViewBag.Employees = _context.Employees
                 .Select(e => new { e.EmployeeId, FullName = (e.Firstname ?? "") + " " + (e.Lastname ?? "") })
                 .ToList();
+            var variants = _context.ProductVariants
+                .Include(v => v.Product)
+                .ToList();
+            ViewBag.Variants = variants;
             return View("CreateOrders");
         }
 
@@ -73,6 +77,10 @@ namespace CuaHangQuanAo.Controllers
                 ViewBag.Employees = _context.Employees
                     .Select(e => new { e.EmployeeId, FullName = (e.Firstname ?? "") + " " + (e.Lastname ?? "") })
                     .ToList();
+                var variants = _context.ProductVariants
+                    .Include(v => v.Product)
+                    .ToList();
+                ViewBag.Variants = variants;
                 return View("CreateOrders", order);
             }
 
@@ -107,6 +115,10 @@ namespace CuaHangQuanAo.Controllers
                 ViewBag.Employees = _context.Employees
                     .Select(e => new { e.EmployeeId, FullName = (e.Firstname ?? "") + " " + (e.Lastname ?? "") })
                     .ToList();
+                var variants = _context.ProductVariants
+                    .Include(v => v.Product)
+                    .ToList();
+                ViewBag.Variants = variants;
                 return View("CreateOrders", order);
             }
         }

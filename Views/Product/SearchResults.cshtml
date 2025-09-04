@@ -2,6 +2,20 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @model IEnumerable<Item>
 
+@functions {
+    // Helper to get the first variant image or fallback
+    string GetProductImage(Item item)
+    {
+        // Try to get the first variant image if available
+        var firstVariantImage = item.ProductVariants?.FirstOrDefault(v => !string.IsNullOrEmpty(v.Image))?.Image;
+        if (!string.IsNullOrEmpty(firstVariantImage))
+        {
+            return Url.Content($"~/Images/{firstVariantImage}");
+        }
+        // Fallback to default image
+        return Url.Content("~/Images/no-image.png");
+    }
+}
 
 <style>
     .ajax-products {
@@ -58,10 +72,10 @@ else
     <div class="ajax-products">
         @foreach (var p in Model)
         {
-            var img = Url.Content($"~/Images/{p.ItemsName}.jpg");
+            var img = GetProductImage(p);
             <div class="ajax-card">
                 <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                    <img class="ajax-img" src="@img" onerror="this.src='@Url.Content("~/images/no-image.png")'" alt="@p.ItemsName" />
+                    <img class="ajax-img" src="@img" onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")'" alt="@p.ItemsName" />
                 </a>
                 <div class="ajax-title">
                     <a class="text-decoration-none text-dark"

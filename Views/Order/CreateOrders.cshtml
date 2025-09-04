@@ -111,9 +111,11 @@
             <!-- Hidden template for product options -->
             <select id="item-options-template" class="d-none">
                 <option value="">-- Chọn sản phẩm --</option>
-                @foreach (var item in ViewBag.Items ?? new List<dynamic>())
+                @foreach (var variant in ViewBag.Variants ?? new List<dynamic>())
                 {
-                    <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName - Size: @item.Size</option>
+                    <option value="@variant.ProductVariantsId" data-price="@variant.Product.SellPrice">
+                        @variant.Product.ItemsName - Size: @variant.Size - Màu: @variant.Color
+                    </option>
                 }
             </select>
 
@@ -243,6 +245,7 @@
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control item-price" readonly />
+                                        <input type="hidden" name="OrdersDetails[0].Price" class="item-price-hidden" />
                                         <span class="input-group-text">đ</span>
                                     </div>
                                 </div>
@@ -343,6 +346,7 @@
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control item-price" readonly />
+                                        <input type="hidden" name="OrdersDetails[${itemIndex}].Price" class="item-price-hidden" />
                                         <span class="input-group-text">đ</span>
                                     </div>
                                 </div>

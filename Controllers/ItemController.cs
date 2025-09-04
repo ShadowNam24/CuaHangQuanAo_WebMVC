@@ -133,7 +133,7 @@ namespace CuaHangQuanAo.Controllers
             return View(item);
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> EditItems(int id, string? returnUrl)
         {
             var item = await _context.Items
@@ -143,7 +143,7 @@ namespace CuaHangQuanAo.Controllers
 
             ViewBag.Categories = _context.Categories.ToList();
             ViewBag.ReturnUrl = returnUrl; // Lưu returnUrl vào ViewBag
-            return View(item);
+            return View("EditItem", item);
         }
 
 

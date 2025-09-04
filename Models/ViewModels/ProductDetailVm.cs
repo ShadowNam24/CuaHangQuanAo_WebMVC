@@ -5,7 +5,6 @@ namespace CuaHangQuanAo.Models.ViewModels
     public class ProductDetailVm
     {
         public Item Item { get; set; } = null!;
-        public List<Item> Related { get; set; } = new();
         public List<string> Gallery { get; set; } = new();
         public double Rating { get; set; } = 4.2;
         public int RatingCount { get; set; } = 156;

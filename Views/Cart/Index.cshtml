@@ -7,13 +7,11 @@
         border: none;
         transition: all 0.3s ease;
     }
-
-        .btn-custom:hover {
-            background-color: #ffc107;
-            color: #000;
-        }
+    .btn-custom:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
 </style>
-
 
 <h2>Giỏ hàng</h2>
 
@@ -38,6 +36,7 @@ else
                 <th>Ảnh</th>
                 <th>Sản phẩm</th>
                 <th>Size</th>
+                <th>Màu</th>
                 <th>Số lượng</th>
                 <th>Giá</th>
                 <th>Tổng</th>
@@ -47,15 +46,34 @@ else
         <tbody>
             @foreach (var item in Model)
             {
+                var imgSrc = !string.IsNullOrEmpty(item.Image)
+                    ? Url.Content("~/Images/" + item.Image)
+                    : Url.Content("~/Images/no-image.png");
                 <tr>
-                    <td><img src="~/images/no-image.png" class="p-3 object-fit-contain" alt="" /></td>
+                    <td>
+                        <img src="@imgSrc" class="p-3 object-fit-contain" alt="@item.ItemsName"
+                             style="width:70px;max-height:70px"
+                             onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")'" />
+                    </td>
                     <td>@item.ItemsName</td>
                     <td>@item.Size</td>
+                    <td>@item.Color</td>
                     <td>@item.Quantity</td>
                     <td>@item.SellPrice.ToString("N0") VNĐ</td>
                     <td>@item.TotalPrice.ToString("N0") VNĐ</td>
                     <td>
-                        <a asp-action="Remove" asp-route-id="@item.ItemsId" asp-route-size="@item.Size" class="btn btn-danger">Xóa</a>
+                        @if (item.VariantId.HasValue)
+                        {
+                            <form asp-action="RemoveItem" asp-controller="Cart" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="variantId" value="@item.VariantId" />
+                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-action="Remove" asp-route-id="@item.ItemsId" asp-route-size="@item.Size" class="btn btn-danger btn-sm">Xóa</a>
+                        }
                     </td>
                 </tr>
             }
@@ -65,13 +83,16 @@ else
     <h3>Tổng cộng: @ViewBag.Total.ToString("N0") VNĐ</h3>
 
     <a asp-action="Clear" class="btn btn-warning">Xóa toàn bộ giỏ hàng</a>
-    <form asp-action="CheckStock" asp-controller="Cart" method="post">
+    <form asp-action="CheckStock" asp-controller="Cart" method="post" style="display:inline;">
         <button type="submit" class="btn btn-success">Đặt Hàng</button>
     </form>
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">@TempData["Error"]</div>
+        <div class="alert alert-danger mt-3">@TempData["Error"]</div>
     }
-
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["Success"]</div>
+    }
 }

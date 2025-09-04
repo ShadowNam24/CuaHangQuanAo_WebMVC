@@ -27,12 +27,6 @@ namespace CuaHangQuanAo.Services
             if (item == null)
                 throw new ArgumentException($"Product with ID {productId} not found");
 
-            var related = await _context.Items
-                .Where(x => x.CategoryId == item.CategoryId && x.ItemsId != productId && x.IsAvailable)
-                .OrderBy(x => x.ItemsName)
-                .Take(8)
-                .ToListAsync();
-
             // Get available variants from storage
             var availableVariants = await GetAvailableVariantsAsync(productId);
             var availableColors = availableVariants.Select(v => v.Color).Distinct().OrderBy(c => c).ToList();
@@ -48,7 +42,6 @@ namespace CuaHangQuanAo.Services
             return new ProductDetailVm
             {
                 Item = item,
-                Related = related,
                 Gallery = gallery,
                 Rating = 4.2,
                 RatingCount = 156,
