@@ -22,24 +22,24 @@ namespace CuaHangQuanAo.Controllers
         {
             // Top 10 newly added products by CreatedDate
             var newProducts = await _db.Items
-                .Include(i => i.Category)
-                .Include(i => i.ProductVariants)
-                .OrderByDescending(i => i.CreatedDate)
-                .Take(10)
-                .Select(i => new HomeProductVm
-                {
-                    ItemsId = i.ItemsId,
-                    ItemsName = i.ItemsName,
-                    SellPrice = i.SellPrice,
-                    CategoryName = i.Category.NameCategory,
-                    Image = i.ProductVariants
-                    .Where(pv => !string.IsNullOrEmpty(pv.Image))
-                    .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
-                    .Select(pv => pv.Image)
-                    .FirstOrDefault() ?? "no-image.png",
-                    SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
-                })
-                .ToListAsync();
+        .Include(i => i.Category)
+        .Include(i => i.ProductVariants)
+        .OrderByDescending(i => i.CreatedDate)
+        .Take(10)
+        .Select(i => new HomeProductVm
+        {
+            ItemsId = i.ItemsId,
+            ItemsName = i.ItemsName,
+            SellPrice = i.SellPrice,
+            CategoryName = i.Category.NameCategory,
+            Image = i.ProductVariants
+                .Where(pv => !string.IsNullOrEmpty(pv.Image))
+                .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
+                .Select(pv => pv.Image)
+                .FirstOrDefault() ?? "no-image.png",
+            SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
+        })
+        .ToListAsync();
 
             // Top 10 best-selling products by total quantity sold
             var hotProducts = await _db.Items
@@ -55,10 +55,10 @@ namespace CuaHangQuanAo.Controllers
                     SellPrice = i.SellPrice,
                     CategoryName = i.Category.NameCategory,
                     Image = i.ProductVariants
-                    .Where(pv => !string.IsNullOrEmpty(pv.Image))
-                    .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
-                    .Select(pv => pv.Image)
-                    .FirstOrDefault() ?? "no-image.png",
+                        .Where(pv => !string.IsNullOrEmpty(pv.Image))
+                        .OrderByDescending(pv => pv.ProductVariantsId)  // Get the most recent
+                        .Select(pv => pv.Image)
+                        .FirstOrDefault() ?? "no-image.png",
                     SoldQuantity = (int)i.OrdersDetails.Sum(od => od.Quantity)
                 })
                 .ToListAsync();

@@ -1,4 +1,4 @@
-﻿@model CuaHangQuanAo.Entities.HomeIndexVm
+﻿@model CuaHangQuanAo.Models.HomeIndexVm
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -473,7 +473,8 @@
         <div class="product-card">
             <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
                 <img src="@(string.IsNullOrEmpty(p.Image) || p.Image == "no-image.png"
-                    ? "~/Images/products/no-image.png" : (p.Image.StartsWith("http") ? p.Image : $"~/Images/products/{p.Image}"))"
+                    ? "/Images/products/no-image.png"
+                    : (p.Image.StartsWith("http") ? p.Image : $"/Images/products/{p.Image}"))"
                      alt="@p.ItemsName" class="product-img" />
             </a>
             <div class="product-title">
@@ -498,8 +499,10 @@
         <div class="product-card">
             <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
                 <img src="@(string.IsNullOrEmpty(p.Image) || p.Image == "no-image.png"
-                    ? "~/Images/products/no-image.png" : (p.Image.StartsWith("http") ? p.Image : $"~/Images/products/{p.Image}"))"
+                    ? "/Images/products/no-image.png"
+                    : (p.Image.StartsWith("http") ? p.Image : $"/Images/products/{p.Image}"))"
                      alt="@p.ItemsName" class="product-img" />
+
             </a>
             <div class="product-title">
                 <a class="text-dark text-decoration-none"

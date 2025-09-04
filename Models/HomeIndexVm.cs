@@ -1,4 +1,4 @@
-﻿namespace CuaHangQuanAo.Entities
+﻿namespace CuaHangQuanAo.Models
 {
     public class HomeProductVm
     {
