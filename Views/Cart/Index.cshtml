@@ -58,17 +58,27 @@ else
                     <td>@item.ItemsName</td>
                     <td>@item.Size</td>
                     <td>@item.Color</td>
-                    <td>@item.Quantity</td>
+                    <td>
+                        @if (item.VariantId.HasValue)
+                        {
+                            <div class="input-group" style="width: 120px;">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity(@item.VariantId, @(item.Quantity - 1))">-</button>
+                                <input type="number" class="form-control form-control-sm text-center" value="@item.Quantity" min="1" max="@item.MaxQuantity" 
+                                       onchange="updateQuantity(@item.VariantId, this.value)" id="qty-@item.VariantId">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity(@item.VariantId, @(item.Quantity + 1))">+</button>
+                            </div>
+                        }
+                        else
+                        {
+                            @item.Quantity
+                        }
+                    </td>
                     <td>@item.SellPrice.ToString("N0") VNĐ</td>
                     <td>@item.TotalPrice.ToString("N0") VNĐ</td>
                     <td>
                         @if (item.VariantId.HasValue)
                         {
-                            <form asp-action="RemoveItem" asp-controller="Cart" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="variantId" value="@item.VariantId" />
-                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                            </form>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(@item.VariantId)">Xóa</button>
                         }
                         else
                         {
@@ -95,4 +105,64 @@ else
     {
         <div class="alert alert-success mt-3">@TempData["Success"]</div>
     }
+}
+
+@section Scripts {
+    <script>
+        function updateQuantity(variantId, newQuantity) {
+            if (newQuantity < 1) {
+                newQuantity = 1;
+            }
+            
+            $.post('/Cart/UpdateQuantity', {
+                variantId: variantId,
+                quantity: newQuantity,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+            .done(function(data) {
+                if (data.success) {
+                    // Update the input value
+                    $('#qty-' + variantId).val(data.itemTotal);
+                    
+                    // Update cart count in header
+                    if (typeof updateCartCount === 'function') {
+                        updateCartCount(data.cartCount);
+                    }
+                    
+                    // Reload page to show updated totals
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .fail(function() {
+                alert('Có lỗi xảy ra khi cập nhật số lượng');
+            });
+        }
+        
+        function removeItem(variantId) {
+            if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                $.post('/Cart/RemoveItem', {
+                    variantId: variantId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        // Update cart count in header
+                        if (typeof updateCartCount === 'function') {
+                            updateCartCount(data.cartCount);
+                        }
+                        
+                        // Reload page to show updated cart
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .fail(function() {
+                    alert('Có lỗi xảy ra khi xóa sản phẩm');
+                });
+            }
+        }
+    </script>
 }

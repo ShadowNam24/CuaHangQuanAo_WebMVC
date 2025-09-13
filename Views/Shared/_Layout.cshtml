@@ -138,7 +138,7 @@
                             <li class="nav-item mx-1">
                                 <a class="nav-link text-white position-relative" asp-controller="Cart" asp-action="Index">
                                     <i class="bi bi-cart-fill fs-5"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                                    <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
                                           style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000;">
                                         0
                                         <span class="visually-hidden">items in cart</span>
@@ -281,6 +281,31 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Load cart count on page load
+        $(document).ready(function() {
+            loadCartCount();
+        });
+        
+        function loadCartCount() {
+            $.get('/Cart/GetCartCount')
+                .done(function(data) {
+                    if (data && data.count !== undefined) {
+                        $('#cartCount').text(data.count);
+                    }
+                })
+                .fail(function() {
+                    console.log('Failed to load cart count');
+                });
+        }
+        
+        // Function to update cart count (can be called from other pages)
+        function updateCartCount(newCount) {
+            $('#cartCount').text(newCount);
+        }
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

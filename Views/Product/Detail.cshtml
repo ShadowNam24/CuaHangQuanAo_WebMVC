@@ -266,7 +266,12 @@
                     success: function (cartRes) {
                         if (cartRes.success) {
                             alert(cartRes.message);
-                            $("#cartCount").text(cartRes.cartCount);
+                            // Update cart count in header
+                            if (typeof updateCartCount === 'function') {
+                                updateCartCount(cartRes.cartCount);
+                            } else {
+                                $("#cartCount").text(cartRes.cartCount);
+                            }
                         } else {
                             alert(cartRes.message);
                         }
