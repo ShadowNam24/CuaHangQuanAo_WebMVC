@@ -10,42 +10,50 @@
     <div class="row">
         <!-- Product Image -->
         <div class="col-md-5">
-            <img id="mainImage"
-                 src="~/Images/products/@(Model.MainImage ?? "no-img.png")"
-                 alt="@Model.Item.ItemsName"
-                 class="img-fluid rounded shadow">
+            <div class="product-image-container" id="imageContainer">
+                <img id="mainImage"
+                     src="~/Images/products/@(Model.MainImage ?? "no-img.png")"
+                     alt="@Model.Item.ItemsName"
+                     class="img-fluid"
+                     style="min-height: 400px; object-fit: cover;">
+                <div id="imageLoading" class="image-loading d-none">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Product Info -->
         <div class="col-md-7">
             <h2>@Model.Item.ItemsName</h2>
-            <h4 id="priceInfo" class="text-danger">
+            <h4 id="priceInfo" class="price-info">
                 @String.Format("{0:N0}", Model.Item.SellPrice) ₫
             </h4>
-            <p id="stockInfo" class="text-success"></p>
+            <p id="stockInfo" class="stock-info"></p>
 
-            <div class="mb-3">
-                <label for="colorSelect" class="form-label fw-bold">Màu sắc</label>
+            <div class="variant-selector">
+                <label for="colorSelect" class="form-label">Màu sắc</label>
                 <select id="colorSelect" class="form-select">
                     <option value="">-- Chọn màu --</option>
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="sizeSelect" class="form-label fw-bold">Kích thước</label>
+            <div class="variant-selector">
+                <label for="sizeSelect" class="form-label">Kích thước</label>
                 <select id="sizeSelect" class="form-select">
                     <option value="">-- Chọn size --</option>
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="quantity" class="form-label fw-bold">Số lượng</label>
+            <div class="variant-selector">
+                <label for="quantity" class="form-label">Số lượng</label>
                 <input type="number" id="quantity" class="form-control" value="1" min="1">
             </div>
 
             @Html.AntiForgeryToken()
 
-            <button id="addToCartBtn" class="btn btn-primary" @(User.Identity.IsAuthenticated ? "" : "disabled")>
+            <button id="addToCartBtn" class="btn btn-primary add-to-cart-btn" @(User.Identity.IsAuthenticated ? "" : "disabled")>
                 <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
             </button>
             @if (!User.Identity.IsAuthenticated)
@@ -82,7 +90,23 @@
 
             populateDropdowns();
 
-            // When color changes, filter sizes
+            // Auto-select first available color and size if available
+            if (variants.length > 0) {
+                const firstColor = [...new Set(variants.map(v => v.Color))][0];
+                const firstSize = [...new Set(variants.filter(v => v.Color === firstColor).map(v => v.Size))][0];
+                
+                if (firstColor) {
+                    $("#colorSelect").val(firstColor);
+                    // Update image for the selected color
+                    updateImageByColor(firstColor);
+                }
+                if (firstSize) $("#sizeSelect").val(firstSize);
+                
+                // Trigger initial update
+                updateVariantPreview();
+            }
+
+            // When color changes, filter sizes and update image
             $("#colorSelect").change(function () {
                 const selectedColor = $(this).val();
                 const sizeSelect = $("#sizeSelect");
@@ -103,10 +127,12 @@
                     sizeSelect.val("");
                 }
 
+                // Update image based on color only
+                updateImageByColor(selectedColor);
                 updateVariantPreview();
             });
 
-            // When size changes, filter colors
+            // When size changes, filter colors (but don't update image)
             $("#sizeSelect").change(function () {
                 const selectedSize = $(this).val();
                 const colorSelect = $("#colorSelect");
@@ -127,35 +153,85 @@
                     colorSelect.val("");
                 }
 
+                // Only update variant info (price, stock), not image
                 updateVariantPreview();
             });
 
-            // Update preview (image, stock, price)
+            // Update image based on color only
+            function updateImageByColor(selectedColor) {
+                if (!selectedColor) {
+                    // Reset to default image if no color selected
+                    $("#mainImage").attr("src", "/Images/products/@(Model.MainImage ?? "no-img.png")");
+                    return;
+                }
+
+                // Find first variant with this color to get the image
+                let colorVariant = variants.find(v => v.Color === selectedColor);
+                if (colorVariant && colorVariant.Image) {
+                    let imageFile = colorVariant.Image.trim();
+                    let newImageSrc = "/Images/products/" + imageFile;
+                    
+                    // Show loading
+                    $("#imageLoading").removeClass("d-none");
+                    $("#imageContainer").addClass("loading");
+                    
+                    // Create image object to check before updating
+                    let img = new Image();
+                    img.onload = function() {
+                        $("#mainImage").attr("src", newImageSrc);
+                        $("#imageLoading").addClass("d-none");
+                        $("#imageContainer").removeClass("loading");
+                    };
+                    img.onerror = function() {
+                        // If image doesn't exist, use default
+                        $("#mainImage").attr("src", "/Images/products/no-img.png");
+                        $("#imageLoading").addClass("d-none");
+                        $("#imageContainer").removeClass("loading");
+                    };
+                    img.src = newImageSrc;
+                } else {
+                    // No specific image for this color, use default
+                    $("#mainImage").attr("src", "/Images/products/@(Model.MainImage ?? "no-img.png")");
+                }
+            }
+
+            // Update preview (stock, price) - without image update
             function updateVariantPreview() {
                 let color = $("#colorSelect").val();
                 let size = $("#sizeSelect").val();
+                
                 if (!color || !size) {
                     $("#priceInfo").text(Number(@Model.Item.SellPrice).toLocaleString("vi-VN") + " ₫");
                     $("#stockInfo").text("");
-                    $("#mainImage").attr("src", "/Images/products/@(Model.MainImage ?? "no-img.png")");
                     return;
                 }
 
                 let variant = variants.find(v => v.Color === color && v.Size === size);
                 if (variant) {
-                    $("#mainImage").attr("src", "/Images/" + (variant.Image || "no-img.png"));
-                    $("#stockInfo").text(variant.StockQuantity > 0 ? `Còn ${variant.StockQuantity} sản phẩm` : "Hết hàng");
-                    // Fix: Ensure price is a valid number
-                    let price = Number(variant.Price);
+                    // Cập nhật thông tin kho
+                    let stockText = variant.AvailableInStorage > 0 ? `Còn ${variant.AvailableInStorage} sản phẩm` : "Hết hàng";
+                    $("#stockInfo").text(stockText).removeClass("in-stock out-of-stock").addClass(variant.AvailableInStorage > 0 ? "in-stock" : "out-of-stock");
+                    
+                    // Cập nhật giá
+                    let price = Number(variant.FinalPrice);
                     if (isNaN(price) || price <= 0) {
                         price = Number(@Model.Item.SellPrice) || 0;
                     }
                     $("#priceInfo").text(price.toLocaleString("vi-VN") + " ₫");
+                    
+                    // Cập nhật trạng thái nút thêm vào giỏ hàng
+                    if (variant.AvailableInStorage > 0) {
+                        $("#addToCartBtn").prop("disabled", false);
+                    } else {
+                        $("#addToCartBtn").prop("disabled", true);
+                    }
                 } else {
                     $("#stockInfo").text("Không khả dụng");
                     $("#priceInfo").text(Number(@Model.Item.SellPrice).toLocaleString("vi-VN") + " ₫");
+                    $("#addToCartBtn").prop("disabled", true);
                 }
             }
+
 
             // Add to cart logic remains the same (use variant.VariantId)
             $("#addToCartBtn").click(function () {

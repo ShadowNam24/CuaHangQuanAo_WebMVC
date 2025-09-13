@@ -278,5 +278,39 @@ namespace CuaHangQuanAo.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        // Get variant details including image for selected color and size
+        [HttpGet]
+        public async Task<IActionResult> GetVariantDetails(int productId, string color, string size)
+        {
+            try
+            {
+                var variant = await _productService.GetVariantInfoAsync(productId, size, color);
+                if (variant == null)
+                {
+                    return Json(new { 
+                        success = false, 
+                        message = "Không tìm thấy biến thể phù hợp" 
+                    });
+                }
+
+                return Json(new {
+                    success = true,
+                    variant = new {
+                        variantId = variant.VariantId,
+                        color = variant.Color,
+                        size = variant.Size,
+                        price = variant.FinalPrice,
+                        stock = variant.AvailableInStorage,
+                        image = variant.Image,
+                        inStock = variant.IsInStock
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }
