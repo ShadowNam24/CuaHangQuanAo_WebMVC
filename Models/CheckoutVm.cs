@@ -7,5 +7,10 @@
         public string Address { get; set; } = string.Empty;
 
         public decimal Discount { get; set; } = 0;
+        
+        // Discount code properties
+        public string DiscountCode { get; set; } = string.Empty;
+        public decimal DiscountAmount { get; set; } = 0;
+        public string DiscountDescription { get; set; } = string.Empty;
     }
 }

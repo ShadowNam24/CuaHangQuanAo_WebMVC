@@ -17,6 +17,17 @@ public partial class Order
 
     public decimal? Discount { get; set; }
 
+    // Additional properties for checkout functionality
+    public decimal? TotalAmount { get; set; }
+    public string? ShippingAddress { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? CustomerName { get; set; }
+    public string? Status { get; set; }
+    public string? PaymentMethod { get; set; }
+    public decimal? DiscountAmount { get; set; }
+    public string? DiscountCode { get; set; }
+    public string? DiscountDescription { get; set; }
+
     public virtual Customer? Customer { get; set; }
 
     public virtual Employee? Employee { get; set; }

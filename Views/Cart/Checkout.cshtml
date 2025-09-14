@@ -2,79 +2,753 @@
 @{
     ViewBag.Title = "Thanh toán";
     var cartItems = ViewBag.CartItems as List<CuaHangQuanAo.Models.CartItem>;
+    var cartTotal = ViewBag.Total as decimal? ?? 0;
 }
 
-<h2>Đặt Hàng</h2>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    /* Import Google Fonts */
+    @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .checkout-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .checkout-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.2);
+        animation: slideInUp 0.8s ease-out;
+    }
+    
+    @@keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .checkout-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .checkout-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .checkout-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+    }
+    
+    .cart-items-section {
+        padding: 2rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-title i {
+        color: #667eea;
+        font-size: 1.3rem;
+    }
+    
+    .cart-item {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    
+    .item-image {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border-radius: 15px;
+        background: #f8f9fa;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .item-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .item-details h6 {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .item-variant {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .item-variant i {
+        color: #667eea;
+        font-size: 0.8rem;
+    }
+    
+    .item-price {
+        font-weight: 700;
+        color: #28a745;
+        font-size: 1.1rem;
+    }
+    
+    .quantity-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    .form-section {
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-label i {
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255,255,255,0.9);
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+        background: white;
+    }
+    
+    .form-control:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .discount-section {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin: 2rem 0;
+    }
+    
+    .discount-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .discount-input-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .discount-input {
+        flex: 1;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 15px;
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        background: rgba(255,255,255,0.9);
+        color: #2c3e50;
+    }
+    
+    .discount-input:focus {
+        outline: none;
+        border-color: white;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+    }
+    
+    .discount-btn {
+        background: rgba(255,255,255,0.2);
+        border: 2px solid rgba(255,255,255,0.3);
+        color: white;
+        padding: 0.875rem 2rem;
+        border-radius: 15px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .discount-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+    }
+    
+    .discount-info {
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        padding: 1rem;
+        margin-top: 1rem;
+        display: none;
+    }
+    
+    .discount-applied {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .remove-discount {
+        background: rgba(220, 53, 69, 0.8);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .remove-discount:hover {
+        background: rgba(220, 53, 69, 1);
+        transform: translateY(-1px);
+    }
+    
+    .summary-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-top: 2rem;
+    }
+    
+    .summary-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .summary-label {
+        font-weight: 500;
+    }
+    
+    .summary-value {
+        font-weight: 600;
+        color: white;
+    }
+    
+    .checkout-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 1.25rem 3rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+        margin-top: 2rem;
+        box-shadow: 0 8px 30px rgba(40, 167, 69, 0.3);
+    }
+    
+    .checkout-btn:hover {
+        background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(40, 167, 69, 0.4);
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+    
+    .empty-cart i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #dee2e6;
+    }
+    
+    .empty-cart h3 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    @@media (max-width: 768px) {
+        .checkout-container {
+            padding: 1rem 0;
+        }
+        
+        .checkout-title {
+            font-size: 2rem;
+        }
+        
+        .cart-item {
+            padding: 1rem;
+        }
+        
+        .item-image {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .discount-input-group {
+            flex-direction: column;
+        }
+        
+        .summary-section {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="checkout-container">
+    <div class="container">
+        <div class="checkout-card">
+            <!-- Header -->
+            <div class="checkout-header">
+                <h1 class="checkout-title">
+                    <i class="bi bi-cart-check me-3"></i>
+                    Thanh toán đơn hàng
+                </h1>
+                <p class="checkout-subtitle">Hoàn tất đơn hàng của bạn một cách dễ dàng và an toàn</p>
+            </div>
 
 @if (cartItems != null && cartItems.Any())
 {
-    <table class="table table-bordered mb-4">
-        <thead>
-            <tr>
-                <th>Ảnh</th>
-                <th>Sản phẩm</th>
-                <th>Size</th>
-                <th>Màu</th>
-                <th>Số lượng</th>
-                <th>Giá</th>
-                <th>Tổng</th>
-            </tr>
-        </thead>
-        <tbody>
+                <!-- Cart Items Section -->
+                <div class="cart-items-section">
+                    <h3 class="section-title">
+                        <i class="bi bi-bag"></i>
+                        Sản phẩm trong giỏ hàng
+                    </h3>
+                    
             @foreach (var item in cartItems)
             {
                 var imgSrc = !string.IsNullOrEmpty(item.Image)
-                    ? Url.Content("~/Images/" + item.Image)
+                            ? Url.Content("~/Images/products/" + item.Image)
                     : Url.Content("~/Images/no-image.png");
-                <tr>
-                    <td>
-                        <img src="@imgSrc" class="p-2 object-fit-contain" alt="@item.ItemsName"
-                             style="width:60px;max-height:60px"
+                        
+                        <div class="cart-item">
+                            <div class="row align-items-center">
+                                <div class="col-md-2">
+                                    <img src="@imgSrc" class="item-image" alt="@item.ItemsName"
                              onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")'" />
-                    </td>
-                    <td>@item.ItemsName</td>
-                    <td>@item.Size</td>
-                    <td>@item.Color</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.SellPrice.ToString("N0") VNĐ</td>
-                    <td>@item.TotalPrice.ToString("N0") VNĐ</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="item-details">
+                                        <h6>@item.ItemsName</h6>
+                                        <div class="item-variant">
+                                            <i class="bi bi-palette"></i>
+                                            Màu: @item.Color
+                                        </div>
+                                        <div class="item-variant">
+                                            <i class="bi bi-rulers"></i>
+                                            Size: @item.Size
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <div class="quantity-badge">
+                                        Số lượng: @item.Quantity
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="item-price">
+                                        @item.TotalPrice.ToString("N0") ₫
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
 
+                <!-- Discount Code Section -->
+                <div class="discount-section">
+                    <h3 class="discount-title">
+                        <i class="bi bi-tag"></i>
+                        Mã giảm giá
+                    </h3>
+                    
+                    <div class="discount-input-group">
+                        <input type="text" id="discountCode" class="discount-input" placeholder="Nhập mã giảm giá" />
+                        <button type="button" class="discount-btn" onclick="applyDiscount()">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Áp dụng
+                        </button>
+                    </div>
+                    
+                    <div id="discountInfo" class="discount-info">
+                        <div class="discount-applied">
+                            <div>
+                                <strong id="discountDescription"></strong>
+                                <div id="discountAmount" class="mt-1"></div>
+                            </div>
+                            <button type="button" class="remove-discount" onclick="removeDiscount()">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Xóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Form -->
+                <div class="form-section">
 <form asp-action="Checkout" method="post" id="checkoutForm">
+                        <h3 class="section-title">
+                            <i class="bi bi-person-lines-fill"></i>
+                            Thông tin giao hàng
+                        </h3>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
     <div class="form-group">
-        <label>Họ tên</label>
-        <input asp-for="CustomerName" class="form-control" required />
+                                    <label class="form-label">
+                                        <i class="bi bi-person"></i>
+                                        Họ và tên
+                                    </label>
+                                    <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ và tên" required />
+                                    <span asp-validation-for="CustomerName" class="text-danger"></span>
+                                </div>
     </div>
+                            <div class="col-md-6">
     <div class="form-group">
-        <label>Số điện thoại</label>
-        <input asp-for="Phone" class="form-control" required />
+                                    <label class="form-label">
+                                        <i class="bi bi-telephone"></i>
+                                        Số điện thoại
+                                    </label>
+                                    <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại" required />
+                                    <span asp-validation-for="Phone" class="text-danger"></span>
+                                </div>
     </div>
-    <div class="form-group">
-        <label>Địa chỉ</label>
-        <input asp-for="Address" class="form-control" required />
     </div>
+                        
     <div class="form-group">
-        <label>Giảm giá</label>
-        <input asp-for="Discount" class="form-control" type="number" value="0" />
+                            <label class="form-label">
+                                <i class="bi bi-geo-alt"></i>
+                                Địa chỉ giao hàng
+                            </label>
+                            <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ giao hàng chi tiết" required />
+                            <span asp-validation-for="Address" class="text-danger"></span>
     </div>
 
-    <h4>Tổng cộng: @string.Format("{0:N0} đ", ViewBag.Total)</h4>
+                        <!-- Hidden fields for discount -->
+                        <input type="hidden" id="appliedDiscountCode" name="DiscountCode" />
+                        <input type="hidden" id="appliedDiscountAmount" name="DiscountAmount" />
+                        <input type="hidden" id="appliedDiscountDescription" name="DiscountDescription" />
 
-    <button type="submit" class="btn btn-success" id="btnCheckout">Xác nhận đặt hàng</button>
+                        <!-- Order Summary -->
+                        <div class="summary-section">
+                            <h4 class="summary-title">
+                                <i class="bi bi-calculator me-2"></i>
+                                Tổng kết đơn hàng
+                            </h4>
+                            
+                            <div class="summary-row">
+                                <span class="summary-label">Tạm tính:</span>
+                                <span class="summary-value" id="subtotal">@cartTotal.ToString("N0") ₫</span>
+                            </div>
+                            
+                            <div class="summary-row" id="discountRow" style="display: none;">
+                                <span class="summary-label">Giảm giá:</span>
+                                <span class="summary-value" id="discountValue">-0 ₫</span>
+                            </div>
+                            
+                            <div class="summary-row">
+                                <span class="summary-label">Phí vận chuyển:</span>
+                                <span class="summary-value">Miễn phí</span>
+                            </div>
+                            
+                            <div class="summary-row">
+                                <span class="summary-label">Tổng cộng:</span>
+                                <span class="summary-value" id="totalAmount">@cartTotal.ToString("N0") ₫</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="checkout-btn" id="btnCheckout">
+                            <i class="bi bi-credit-card me-2"></i>
+                            Xác nhận đặt hàng
+                        </button>
 </form>
+                </div>
+            }
+            else
+            {
+                <div class="empty-cart">
+                    <i class="bi bi-cart-x"></i>
+                    <h3>Giỏ hàng trống</h3>
+                    <p>Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
+                    <a href="@Url.Action("Index", "Product")" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Tiếp tục mua sắm
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        document.getElementById("checkoutForm").addEventListener("submit", function (e) {
+        // Global variables
+        let originalTotal = @cartTotal;
+        let currentDiscount = 0;
+        let appliedDiscountCode = '';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission with enhanced UX
+            const checkoutForm = document.getElementById('checkoutForm');
+            const checkoutBtn = document.getElementById('btnCheckout');
+            
+            if (checkoutForm) {
+                checkoutForm.addEventListener("submit", function (e) {
             if (!confirm("Bạn có chắc chắn muốn đặt hàng không?")) {
                 e.preventDefault();
             } else {
+                        // Show loading state
+                        checkoutBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang xử lý...';
+                        checkoutBtn.disabled = true;
+                        
+                        // Simulate processing time
+                        setTimeout(() => {
                 alert("Bạn đã đặt hàng thành công!");
+                        }, 1000);
+                    }
+                });
             }
+            
+            // Add smooth animations to form elements
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                control.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                control.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.parentElement.classList.remove('focused');
+                    }
+                });
+            });
+            
+            // Add hover effects to cart items
+            const cartItems = document.querySelectorAll('.cart-item');
+            cartItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Allow Enter key to apply discount
+            document.getElementById('discountCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyDiscount();
+                }
+            });
         });
+        
+        function applyDiscount() {
+            const discountCode = document.getElementById('discountCode').value.trim();
+            const discountInfo = document.getElementById('discountInfo');
+            const discountDescription = document.getElementById('discountDescription');
+            const discountAmount = document.getElementById('discountAmount');
+            const discountRow = document.getElementById('discountRow');
+            const discountValue = document.getElementById('discountValue');
+            const totalAmount = document.getElementById('totalAmount');
+            
+            if (!discountCode) {
+                showToast('Vui lòng nhập mã giảm giá!', 'warning');
+                return;
+            }
+            
+            // Make AJAX call to server
+            fetch('@Url.Action("ApplyDiscountCode", "Cart")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `discountCode=${encodeURIComponent(discountCode)}&currentTotal=${originalTotal}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    appliedDiscountCode = discountCode;
+                    currentDiscount = data.discountAmount;
+                    
+                    // Update UI
+                    discountDescription.textContent = data.description;
+                    discountAmount.textContent = `-${data.discountAmount.toLocaleString('vi-VN')} ₫`;
+                    discountValue.textContent = `-${data.discountAmount.toLocaleString('vi-VN')} ₫`;
+                    
+                    // Show discount info
+                    discountInfo.style.display = 'block';
+                    discountRow.style.display = 'flex';
+                    
+                    // Update total
+                    const newTotal = originalTotal - data.discountAmount;
+                    totalAmount.textContent = `${newTotal.toLocaleString('vi-VN')} ₫`;
+                    
+                    // Update hidden fields
+                    document.getElementById('appliedDiscountCode').value = discountCode;
+                    document.getElementById('appliedDiscountAmount').value = data.discountAmount;
+                    document.getElementById('appliedDiscountDescription').value = data.description;
+                    
+                    // Clear input
+                    document.getElementById('discountCode').value = '';
+                    
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Đã xảy ra lỗi khi áp dụng mã giảm giá!', 'error');
+            });
+        }
+        
+        function removeDiscount() {
+            // Reset discount
+            currentDiscount = 0;
+            appliedDiscountCode = '';
+            
+            // Hide discount info
+            document.getElementById('discountInfo').style.display = 'none';
+            document.getElementById('discountRow').style.display = 'none';
+            
+            // Reset total
+            document.getElementById('totalAmount').textContent = `${originalTotal.toLocaleString('vi-VN')} ₫`;
+            
+            // Clear hidden fields
+            document.getElementById('appliedDiscountCode').value = '';
+            document.getElementById('appliedDiscountAmount').value = '';
+            document.getElementById('appliedDiscountDescription').value = '';
+            
+            showToast('Đã xóa mã giảm giá!', 'info');
+        }
+        
+        function showToast(message, type) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'warning' ? 'warning' : type === 'success' ? 'success' : 'info'} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-${type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            // Add to page
+            document.body.appendChild(toast);
+            
+            // Show toast
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+            
+            // Remove from DOM after hiding
+            toast.addEventListener('hidden.bs.toast', function() {
+                document.body.removeChild(toast);
+            });
+        }
     </script>
 }

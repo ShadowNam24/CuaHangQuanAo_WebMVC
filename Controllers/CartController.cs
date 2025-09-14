@@ -255,7 +255,8 @@ namespace CuaHangQuanAo.Controllers
 
         // Process checkout
         [HttpPost]
-        public IActionResult Checkout(CheckoutVm model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Checkout(CheckoutVm model)
         {
             var cart = _cartService.GetCart();
             if (!cart.Any())
@@ -279,19 +280,32 @@ namespace CuaHangQuanAo.Controllers
                 return RedirectToAction("Index");
             }
 
-            using var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Calculate total with discount
+                var cartTotal = _cartService.GetCartTotal();
+                var finalDiscount = model.DiscountAmount > 0 ? model.DiscountAmount : model.Discount;
+                var finalTotal = cartTotal - finalDiscount;
+
                 // Create order
                 var order = new Order
                 {
+                    CustomerId = null, // Assuming guest checkout for now
                     OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    Discount = model.Discount,
-                    Total = _cartService.GetCartTotal() - model.Discount
+                    TotalAmount = finalTotal,
+                    ShippingAddress = model.Address,
+                    PhoneNumber = model.Phone,
+                    CustomerName = model.CustomerName,
+                    Status = "Pending",
+                    PaymentMethod = "COD", // Default payment method
+                    DiscountAmount = finalDiscount, // Save discount amount
+                    DiscountCode = model.DiscountCode, // Save applied discount code
+                    DiscountDescription = model.DiscountDescription // Save discount description
                 };
 
                 _context.Orders.Add(order);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 // Add order details and update stock
                 foreach (var cartItem in cart)
@@ -333,20 +347,66 @@ namespace CuaHangQuanAo.Controllers
                     }
                 }
 
-                _context.SaveChanges();
-                transaction.Commit();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
                 _cartService.ClearCart();
 
-                TempData["Success"] = $"Đặt hàng thành công! Mã đơn: {order.OrdersId}";
+                // Success message with discount info
+                var successMessage = $"Đặt hàng thành công! Mã đơn: {order.OrdersId}";
+                if (!string.IsNullOrEmpty(model.DiscountCode))
+                {
+                    successMessage += $" - Đã áp dụng mã giảm giá: {model.DiscountCode}";
+                }
+
+                TempData["Success"] = successMessage;
                 return RedirectToAction("Checkout");
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 Console.WriteLine($"Checkout error: {ex.Message}");
                 TempData["Error"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
                 return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ApplyDiscountCode(string discountCode, decimal currentTotal)
+        {
+            // This is a simplified example. In a real application, you would fetch discount codes from a database
+            // and apply more robust validation (e.g., expiry date, max usage, minimum order value).
+
+            var validDiscounts = new Dictionary<string, (string description, string type, decimal value)>
+            {
+                { "WELCOME10", ("Chào mừng - Giảm 10%", "percentage", 10m) },
+                { "SAVE50K", ("Tiết kiệm 50K", "fixed", 50000m) },
+                { "NEWUSER", ("Khách hàng mới - Giảm 15%", "percentage", 15m) },
+                { "FREESHIP", ("Miễn phí vận chuyển", "freeship", 0m) } // Example for freeship, though not fully implemented in UI calc
+            };
+
+            if (validDiscounts.TryGetValue(discountCode.ToUpper(), out var discountInfo))
+            {
+                decimal discountAmount = 0;
+                if (discountInfo.type == "percentage")
+                {
+                    discountAmount = currentTotal * (discountInfo.value / 100m);
+                }
+                else if (discountInfo.type == "fixed")
+                {
+                    discountAmount = discountInfo.value;
+                }
+                // For 'freeship', discountAmount remains 0, but you might handle shipping cost separately
+
+                // Ensure discount doesn't exceed total
+                discountAmount = Math.Min(discountAmount, currentTotal);
+
+                return Json(new { success = true, message = "Mã giảm giá đã được áp dụng!", discountAmount = discountAmount, description = discountInfo.description });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Mã giảm giá không hợp lệ hoặc đã hết hạn." });
             }
         }
     }

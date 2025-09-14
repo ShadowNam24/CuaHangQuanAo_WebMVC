@@ -145,6 +145,53 @@ namespace CuaHangQuanAo.Migrations
                     b.ToTable("Customer", (string)null);
                 });
 
+            modelBuilder.Entity("CuaHangQuanAo.Entities.DiscountCode", b =>
+                {
+                    b.Property<int>("DiscountCodeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DiscountCodeId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UsageLimit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("DiscountCodeId");
+
+                    b.ToTable("DiscountCodes");
+                });
+
             modelBuilder.Entity("CuaHangQuanAo.Entities.Employee", b =>
                 {
                     b.Property<int>("EmployeeId")
@@ -222,6 +269,11 @@ namespace CuaHangQuanAo.Migrations
 
                     b.Property<int?>("SellPrice")
                         .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.HasKey("ItemsId")
                         .HasName("pk_ItemsID");
@@ -326,7 +378,7 @@ namespace CuaHangQuanAo.Migrations
                         .HasColumnType("varchar(256)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Password__3214EC07127BE59B");
+                        .HasName("PK__Password__3214EC0756A440B2");
 
                     b.HasIndex("AccountId");
 
@@ -549,7 +601,7 @@ namespace CuaHangQuanAo.Migrations
                     b.HasOne("CuaHangQuanAo.Entities.Supplier", "Supplier")
                         .WithMany("Storages")
                         .HasForeignKey("SupplierId")
-                        .HasConstraintName("FK__Storage__Supplie__5AEE82B9");
+                        .HasConstraintName("FK__Storage__Supplie__5DCAEF64");
 
                     b.Navigation("ProductVariants");
 
