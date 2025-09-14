@@ -38,6 +38,19 @@ namespace CuaHangQuanAo.Controllers
             return View("OrderDetail",order);
         }
 
+        // OrderDetail action for public access
+        public async Task<IActionResult> OrderDetail(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrdersDetails)
+                .ThenInclude(od => od.Items)
+                .FirstOrDefaultAsync(o => o.OrdersId == id);
+
+            if (order == null) return NotFound();
+            return View(order);
+        }
+
         // Create (GET)
         public IActionResult Functions_Create()
         {
