@@ -523,9 +523,9 @@
     </div>
 
                         <!-- Hidden fields for discount -->
-                        <input type="hidden" id="appliedDiscountCode" name="DiscountCode" />
-                        <input type="hidden" id="appliedDiscountAmount" name="DiscountAmount" />
-                        <input type="hidden" id="appliedDiscountDescription" name="DiscountDescription" />
+                        <input type="hidden" id="appliedDiscountCode" name="DiscountCode" value="" />
+                        <input type="hidden" id="appliedDiscountAmount" name="DiscountAmount" value="0" />
+                        <input type="hidden" id="appliedDiscountDescription" name="DiscountDescription" value="" />
 
                         <!-- Order Summary -->
                         <div class="summary-section">
@@ -591,20 +591,26 @@
             const checkoutBtn = document.getElementById('btnCheckout');
             
             if (checkoutForm) {
+                console.log("Checkout form found, adding event listener");
                 checkoutForm.addEventListener("submit", function (e) {
-            if (!confirm("Bạn có chắc chắn muốn đặt hàng không?")) {
-                e.preventDefault();
-            } else {
+                    console.log("Form submit event triggered");
+                    if (!confirm("Bạn có chắc chắn muốn đặt hàng không?")) {
+                        console.log("User cancelled order");
+                        e.preventDefault();
+                    } else {
+                        console.log("User confirmed order, submitting form");
                         // Show loading state
                         checkoutBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang xử lý...';
                         checkoutBtn.disabled = true;
                         
-                        // Simulate processing time
-                        setTimeout(() => {
-                alert("Bạn đã đặt hàng thành công!");
-                        }, 1000);
+                        // Don't prevent default - let form submit normally
+                        // setTimeout(() => {
+                        //     alert("Bạn đã đặt hàng thành công!");
+                        // }, 1000);
                     }
                 });
+            } else {
+                console.log("Checkout form not found!");
             }
             
             // Add smooth animations to form elements

@@ -3,6 +3,7 @@ using CuaHangQuanAo.Models;
 using CuaHangQuanAo.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CuaHangQuanAo.Controllers
 {
@@ -258,15 +259,43 @@ namespace CuaHangQuanAo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(CheckoutVm model)
         {
-            var cart = _cartService.GetCart();
-            if (!cart.Any())
+            try
             {
-                TempData["Error"] = "Giỏ hàng trống!";
-                return RedirectToAction("Index");
-            }
+                Console.WriteLine("=== CHECKOUT STARTED ===");
+                Console.WriteLine($"CustomerName: {model.CustomerName}");
+                Console.WriteLine($"Phone: {model.Phone}");
+                Console.WriteLine($"Address: {model.Address}");
+                Console.WriteLine($"DiscountAmount: {model.DiscountAmount}");
+                Console.WriteLine($"DiscountCode: {model.DiscountCode}");
+                
+                var cart = _cartService.GetCart();
+                Console.WriteLine($"Cart items count: {cart.Count}");
+                
+                if (!cart.Any())
+                {
+                    Console.WriteLine("Cart is empty!");
+                    TempData["Error"] = "Giỏ hàng trống!";
+                    return RedirectToAction("Index");
+                }
 
+            // Clear validation errors for optional discount fields
+            if (string.IsNullOrEmpty(model.DiscountCode))
+            {
+                ModelState.Remove("DiscountCode");
+            }
+            if (string.IsNullOrEmpty(model.DiscountDescription))
+            {
+                ModelState.Remove("DiscountDescription");
+            }
+            
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("ModelState is invalid:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"Error: {error.ErrorMessage}");
+                }
+                
                 ViewBag.Total = _cartService.GetCartTotal();
                 ViewBag.CartItems = cart;
                 return View(model);
@@ -293,23 +322,28 @@ namespace CuaHangQuanAo.Controllers
                 {
                     CustomerId = null, // Assuming guest checkout for now
                     OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                    Total = finalTotal, // Sử dụng Total thay vì TotalAmount
                     TotalAmount = finalTotal,
                     ShippingAddress = model.Address,
                     PhoneNumber = model.Phone,
                     CustomerName = model.CustomerName,
                     Status = "Pending",
                     PaymentMethod = "COD", // Default payment method
+                    Discount = finalDiscount, // Sử dụng Discount thay vì DiscountAmount
                     DiscountAmount = finalDiscount, // Save discount amount
                     DiscountCode = model.DiscountCode, // Save applied discount code
                     DiscountDescription = model.DiscountDescription // Save discount description
                 };
 
+                Console.WriteLine($"Creating order with Total: {finalTotal}, Discount: {finalDiscount}");
                 _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
+                Console.WriteLine($"Order created successfully with ID: {order.OrdersId}");
 
                 // Add order details and update stock
                 foreach (var cartItem in cart)
                 {
+                    Console.WriteLine($"Adding order detail for item {cartItem.ItemsId}, quantity {cartItem.Quantity}");
                     _context.OrdersDetails.Add(new OrdersDetail
                     {
                         OrdersId = order.OrdersId,
@@ -364,9 +398,35 @@ namespace CuaHangQuanAo.Controllers
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                if (transaction != null)
+                {
+                    await transaction.RollbackAsync();
+                }
                 Console.WriteLine($"Checkout error: {ex.Message}");
-                TempData["Error"] = "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.";
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Log chi tiết hơn
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                TempData["Error"] = $"Đặt hàng thất bại: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"=== CHECKOUT FAILED ===");
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                TempData["Error"] = $"Đặt hàng thất bại: {ex.Message}";
                 return RedirectToAction("Index");
             }
         }
