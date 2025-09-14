@@ -336,9 +336,11 @@
                             <tr>
                                 <td>@order.OrdersId</td>
                                 <td>
-                                    @(order.Customer != null
-                                                                ? (order.Customer.LastName + " " + order.Customer.FirstName)
-                                                                : "N/A")
+                                    @(!string.IsNullOrEmpty(order.CustomerName)
+                                        ? order.CustomerName
+                                        : (order.Customer != null
+                                            ? (order.Customer.LastName + " " + order.Customer.FirstName)
+                                            : "Chưa có thông tin"))
                         </td>
                         <td>@string.Format("{0:N0} VNĐ", order.Total)</td>
                         <td>@(order.OrderDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>

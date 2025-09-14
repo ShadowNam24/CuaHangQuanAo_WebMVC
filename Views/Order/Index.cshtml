@@ -236,7 +236,11 @@
                                     </td>
                                     <td>
                                         <span class="customer-name">
-                                            @(item.Customer != null ? (item.Customer.LastName + " " + item.Customer.FirstName).Trim() : "Chưa có thông tin")
+                                            @(!string.IsNullOrEmpty(item.CustomerName)
+                                                ? item.CustomerName
+                                                : (item.Customer != null
+                                                    ? (item.Customer.LastName + " " + item.Customer.FirstName).Trim()
+                                                    : "Chưa có thông tin"))
                                 </span>
                                 @if (!string.IsNullOrEmpty(item.Customer?.PhoneNumber))
                                         {
