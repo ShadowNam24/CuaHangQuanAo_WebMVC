@@ -6,14 +6,16 @@
     // Helper to get the first variant image or fallback
     string GetProductImage(Item item)
     {
-        // Try to get the first variant image if available
         var firstVariantImage = item.ProductVariants?.FirstOrDefault(v => !string.IsNullOrEmpty(v.Image))?.Image;
         if (!string.IsNullOrEmpty(firstVariantImage))
         {
-            return Url.Content($"~/Images/{firstVariantImage}");
+            // Nếu là URL tuyệt đối thì trả về luôn, ngược lại build đường dẫn đúng thư mục
+            return firstVariantImage.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? firstVariantImage
+                : Url.Content($"~/Images/products/{firstVariantImage}");
         }
-        // Fallback to default image
-        return Url.Content("~/Images/no-image.png");
+        // Fallback chắc chắn tồn tại trong repo
+        return Url.Content("~/Images/demo/demo.webp");
     }
 }
 
@@ -60,7 +62,6 @@
         font-weight: 700;
     }
 
-
 </style>
 
 @if (!Model.Any())
@@ -75,7 +76,7 @@ else
             var img = GetProductImage(p);
             <div class="ajax-card">
                 <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.ItemsId">
-                    <img class="ajax-img" src="@img" onerror="this.onerror=null;this.src='@Url.Content("~/Images/no-image.png")'" alt="@p.ItemsName" />
+                    <img class="ajax-img" src="@img" onerror="this.onerror=null;this.src='@Url.Content("~/Images/demo/demo.webp")'" alt="@p.ItemsName" />
                 </a>
                 <div class="ajax-title">
                     <a class="text-decoration-none text-dark"
