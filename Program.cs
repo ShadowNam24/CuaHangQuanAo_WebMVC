@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
+builder.Services.AddHttpClient<PayPalApiService>();
 
 builder.Services.AddAuthorization(options =>
     {

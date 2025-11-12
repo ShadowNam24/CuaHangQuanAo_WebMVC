@@ -559,7 +559,19 @@
                             <i class="bi bi-credit-card me-2"></i>
                             Xác nhận đặt hàng
                         </button>
+                    </form>
+                    <form asp-controller="PayPal" asp-action="CreatePayment" method="post" id="paypalForm">
+    <input type="hidden" name="total" value="@cartTotal" />
+    <!-- Đồng bộ thông tin giao hàng sang form PayPal -->
+    <input type="hidden" name="CustomerName" />
+    <input type="hidden" name="Phone" />
+    <input type="hidden" name="Address" />
+    <input type="hidden" name="DiscountCode" id="ppDiscountCode" />
+    <input type="hidden" name="DiscountAmount" id="ppDiscountAmount" />
+    <input type="hidden" name="DiscountDescription" id="ppDiscountDescription" />
+    <button type="submit" class="btn btn-primary">Thanh toán bằng PayPal</button>
 </form>
+
                 </div>
             }
             else
