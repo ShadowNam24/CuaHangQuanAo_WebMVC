@@ -114,6 +114,21 @@ namespace CuaHangQuanAo.Controllers
             var discountAmount = subtotal * (discount / 100);
             order.Total = subtotal - discountAmount;
 
+            // Ensure fields are populated if a customer is selected
+            if (order.CustomerId.HasValue && 
+   (string.IsNullOrWhiteSpace(order.CustomerName) ||
+    string.IsNullOrWhiteSpace(order.PhoneNumber) ||
+    string.IsNullOrWhiteSpace(order.ShippingAddress)))
+            {
+                var cust = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == order.CustomerId.Value);
+                if (cust != null)
+                {
+                    order.CustomerName ??= $"{cust.FirstName} {cust.LastName}".Trim();
+                    order.PhoneNumber ??= cust.PhoneNumber;
+                    order.ShippingAddress ??= cust.AddressName;
+                }
+            }
+
             try
             {
                 _context.Orders.Add(order);

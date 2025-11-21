@@ -130,24 +130,24 @@
                             <label class="form-label">
                                 <i class="bi bi-person me-1"></i> Tên khách hàng
                             </label>
-                            <input name="customerName" id="customerName" class="form-control" type="text" placeholder="Nhập tên khách hàng" required />
-                            <span class="text-danger field-validation-valid" data-valmsg-for="customerName"></span>
+                            <input asp-for="CustomerName" class="form-control" type="text" placeholder="Nhập tên khách hàng" />
+                            <span asp-validation-for="CustomerName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">
                                 <i class="bi bi-telephone me-1"></i> Số điện thoại
                             </label>
-                            <input name="phoneNumber" id="phoneNumber" class="form-control" type="text" placeholder="Nhập số điện thoại" />
-                            <span class="text-danger field-validation-valid" data-valmsg-for="phoneNumber"></span>
+                            <input asp-for="PhoneNumber" class="form-control" type="text" placeholder="Nhập số điện thoại" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">
                                 <i class="bi bi-geo-alt me-1"></i> Địa chỉ
                             </label>
-                            <input name="addressName" id="addressName" class="form-control" type="text" placeholder="Nhập địa chỉ" />
-                            <span class="text-danger field-validation-valid" data-valmsg-for="addressName"></span>
+                            <input asp-for="ShippingAddress" class="form-control" type="text" placeholder="Nhập địa chỉ" />
+                            <span asp-validation-for="ShippingAddress" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">

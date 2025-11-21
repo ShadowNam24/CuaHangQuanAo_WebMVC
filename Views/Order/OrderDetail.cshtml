@@ -130,30 +130,43 @@
                             Thông tin khách hàng
                         </h5>
 
-                        <div class="mb-3">
-                            <div class="info-label">Tên khách hàng</div>
-                            <div class="info-value">
-                                @(Model.Customer != null
-                                                                ? (Model.Customer.LastName + " " + Model.Customer.FirstName).Trim()
-                                                                : "Chưa có thông tin")
-                            </div>
-                        </div>
+                        <!-- Thay phần hiển thị thông tin khách hàng để ưu tiên các trường CustomerName / PhoneNumber / ShippingAddress -->
+<div class="mb-3">
+    <div class="info-label">Tên khách hàng</div>
+    <div class="info-value">
+        @(
+            !string.IsNullOrWhiteSpace(Model.CustomerName)
+                ? Model.CustomerName
+                : (Model.Customer != null
+                    ? (Model.Customer.LastName + " " + Model.Customer.FirstName).Trim()
+                    : "Chưa có thông tin")
+         )
+    </div>
+</div>
 
-                        <div class="mb-3">
-                            <div class="info-label">Số điện thoại</div>
-                            <div class="info-value">
-                                <i class="bi bi-telephone me-1 text-primary"></i>
-                                @(Model.Customer?.PhoneNumber ?? "Chưa có thông tin")
-                            </div>
-                        </div>
+<div class="mb-3">
+    <div class="info-label">Số điện thoại</div>
+    <div class="info-value">
+        <i class="bi bi-telephone me-1 text-primary"></i>
+        @(
+            !string.IsNullOrWhiteSpace(Model.PhoneNumber)
+                ? Model.PhoneNumber
+                : (Model.Customer?.PhoneNumber ?? "Chưa có thông tin")
+         )
+    </div>
+</div>
 
-                        <div class="mb-3">
-                            <div class="info-label">Địa chỉ</div>
-                            <div class="info-value">
-                                <i class="bi bi-geo-alt me-1 text-primary"></i>
-                                @(Model.Customer?.AddressName ?? "Chưa có thông tin")
-                            </div>
-                        </div>
+<div class="mb-3">
+    <div class="info-label">Địa chỉ</div>
+    <div class="info-value">
+        <i class="bi bi-geo-alt me-1 text-primary"></i>
+        @(
+            !string.IsNullOrWhiteSpace(Model.ShippingAddress)
+                ? Model.ShippingAddress
+                : (Model.Customer?.AddressName ?? "Chưa có thông tin")
+         )
+    </div>
+</div>
 
                         <div class="mb-3">
                             <div class="info-label">Email</div>

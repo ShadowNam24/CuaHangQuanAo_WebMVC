@@ -4,137 +4,106 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace CuaHangQuanAo.Controllers
+[Authorize]
+public class ProfileController : Controller
 {
-    [Authorize]
-    public class ProfileController : Controller
+    private readonly CuaHangBanQuanAoContext _context;
+
+    public ProfileController(CuaHangBanQuanAoContext context)
     {
-        private readonly CuaHangBanQuanAoContext _context;
+        _context = context;
+    }
 
-        public ProfileController(CuaHangBanQuanAoContext context)
-        {
-            _context = context;
-        }
+    // Trang hiển thị thông tin (Index)
+    public async Task<IActionResult> Index()
+    {
+        var profile = await LoadProfileAsync();
+        return View(profile);
+    }
 
-        [HttpGet]
-        public IActionResult Index()
-        {
-            // Get current user's profile (simplified - you might want to get from database)
-            var profile = new Profile
-            {
-                Id = 1,
-                FullName = User.Identity?.Name ?? "Khách hàng",
-                Email = User.Identity?.Name + "@example.com", // This should come from user claims or database
-                PhoneNumber = "",
-                Address = "",
-                EmailVerified = true,
-                AvatarUrl = "/images/default-avatar.png"
-            };
-            
-            return View(profile);
-        }
+    // GET: Edit
+    public async Task<IActionResult> Edit()
+    {
+        var profile = await LoadProfileAsync();
+        return View(profile);
+    }
 
-        [HttpGet]
-        public IActionResult Edit()
-        {
-            // Get current user's profile for editing
-            var profile = new Profile
-            {
-                Id = 1,
-                FullName = User.Identity?.Name ?? "Khách hàng",
-                Email = User.Identity?.Name + "@example.com",
-                PhoneNumber = "",
-                Address = "",
-                EmailVerified = true,
-                AvatarUrl = "/images/default-avatar.png"
-            };
-            
-            return View(profile);
-        }
+    // POST: Edit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Profile model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Profile model)
+        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity!.Name);
+        if (account == null)
         {
-            if (ModelState.IsValid)
-            {
-                // Here you would update the profile in database
-                // For now, just redirect back to index
-                TempData["Success"] = "Cập nhật thông tin thành công!";
-                return RedirectToAction("Index");
-            }
-            
+            ModelState.AddModelError("", "Account not found.");
             return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Orders()
+        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
+        if (customer == null)
         {
-            // Get orders for current user
-            // For now, we'll get all orders (in real app, filter by user)
-            var orders = await _context.Orders
-                .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.Items)
-                .OrderByDescending(o => o.OrderDate)
-                .ToListAsync();
-
-            return View(orders);
+            // Tạo mới nếu chưa tồn tại
+            customer = new Customer
+            {
+                AccId = account.AccId,
+                FirstName = ExtractFirstName(model.FullName),
+                LastName = ExtractLastName(model.FullName),
+                PhoneNumber = model.PhoneNumber,
+                AddressName = model.Address,
+                City = "" // Có thể thêm field nhập city sau
+            };
+            _context.Customers.Add(customer);
+        }
+        else
+        {
+            customer.FirstName = ExtractFirstName(model.FullName);
+            customer.LastName = ExtractLastName(model.FullName);
+            customer.PhoneNumber = model.PhoneNumber;
+            customer.AddressName = model.Address;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> OrderDetail(int id)
-        {
-            // Get order details for current user
-            var order = await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.Items)
-                .FirstOrDefaultAsync(o => o.OrdersId == id);
+        await _context.SaveChangesAsync();
 
-            if (order == null) return NotFound();
-            return View(order);
+        TempData["Success"] = "Cập nhật thông tin cá nhân thành công.";
+        return RedirectToAction(nameof(Edit));
+    }
+
+    private async Task<Profile> LoadProfileAsync()
+    {
+        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity!.Name);
+        if (account == null)
+        {
+            return new Profile { FullName = User.Identity!.Name ?? "", Email = "", PhoneNumber = "", Address = "" };
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CancelOrder(int id)
+        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
+
+        return new Profile
         {
-            var order = await _context.Orders
-                .Include(o => o.OrdersDetails)
-                .FirstOrDefaultAsync(o => o.OrdersId == id);
-            
-            if (order == null)
-            {
-                return NotFound();
-            }
+            FullName = customer != null ? $"{customer.FirstName} {customer.LastName}".Trim() : account.Username,
+            Email = account.Email,
+            PhoneNumber = customer?.PhoneNumber ?? "",
+            Address = customer?.AddressName ?? ""
+        };
+    }
 
-            // Check if order can be cancelled (only pending orders)
-            if (order.Status?.ToLower() != "pending")
-            {
-                TempData["Error"] = "Chỉ có thể hủy đơn hàng đang chờ xử lý!";
-                return RedirectToAction("OrderDetail", new { id = id });
-            }
+    private static string ExtractFirstName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return "";
+        var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0];
+        return parts.Last(); // FirstName = tên (phần cuối)
+    }
 
-            try
-            {
-                // Remove all related order details first
-                if (order.OrdersDetails != null && order.OrdersDetails.Any())
-                {
-                    _context.OrdersDetails.RemoveRange(order.OrdersDetails);
-                }
-
-                // Remove the order itself
-                _context.Orders.Remove(order);
-                await _context.SaveChangesAsync();
-                
-                TempData["Success"] = "Đơn hàng đã được hủy và xóa thành công!";
-                return RedirectToAction("Orders");
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"Lỗi khi hủy đơn hàng: {ex.Message}";
-                return RedirectToAction("OrderDetail", new { id = id });
-            }
-        }
+    private static string ExtractLastName(string fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return "";
+        var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0];
+        return string.Join(' ', parts.Take(parts.Length - 1)); // Họ + đệm
     }
 }

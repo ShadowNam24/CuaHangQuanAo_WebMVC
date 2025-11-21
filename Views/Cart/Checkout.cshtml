@@ -901,3 +901,32 @@
         }
     </style>
 }
+
+@* Thêm prefill client-side để đồng bộ lại nếu user sửa *@
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const name = document.querySelector('input[name="CustomerName"]');
+    const phone = document.querySelector('input[name="Phone"]');
+    const address = document.querySelector('input[name="Address"]');
+
+    // Nếu server đã gán (Model có giá trị) thì giữ nguyên, nếu trống thử lấy từ localStorage (tùy chọn)
+    if (!name.value && localStorage.getItem('profile_fullName'))
+        name.value = localStorage.getItem('profile_fullName');
+    if (!phone.value && localStorage.getItem('profile_phone'))
+        phone.value = localStorage.getItem('profile_phone');
+    if (!address.value && localStorage.getItem('profile_address'))
+        address.value = localStorage.getItem('profile_address');
+
+    // Sau khi submit (PayPal hoặc COD) lưu lại
+    document.getElementById('checkoutForm')?.addEventListener('submit', () => {
+        localStorage.setItem('profile_fullName', name.value);
+        localStorage.setItem('profile_phone', phone.value);
+        localStorage.setItem('profile_address', address.value);
+    });
+    document.getElementById('paypalForm')?.addEventListener('submit', () => {
+        localStorage.setItem('profile_fullName', name.value);
+        localStorage.setItem('profile_phone', phone.value);
+        localStorage.setItem('profile_address', address.value);
+    });
+});
+</script>

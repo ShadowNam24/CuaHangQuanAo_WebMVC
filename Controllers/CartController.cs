@@ -240,7 +240,7 @@ namespace CuaHangQuanAo.Controllers
 
         // Display checkout form
         [HttpGet]
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             var cart = _cartService.GetCart();
             if (!cart.Any())
@@ -249,9 +249,27 @@ namespace CuaHangQuanAo.Controllers
                 return RedirectToAction("Index");
             }
 
+            ViewBag.CartItems = cart;
             ViewBag.Total = _cartService.GetCartTotal();
-            ViewBag.CartItems = cart; // Pass cart items to view
-            return View(new CheckoutVm());
+
+            var vm = new CheckoutVm();
+
+            if (User.Identity!.IsAuthenticated)
+            {
+                var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity.Name);
+                if (account != null)
+                {
+                    var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
+                    if (customer != null)
+                    {
+                        vm.CustomerName = $"{customer.FirstName} {customer.LastName}".Trim();
+                        vm.Phone = customer.PhoneNumber;
+                        vm.Address = customer.AddressName;
+                    }
+                }
+            }
+
+            return View(vm);
         }
 
         // Process checkout
@@ -267,10 +285,10 @@ namespace CuaHangQuanAo.Controllers
                 Console.WriteLine($"Address: {model.Address}");
                 Console.WriteLine($"DiscountAmount: {model.DiscountAmount}");
                 Console.WriteLine($"DiscountCode: {model.DiscountCode}");
-                
+
                 var cart = _cartService.GetCart();
                 Console.WriteLine($"Cart items count: {cart.Count}");
-                
+
                 if (!cart.Any())
                 {
                     Console.WriteLine("Cart is empty!");
@@ -278,154 +296,154 @@ namespace CuaHangQuanAo.Controllers
                     return RedirectToAction("Index");
                 }
 
-            // Clear validation errors for optional discount fields
-            if (string.IsNullOrEmpty(model.DiscountCode))
-            {
-                ModelState.Remove("DiscountCode");
-            }
-            if (string.IsNullOrEmpty(model.DiscountDescription))
-            {
-                ModelState.Remove("DiscountDescription");
-            }
-            
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine("ModelState is invalid:");
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                // Clear validation errors for optional discount fields
+                if (string.IsNullOrEmpty(model.DiscountCode))
                 {
-                    Console.WriteLine($"Error: {error.ErrorMessage}");
+                    ModelState.Remove("DiscountCode");
                 }
-                
-                ViewBag.Total = _cartService.GetCartTotal();
-                ViewBag.CartItems = cart;
-                return View(model);
-            }
-
-            // Final stock validation
-            var (isValid, errorMessage) = _cartService.ValidateStock(_context);
-            if (!isValid)
-            {
-                TempData["Error"] = errorMessage;
-                return RedirectToAction("Index");
-            }
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                // Calculate total with discount
-                var cartTotal = _cartService.GetCartTotal();
-                var finalDiscount = model.DiscountAmount > 0 ? model.DiscountAmount : model.Discount;
-                var finalTotal = cartTotal - finalDiscount;
-
-                // Create order
-                var order = new Order
+                if (string.IsNullOrEmpty(model.DiscountDescription))
                 {
-                    CustomerId = null, // Assuming guest checkout for now
-                    OrderDate = DateOnly.FromDateTime(DateTime.Now),
-                    Total = finalTotal, // Sử dụng Total thay vì TotalAmount
-                    TotalAmount = finalTotal,
-                    ShippingAddress = model.Address,
-                    PhoneNumber = model.Phone,
-                    CustomerName = model.CustomerName,
-                    Status = "Pending",
-                    PaymentMethod = "COD", // Default payment method
-                    Discount = finalDiscount, // Sử dụng Discount thay vì DiscountAmount
-                    DiscountAmount = finalDiscount, // Save discount amount
-                    DiscountCode = model.DiscountCode, // Save applied discount code
-                    DiscountDescription = model.DiscountDescription // Save discount description
-                };
+                    ModelState.Remove("DiscountDescription");
+                }
 
-                Console.WriteLine($"Creating order with Total: {finalTotal}, Discount: {finalDiscount}");
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-                Console.WriteLine($"Order created successfully with ID: {order.OrdersId}");
-
-                // Add order details and update stock
-                foreach (var cartItem in cart)
+                if (!ModelState.IsValid)
                 {
-                    Console.WriteLine($"Adding order detail for item {cartItem.ItemsId}, quantity {cartItem.Quantity}");
-                    _context.OrdersDetails.Add(new OrdersDetail
+                    Console.WriteLine("ModelState is invalid:");
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
                     {
-                        OrdersId = order.OrdersId,
-                        ItemsId = cartItem.ItemsId,
-                        Quantity = cartItem.Quantity,
-                        Price = cartItem.SellPrice
-                    });
+                        Console.WriteLine($"Error: {error.ErrorMessage}");
+                    }
 
-                    // Update stock
-                    if (cartItem.VariantId.HasValue)
+                    ViewBag.Total = _cartService.GetCartTotal();
+                    ViewBag.CartItems = cart;
+                    return View(model);
+                }
+
+                // Final stock validation
+                var (isValid, errorMessage) = _cartService.ValidateStock(_context);
+                if (!isValid)
+                {
+                    TempData["Error"] = errorMessage;
+                    return RedirectToAction("Index");
+                }
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    // Calculate total with discount
+                    var cartTotal = _cartService.GetCartTotal();
+                    var finalDiscount = model.DiscountAmount > 0 ? model.DiscountAmount : model.Discount;
+                    var finalTotal = cartTotal - finalDiscount;
+
+                    // Create order
+                    var order = new Order
                     {
-                        // Update variant-based storage
-                        var storageEntries = _context.Storages
-                            .Where(s => s.ProductVariantsId == cartItem.VariantId.Value)
-                            .OrderBy(s => s.StorageId)
-                            .ToList();
+                        CustomerId = null, // Assuming guest checkout for now
+                        OrderDate = DateOnly.FromDateTime(DateTime.Now),
+                        Total = finalTotal, // Sử dụng Total thay vì TotalAmount
+                        TotalAmount = finalTotal,
+                        ShippingAddress = model.Address,
+                        PhoneNumber = model.Phone,
+                        CustomerName = model.CustomerName,
+                        Status = "Pending",
+                        PaymentMethod = "COD", // Default payment method
+                        Discount = finalDiscount, // Sử dụng Discount thay vì DiscountAmount
+                        DiscountAmount = finalDiscount, // Save discount amount
+                        DiscountCode = model.DiscountCode, // Save applied discount code
+                        DiscountDescription = model.DiscountDescription // Save discount description
+                    };
 
-                        var remainingQuantity = cartItem.Quantity;
-                        foreach (var storage in storageEntries)
+                    Console.WriteLine($"Creating order with Total: {finalTotal}, Discount: {finalDiscount}");
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine($"Order created successfully with ID: {order.OrdersId}");
+
+                    // Add order details and update stock
+                    foreach (var cartItem in cart)
+                    {
+                        Console.WriteLine($"Adding order detail for item {cartItem.ItemsId}, quantity {cartItem.Quantity}");
+                        _context.OrdersDetails.Add(new OrdersDetail
                         {
-                            if (remainingQuantity <= 0) break;
-                            var deduction = Math.Min(storage.Quantity ?? 0, remainingQuantity);
-                            storage.Quantity -= deduction;
-                            remainingQuantity -= deduction;
+                            OrdersId = order.OrdersId,
+                            ItemsId = cartItem.ItemsId,
+                            Quantity = cartItem.Quantity,
+                            Price = cartItem.SellPrice
+                        });
+
+                        // Update stock
+                        if (cartItem.VariantId.HasValue)
+                        {
+                            // Update variant-based storage
+                            var storageEntries = _context.Storages
+                                .Where(s => s.ProductVariantsId == cartItem.VariantId.Value)
+                                .OrderBy(s => s.StorageId)
+                                .ToList();
+
+                            var remainingQuantity = cartItem.Quantity;
+                            foreach (var storage in storageEntries)
+                            {
+                                if (remainingQuantity <= 0) break;
+                                var deduction = Math.Min(storage.Quantity ?? 0, remainingQuantity);
+                                storage.Quantity -= deduction;
+                                remainingQuantity -= deduction;
+                            }
+                        }
+                        else
+                        {
+                            // Legacy storage update
+                            var storage = _context.Storages.FirstOrDefault(s => s.ProductVariantsId == cartItem.ItemsId);
+                            if (storage != null)
+                            {
+                                storage.Quantity -= cartItem.Quantity;
+                            }
                         }
                     }
-                    else
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    _cartService.ClearCart();
+
+                    // Success message with discount info
+                    var successMessage = $"Đặt hàng thành công! Mã đơn: {order.OrdersId}";
+                    if (!string.IsNullOrEmpty(model.DiscountCode))
                     {
-                        // Legacy storage update
-                        var storage = _context.Storages.FirstOrDefault(s => s.ProductVariantsId == cartItem.ItemsId);
-                        if (storage != null)
-                        {
-                            storage.Quantity -= cartItem.Quantity;
-                        }
+                        successMessage += $" - Đã áp dụng mã giảm giá: {model.DiscountCode}";
                     }
+
+                    TempData["Success"] = successMessage;
+                    return RedirectToAction("Checkout");
                 }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                _cartService.ClearCart();
-
-                // Success message with discount info
-                var successMessage = $"Đặt hàng thành công! Mã đơn: {order.OrdersId}";
-                if (!string.IsNullOrEmpty(model.DiscountCode))
+                catch (Exception ex)
                 {
-                    successMessage += $" - Đã áp dụng mã giảm giá: {model.DiscountCode}";
-                }
+                    if (transaction != null)
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                    Console.WriteLine($"Checkout error: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                TempData["Success"] = successMessage;
-                return RedirectToAction("Checkout");
-            }
-            catch (Exception ex)
-            {
-                if (transaction != null)
-                {
-                    await transaction.RollbackAsync();
+                    // Log chi tiết hơn
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    }
+
+                    TempData["Error"] = $"Đặt hàng thất bại: {ex.Message}";
+                    return RedirectToAction("Index");
                 }
-                Console.WriteLine($"Checkout error: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                
-                // Log chi tiết hơn
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                
-                TempData["Error"] = $"Đặt hàng thất bại: {ex.Message}";
-                return RedirectToAction("Index");
-            }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"=== CHECKOUT FAILED ===");
                 Console.WriteLine($"Error: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                
+
                 if (ex.InnerException != null)
                 {
                     Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
-                
+
                 TempData["Error"] = $"Đặt hàng thất bại: {ex.Message}";
                 return RedirectToAction("Index");
             }
