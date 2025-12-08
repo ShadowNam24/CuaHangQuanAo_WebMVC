@@ -188,8 +188,12 @@
                             <li class="nav-item">
                                 <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
                                    class="btn btn-sm rounded-pill px-3 fw-medium"
-                                   style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3); transition: all 0.3s ease;">
+                                   style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3); transition: all 0.3s ease;
+                                   position: relative;">
                                     <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                                          style="background: radial-gradient(circle at top right, #FFD700, #FFA500); color: #000;
+                                           transform: translate(50%, -50%); font-size: 80%; padding: 0.2em 0.5em;">NEW</span>
                                 </a>
                             </li>
                         }
@@ -241,6 +245,417 @@
         .navbar {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
+
+        /* Chat widget styles */
+        .chat-widget-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 9998;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .chat-widget-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+            }
+
+            .chat-widget-button svg {
+                width: 28px;
+                height: 28px;
+                fill: white;
+            }
+
+        .chat-widget-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Cửa sổ chat */
+        .chat-widget-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .chat-widget-window.active {
+            display: flex;
+        }
+
+        /* Header chat */
+        .chat-widget-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-widget-header-info h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-widget-header-info p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .chat-widget-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+            .chat-widget-close:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+        /* Body chat */
+        .chat-widget-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .chat-message-incoming {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-message-outgoing {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .chat-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .chat-message-content {
+            max-width: 70%;
+        }
+
+        .chat-message-user {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .chat-message-text {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            word-wrap: break-word;
+        }
+
+        .chat-message-outgoing .chat-message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-system-message {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .chat-typing-indicator {
+            display: none;
+            padding: 10px 0;
+            color: #999;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* Input area */
+        .chat-widget-input {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+            .chat-widget-input input {
+                flex: 1;
+                padding: 12px 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 20px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+                .chat-widget-input input:focus {
+                    border-color: #667eea;
+                }
+
+        .chat-widget-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+            .chat-widget-send:hover {
+                transform: scale(1.1);
+            }
+
+            .chat-widget-send svg {
+                width: 20px;
+                height: 20px;
+                fill: white;
+            }
+
+        /* Welcome screen */
+        .chat-welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .chat-welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .chat-welcome-icon svg {
+                width: 40px;
+                height: 40px;
+                fill: white;
+            }
+
+        .chat-welcome h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .chat-welcome p {
+            color: #666;
+            font-size: 14px;
+            margin: 0 0 20px 0;
+        }
+
+        .chat-welcome input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+            .chat-welcome input:focus {
+                border-color: #667eea;
+            }
+
+        .chat-welcome button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .chat-welcome button:hover {
+                transform: translateY(-2px);
+            }
+
+        /* Online users count */
+        .chat-online-users {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100%
+
+        {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        }
+
+        /* Responsive */
+        @@media (max-width: 480px) {
+            .chat-widget-window
+
+        {
+            width: calc(100% - 40px);
+            height: calc(100vh - 110px);
+            bottom: 90px;
+            right: 20px;
+            left: 20px;
+        }
+
+        }
+
+        /* Thêm vào phần styles hiện có */
+    
+    .chat-mode-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #4ade80;
+        color: white;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-mode-badge.admin-mode {
+        background: #f59e0b;
+        animation: modeSwitch 0.5s ease;
+    }
+    
+    @@keyframes modeSwitch {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Hiệu ứng cho tin nhắn system đặc biệt */
+    .chat-system-message.switching {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
     </style>
 
 
@@ -693,6 +1108,40 @@
         }
 
         }
+
+        /* Thêm vào phần styles hiện có */
+    
+    .chat-mode-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #4ade80;
+        color: white;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-mode-badge.admin-mode {
+        background: #f59e0b;
+        animation: modeSwitch 0.5s ease;
+    }
+    
+    @@keyframes modeSwitch {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Hiệu ứng cho tin nhắn system đặc biệt */
+    .chat-system-message.switching {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
     </style>
 
     <!-- Nút mở chat -->
@@ -770,7 +1219,7 @@
         let isChatOpen = false;
         let chatMode = "none"; // "bot", "admin", or "none"
         
-        // Câu trả lời của bot AI
+        // Cập nhật lại botResponses
         const botResponses = {
             greeting: [
                 "Xin chào! Tôi là trợ lý ảo của CuaHangQuanAo. Tôi có thể giúp gì cho bạn?",
@@ -793,13 +1242,13 @@
                 "Sản phẩm của shop rất đa dạng và chất lượng cao. Bạn có thể xem catalog trên trang chủ."
             ],
             admin: [
-                "Bạn muốn chat với quản trị viên? Tôi có thể chuyển bạn sang ngay! Nhấn nút bên dưới nhé.",
+                "Bạn muốn chat với quản trị viên? Tôi có thể chuyển bạn sang ngay!",
                 "Để được tư vấn chi tiết hơn, tôi sẽ kết nối bạn với quản trị viên."
             ],
             default: [
-                "Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. Bạn có thể nói rõ hơn được không?",
                 "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?",
-                "Tôi có thể giúp bạn về: giá cả, giao hàng, size, sản phẩm. Bạn muốn hỏi về gì?"
+                "Tôi chưa hiểu rõ câu hỏi này. Bạn muốn tôi kết nối với quản trị viên để được hỗ trợ tốt hơn không?",
+                "Xin lỗi, tôi chưa có thông tin về vấn đề này. Bạn có cần nói chuyện với quản trị viên không?"
             ]
         };
 
@@ -902,52 +1351,130 @@
             }, 1000);
         }
 
+        // Danh sách từ khóa đồng ý
+        const agreeKeywords = [
+            'có', 'được', 'ok', 'okay', 'đồng ý', 'yes', 'yeah', 'oke', 
+            'uh', 'uhm', 'vâng', 'dạ', 'rồi', 'chắc chắn', 'tất nhiên',
+            'muốn', 'cần', 'giúp', 'hỗ trợ'
+        ];
+
+        // Hàm kiểm tra xem tin nhắn có phải là đồng ý không
+        function isAgreementMessage(message) {
+            const msg = message.toLowerCase().trim();
+            
+            // Kiểm tra từ đơn lẻ hoặc trong câu
+            return agreeKeywords.some(keyword => {
+                const regex = new RegExp(`\\b${keyword}\\b|^${keyword}$`, 'i');
+                return regex.test(msg);
+            });
+        }
+
+        // Hàm tự động chuyển sang admin support
+        function autoSwitchToAdmin() {
+            chatMode = "admin";
+            
+            const badge = document.getElementById('chatModeBadge');
+            badge.textContent = "👨‍💼 Quản trị viên";
+            badge.classList.add('admin-mode');
+            
+            if (!chatConnection || chatConnection.state !== "Connected") {
+                initChatConnection();
+            }
+            
+            addSystemChatMessage("🔄 Đang chuyển bạn sang quản trị viên...", true);
+            
+            setTimeout(() => {
+                if (chatConnection && chatConnection.state === "Connected") {
+                    chatConnection.invoke("RequestAdminSupport", currentChatUser);
+                    addSystemChatMessage("✅ Đã kết nối với quản trị viên. Vui lòng chờ phản hồi.", true);
+                }
+            }, 1500);
+        }
+
+        // CẬP NHẬT hàm getBotResponse để phát hiện câu hỏi về admin
+        function getBotResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            if (msg.includes("xin chào") || msg.includes("chào") || msg.includes("hello") || msg.includes("hi")) {
+                return botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
+            } 
+            else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("tiền")) {
+                return botResponses.price[Math.floor(Math.random() * botResponses.price.length)];
+            } 
+            else if (msg.includes("giao hàng") || msg.includes("ship") || msg.includes("vận chuyển")) {
+                return botResponses.shipping[Math.floor(Math.random() * botResponses.shipping.length)];
+            } 
+            else if (msg.includes("size") || msg.includes("kích thước") || msg.includes("cỡ")) {
+                return botResponses.size[Math.floor(Math.random() * botResponses.size.length)];
+            } 
+            else if (msg.includes("sản phẩm") || msg.includes("áo") || msg.includes("quần")) {
+                return botResponses.product[Math.floor(Math.random() * botResponses.product.length)];
+            } 
+            else if (msg.includes("admin") || msg.includes("quản trị") || msg.includes("nhân viên")) {
+                // Bot hỏi có muốn chuyển sang admin không
+                return "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?";
+            } 
+            else {
+                // Trả lời mặc định và gợi ý chuyển sang admin
+                return botResponses.default[Math.floor(Math.random() * botResponses.default.length)];
+            }
+        }
+
         function sendChatMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
 
             if (message) {
                 if (chatMode === "bot") {
-                    // Bot mode
+                    // Thêm tin nhắn của user
                     addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
                     input.value = "";
                     
+                    // KIỂM TRA CÂU TRẢ LỜI ĐỒNG Ý
+                    if (isAgreementMessage(message)) {
+                        // Nếu tin nhắn cuối của bot có chứa câu hỏi về admin
+                        const chatBody = document.getElementById('chatBody');
+                        const lastMessages = chatBody.querySelectorAll('.chat-message-text');
+                        const lastBotMessage = Array.from(lastMessages)
+                            .slice(-2, -1)[0]?.textContent || '';
+                        
+                        if (lastBotMessage.includes('quản trị viên') || 
+                            lastBotMessage.includes('admin') || 
+                            lastBotMessage.includes('nhân viên')) {
+                            
+                            // Tự động chuyển sang admin
+                            setTimeout(() => {
+                                addChatMessage("Bot", "Được rồi! Tôi sẽ chuyển bạn sang quản trị viên ngay.", 
+                                    getCurrentTime(), false, false);
+                            }, 500);
+                            
+                            setTimeout(() => {
+                                autoSwitchToAdmin();
+                            }, 2000);
+                            
+                            return; // Dừng xử lý bot
+                        }
+                    }
+                    
+                    // Giả lập bot đang gõ
                     setTimeout(() => {
                         showChatTyping("Bot");
                     }, 500);
                     
+                    // Hiển thị câu trả lời sau 1.5s
                     setTimeout(() => {
                         hideChatTyping();
                         const botResponse = getBotResponse(message);
                         addChatMessage("Bot", botResponse, getCurrentTime(), false, false);
                     }, 1500);
+                    
                 } else if (chatMode === "admin" && chatConnection) {
-                    // Admin mode
+                    // Chế độ admin - gửi qua SignalR
                     chatConnection.invoke("SendMessageToAdmin", currentChatUser, message)
                         .catch(err => console.error(err));
                     addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
                     input.value = "";
                 }
-            }
-        }
-
-        function getBotResponse(userMessage) {
-            const msg = userMessage.toLowerCase();
-            
-            if (msg.includes("xin chào") || msg.includes("chào") || msg.includes("hello") || msg.includes("hi")) {
-                return botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
-            } else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("tiền")) {
-                return botResponses.price[Math.floor(Math.random() * botResponses.price.length)];
-            } else if (msg.includes("giao hàng") || msg.includes("ship") || msg.includes("vận chuyển")) {
-                return botResponses.shipping[Math.floor(Math.random() * botResponses.shipping.length)];
-            } else if (msg.includes("size") || msg.includes("kích thước") || msg.includes("cỡ")) {
-                return botResponses.size[Math.floor(Math.random() * botResponses.size.length)];
-            } else if (msg.includes("sản phẩm") || msg.includes("áo") || msg.includes("quần")) {
-                return botResponses.product[Math.floor(Math.random() * botResponses.product.length)];
-            } else if (msg.includes("admin") || msg.includes("quản trị") || msg.includes("nhân viên")) {
-                return botResponses.admin[Math.floor(Math.random() * botResponses.admin.length)];
-            } else {
-                return botResponses.default[Math.floor(Math.random() * botResponses.default.length)];
             }
         }
 
@@ -981,10 +1508,10 @@
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        function addSystemChatMessage(message) {
+        function addSystemChatMessage(message, isSpecial = false) {
             const chatBody = document.getElementById('chatBody');
             const messageDiv = document.createElement('div');
-            messageDiv.className = 'chat-system-message';
+            messageDiv.className = `chat-system-message ${isSpecial ? 'switching' : ''}`;
             messageDiv.textContent = message;
             chatBody.appendChild(messageDiv);
             chatBody.scrollTop = chatBody.scrollHeight;
