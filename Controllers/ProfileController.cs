@@ -1,5 +1,4 @@
 ﻿using CuaHangQuanAo.Entities;
-using CuaHangQuanAo.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,96 +13,95 @@ public class ProfileController : Controller
         _context = context;
     }
 
-    // Trang hiển thị thông tin (Index)
-    public async Task<IActionResult> Index()
+    // GET: Orders
+    public async Task<IActionResult> Orders()
     {
-        var profile = await LoadProfileAsync();
-        return View(profile);
-    }
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Orders", "Profile") });
 
-    // GET: Edit
-    public async Task<IActionResult> Edit()
-    {
-        var profile = await LoadProfileAsync();
-        return View(profile);
-    }
+        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == username);
+        var customer = account != null
+            ? await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId)
+            : null;
 
-    // POST: Edit
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Profile model)
-    {
-        if (!ModelState.IsValid)
-            return View(model);
-
-        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity!.Name);
-        if (account == null)
+        if (customer == null && account != null)
         {
-            ModelState.AddModelError("", "Account not found.");
-            return View(model);
-        }
-
-        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
-        if (customer == null)
-        {
-            // Tạo mới nếu chưa tồn tại
             customer = new Customer
             {
                 AccId = account.AccId,
-                FirstName = ExtractFirstName(model.FullName),
-                LastName = ExtractLastName(model.FullName),
-                PhoneNumber = model.PhoneNumber,
-                AddressName = model.Address,
-                City = "" // Có thể thêm field nhập city sau
+                FirstName = account.Username,
+                LastName = "",
+                PhoneNumber = "",
+                AddressName = "",
+                City = ""
             };
             _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
         }
-        else
+
+        // 1) Normal: orders linked by CustomerId
+        var orders = await _context.Orders
+            .Where(o => o.CustomerId == customer.CustomerId)
+            .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync();
+
+        // 2) Fallback: legacy orders (CustomerId NULL) matched by name/phone
+        if (orders.Count == 0)
         {
-            customer.FirstName = ExtractFirstName(model.FullName);
-            customer.LastName = ExtractLastName(model.FullName);
-            customer.PhoneNumber = model.PhoneNumber;
-            customer.AddressName = model.Address;
+            var fullname = $"{customer.FirstName} {customer.LastName}".Trim();
+            var phone = (customer.PhoneNumber ?? "").Trim();
+
+            var legacy = await _context.Orders
+                .Where(o => !o.CustomerId.HasValue &&
+                            ((fullname != "" && o.CustomerName == fullname) ||
+                             (phone != "" && o.PhoneNumber == phone)))
+                .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+
+            // merge unique
+            foreach (var o in legacy)
+                if (!orders.Any(x => x.OrdersId == o.OrdersId))
+                    orders.Add(o);
         }
 
-        await _context.SaveChangesAsync();
-
-        TempData["Success"] = "Cập nhật thông tin cá nhân thành công.";
-        return RedirectToAction(nameof(Edit));
+        return View(orders);
     }
 
-    private async Task<Profile> LoadProfileAsync()
+    // GET: OrderDetails
+    public async Task<IActionResult> OrderDetails(int id)
     {
-        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity!.Name);
-        if (account == null)
-        {
-            return new Profile { FullName = User.Identity!.Name ?? "", Email = "", PhoneNumber = "", Address = "" };
-        }
+        var username = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(username))
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("OrderDetails", "Profile", new { id }) });
+
+        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == username);
+        if (account == null) return NotFound();
 
         var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
 
-        return new Profile
+        var order = await _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+            .FirstOrDefaultAsync(o => o.OrdersId == id);
+
+        if (order == null) return NotFound();
+
+        if (customer != null)
         {
-            FullName = customer != null ? $"{customer.FirstName} {customer.LastName}".Trim() : account.Username,
-            Email = account.Email,
-            PhoneNumber = customer?.PhoneNumber ?? "",
-            Address = customer?.AddressName ?? ""
-        };
-    }
+            var fullname = $"{customer.FirstName} {customer.LastName}".Trim();
+            var phone = (customer.PhoneNumber ?? "").Trim();
 
-    private static string ExtractFirstName(string fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName)) return "";
-        var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 1) return parts[0];
-        return parts.Last(); // FirstName = tên (phần cuối)
-    }
+            var isOwner = (order.CustomerId == customer.CustomerId) ||
+                          (!order.CustomerId.HasValue &&
+                           ((fullname != "" && order.CustomerName == fullname) ||
+                            (phone != "" && order.PhoneNumber == phone)));
 
-    private static string ExtractLastName(string fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName)) return "";
-        var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 1) return parts[0];
-        return string.Join(' ', parts.Take(parts.Length - 1)); // Họ + đệm
+            if (!isOwner) return Forbid();
+        }
+
+        return View(order);
     }
 }
