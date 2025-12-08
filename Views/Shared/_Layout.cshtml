@@ -1182,7 +1182,7 @@
         </div>
 
         <!-- Support options - Chọn bot hoặc admin -->
-        <div class="chat-support-options" id="chatSupportOptions">
+        <div class="chat-support-options" id="chatSupportOptions" style="display: none;">
             <p style="margin:0 0 15px 0; font-weight:600; color:#333; text-align:center;">
                 Bạn muốn chat với:
             </p>
@@ -1192,6 +1192,14 @@
             <button class="support-btn admin-btn" onclick="requestAdminSupport()">
                 <span>👨‍💼</span> <span>Nhắn với Quản trị viên</span>
             </button>
+        </div>
+
+        <!-- THÊM MỚI: Quick Questions Container -->
+        <div class="quick-questions-container" id="quickQuestionsContainer">
+            <div class="quick-questions-title">💡 Câu hỏi thường gặp</div>
+            <div class="quick-questions-grid" id="quickQuestionsGrid">
+                <!-- Các nút sẽ được thêm bằng JavaScript -->
+            </div>
         </div>
 
         <!-- Chat body -->
@@ -1217,41 +1225,246 @@
         let chatTypingTimer;
         let unreadMessages = 0;
         let isChatOpen = false;
-        let chatMode = "none"; // "bot", "admin", or "none"
+        let chatMode = "none";
         
-        // Cập nhật lại botResponses
-        const botResponses = {
-            greeting: [
-                "Xin chào! Tôi là trợ lý ảo của CuaHangQuanAo. Tôi có thể giúp gì cho bạn?",
-                "Chào bạn! Rất vui được hỗ trợ bạn hôm nay. Bạn cần tư vấn gì không?"
-            ],
-            price: [
-                "Giá sản phẩm của chúng tôi rất cạnh tranh, từ 200.000đ - 5.000.000đ tùy loại. Bạn quan tâm loại sản phẩm nào?",
-                "Chúng tôi có nhiều mức giá phù hợp với mọi túi tiền. Bạn muốn xem sản phẩm trong tầm giá nào?"
-            ],
-            shipping: [
-                "Chúng tôi có dịch vụ giao hàng toàn quốc. Miễn phí ship cho đơn từ 500.000đ trong nội thành.",
-                "Phí ship chỉ 30.000đ cho đơn dưới 500.000đ. Giao hàng từ 2-5 ngày tùy khu vực."
-            ],
-            size: [
-                "Chúng tôi có đầy đủ size từ S đến XXL. Bạn có thể tham khảo bảng size trên trang sản phẩm.",
-                "Để chọn size phù hợp, bạn có thể xem hướng dẫn chọn size hoặc liên hệ admin để được tư vấn cụ thể hơn."
-            ],
-            product: [
-                "Chúng tôi có nhiều sản phẩm: áo thun, áo sơ mi, quần jeans, suit... Bạn quan tâm loại nào?",
-                "Sản phẩm của shop rất đa dạng và chất lượng cao. Bạn có thể xem catalog trên trang chủ."
-            ],
-            admin: [
-                "Bạn muốn chat với quản trị viên? Tôi có thể chuyển bạn sang ngay!",
-                "Để được tư vấn chi tiết hơn, tôi sẽ kết nối bạn với quản trị viên."
-            ],
-            default: [
-                "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?",
-                "Tôi chưa hiểu rõ câu hỏi này. Bạn muốn tôi kết nối với quản trị viên để được hỗ trợ tốt hơn không?",
-                "Xin lỗi, tôi chưa có thông tin về vấn đề này. Bạn có cần nói chuyện với quản trị viên không?"
-            ]
-        };
-
+        // Định nghĩa các câu hỏi nhanh với icon và câu trả lời
+        const quickQuestions = [
+            {
+                id: 'greeting',
+                icon: '👋',
+                text: 'Xin chào',
+                responses: [
+                    "Xin chào! Tôi là Bot hỗ trợ của CuaHangQuanAo. Rất vui được phục vụ bạn!",
+                    "Chào bạn! Tôi có thể giúp bạn tìm hiểu về sản phẩm, giá cả, hoặc chính sách của shop. Bạn muốn biết gì nhất?"
+                ]
+            },
+            {
+                id: 'products',
+                icon: '👕',
+                text: 'Sản phẩm mới',
+                responses: [
+                    "Hiện tại shop có rất nhiều sản phẩm hot đang sale:\n\n" +
+                    "🔥 Áo thun premium - Giá từ 200.000đ\n" +
+                    "🔥 Áo sơ mi công sở - Giá từ 350.000đ\n" +
+                    "🔥 Quần jeans cao cấp - Giá từ 450.000đ\n" +
+                    "🔥 Suit luxury - Giá từ 2.500.000đ\n\n" +
+                    "Bạn quan tâm loại nào ạ?"
+                ]
+            },
+            {
+                id: 'price',
+                icon: '💰',
+                text: 'Bảng giá',
+                responses: [
+                    "Đây là bảng giá tham khảo của shop:\n\n" +
+                    "📌 Áo thun: 200.000đ - 400.000đ\n" +
+                    "📌 Áo sơ mi: 350.000đ - 650.000đ\n" +
+                    "📌 Áo polo: 300.000đ - 500.000đ\n" +
+                    "📌 Quần jeans: 450.000đ - 800.000đ\n" +
+                    "📌 Quần tây: 400.000đ - 750.000đ\n" +
+                    "📌 Suit: 2.500.000đ - 5.000.000đ\n\n" +
+                    "Giá đã bao gồm VAT. Shop có nhiều chương trình khuyến mãi hấp dẫn!"
+                ]
+            },
+            {
+                id: 'shipping',
+                icon: '🚚',
+                text: 'Vận chuyển',
+                responses: [
+                    "Thông tin về vận chuyển:\n\n" +
+                    "✅ MIỄN PHÍ SHIP cho đơn từ 500.000đ (Nội thành HN, HCM)\n" +
+                    "✅ Phí ship 30.000đ cho đơn dưới 500.000đ\n" +
+                    "✅ Giao hàng toàn quốc qua các đơn vị:\n" +
+                    "   • Giao Hàng Nhanh (2-3 ngày)\n" +
+                    "   • J&T Express (3-5 ngày)\n" +
+                    "   • Viettel Post (3-7 ngày)\n\n" +
+                    "📦 Đóng gói cẩn thận, kiểm tra trước khi giao!"
+                ]
+            },
+            {
+                id: 'size',
+                icon: '📏',
+                text: 'Hướng dẫn size',
+                responses: [
+                    "Hướng dẫn chọn size:\n\n" +
+                    "📐 Size S: 45-55kg, cao 1m50-1m60\n" +
+                    "📐 Size M: 55-65kg, cao 1m60-1m70\n" +
+                    "📐 Size L: 65-75kg, cao 1m70-1m75\n" +
+                    "📐 Size XL: 75-85kg, cao 1m75-1m80\n" +
+                    "📐 Size XXL: 85-95kg, cao trên 1m80\n\n" +
+                    "💡 Mỗi sản phẩm có bảng size chi tiết. Bạn có thể inbox với quản trị viên để được tư vấn size cụ thể hơn nhé!"
+                ]
+            },
+            {
+                id: 'payment',
+                icon: '💳',
+                text: 'Thanh toán',
+                responses: [
+                    "Các phương thức thanh toán:\n\n" +
+                    "1️⃣ COD (Thanh toán khi nhận hàng)\n" +
+                    "2️⃣ Chuyển khoản ngân hàng:\n" +
+                    "   • Vietcombank\n" +
+                    "   • Techcombank\n" +
+                    "   • MBBank\n" +
+                    "3️⃣ Ví điện tử: Momo, ZaloPay\n" +
+                    "4️⃣ Quét mã QR\n\n" +
+                    "✨ Đơn chuyển khoản được ưu tiên xử lý!"
+                ]
+            },
+            {
+                id: 'return',
+                icon: '🔄',
+                text: 'Đổi trả hàng',
+                responses: [
+                    "Chính sách đổi trả:\n\n" +
+                    "✅ Đổi size MIỄN PHÍ trong 7 ngày\n" +
+                    "✅ Trả hàng hoàn tiền nếu:\n" +
+                    "   • Sản phẩm lỗi do nhà sản xuất\n" +
+                    "   • Giao sai màu/size/sản phẩm\n" +
+                    "   • Hàng không đúng mô tả\n\n" +
+                    "⚠️ Điều kiện:\n" +
+                    "   • Còn nguyên tem, mác\n" +
+                    "   • Chưa qua sử dụng\n" +
+                    "   • Không giặt, không hư hỏng\n\n" +
+                    "📞 Liên hệ ngay để được hỗ trợ!"
+                ]
+            },
+            {
+                id: 'warranty',
+                icon: '🛡️',
+                text: 'Bảo hành',
+                responses: [
+                    "Chính sách bảo hành:\n\n" +
+                    "🔰 Bảo hành 6 tháng cho:\n" +
+                    "   • Suit cao cấp\n" +
+                    "   • Áo khoác\n" +
+                    "   • Giày dép\n\n" +
+                    "🔰 Bảo hành 3 tháng cho:\n" +
+                    "   • Áo sơ mi\n" +
+                    "   • Quần tây\n" +
+                    "   • Phụ kiện\n\n" +
+                    "✨ Bảo hành bao gồm:\n" +
+                    "   • Sửa chữa lỗi kỹ thuật\n" +
+                    "   • Thay thế nếu lỗi nghiêm trọng\n" +
+                    "   • Tư vấn bảo quản sản phẩm"
+                ]
+            },
+            {
+                id: 'discount',
+                icon: '🎁',
+                text: 'Khuyến mãi',
+                responses: [
+                    "Chương trình khuyến mãi HOT:\n\n" +
+                    "🎉 GIẢM 20% toàn bộ áo thun\n" +
+                    "🎉 GIẢM 15% combo từ 2 sản phẩm\n" +
+                    "🎉 TẶNG voucher 100K cho đơn từ 1 triệu\n" +
+                    "🎉 Freeship toàn quốc đơn từ 500K\n\n" +
+                    "⏰ Áp dụng đến hết tháng này!\n" +
+                    "💝 Tích điểm đổi quà cho khách hàng thân thiết\n\n" +
+                    "Nhập mã: NEWYEAR2024 để nhận ưu đãi!"
+                ]
+            },
+            {
+                id: 'contact',
+                icon: '📞',
+                text: 'Liên hệ',
+                responses: [
+                    "Thông tin liên hệ:\n\n" +
+                    "📍 Địa chỉ: 123 Đường ABC, Quận XYZ, TP.HCM\n" +
+                    "☎️ Hotline: 1900 xxxx (8h-22h)\n" +
+                    "📧 Email: support@cuahangquanao.vn\n" +
+                    "💬 Facebook: fb.com/cuahangquanao\n" +
+                    "🕒 Giờ làm việc:\n" +
+                    "   • Thứ 2 - Thứ 7: 8h - 22h\n" +
+                    "   • Chủ nhật: 9h - 21h\n\n" +
+                    "Bạn cũng có thể chat trực tiếp với quản trị viên!"
+                ]
+            },
+            {
+                id: 'quality',
+                icon: '⭐',
+                text: 'Chất lượng',
+                responses: [
+                    "Cam kết chất lượng:\n\n" +
+                    "✅ 100% hàng chính hãng\n" +
+                    "✅ Nguồn gốc xuất xứ rõ ràng\n" +
+                    "✅ Chất liệu cao cấp:\n" +
+                    "   • Cotton 100% tự nhiên\n" +
+                    "   • Vải thun co giãn 4 chiều\n" +
+                    "   • Kaki, jean cao cấp\n" +
+                    "✅ Kiểm tra kỹ trước khi giao\n" +
+                    "✅ Đóng gói chuyên nghiệp\n\n" +
+                    "🏆 Được hơn 10,000 khách hàng tin tưởng!"
+                ]
+            },
+            {
+                id: 'admin',
+                icon: '👨‍💼',
+                text: 'Chat admin',
+                responses: [
+                    "Bạn muốn chat trực tiếp với quản trị viên? Điều đó thật tuyệt vời! 😊\n\n" +
+                    "Quản trị viên có thể hỗ trợ bạn:\n" +
+                    "✅ Tư vấn chi tiết về sản phẩm\n" +
+                    "✅ Giải đáp thắc mắc cụ thể\n" +
+                    "✅ Hỗ trợ đặt hàng nhanh chóng\n" +
+                    "✅ Xử lý khiếu nại, đổi trả\n\n" +
+                    "Bạn có muốn tôi chuyển sang chat với quản trị viên không?"
+                ]
+            }
+        ];
+        
+        // Render quick questions
+        function renderQuickQuestions() {
+            const grid = document.getElementById('quickQuestionsGrid');
+            grid.innerHTML = '';
+            
+            quickQuestions.forEach(question => {
+                const btn = document.createElement('button');
+                btn.className = 'quick-question-btn';
+                btn.innerHTML = `
+                    <span class="quick-question-icon">${question.icon}</span>
+                    <span>${question.text}</span>
+                `;
+                btn.onclick = () => handleQuickQuestion(question);
+                grid.appendChild(btn);
+            });
+        }
+        
+        // Xử lý khi click vào quick question
+        function handleQuickQuestion(question) {
+            // Thêm hiệu ứng click
+            event.target.closest('.quick-question-btn').classList.add('clicked');
+            setTimeout(() => {
+                event.target.closest('.quick-question-btn').classList.remove('clicked');
+            }, 300);
+            
+            // Hiển thị câu hỏi của user
+            addChatMessage(currentChatUser, question.text, getCurrentTime(), true, false);
+            
+            // Bot typing
+            setTimeout(() => {
+                showChatTyping("Bot");
+            }, 500);
+            
+            // Hiển thị câu trả lời
+            setTimeout(() => {
+                hideChatTyping();
+                const response = question.responses[Math.floor(Math.random() * question.responses.length)];
+                
+                // Nếu là câu hỏi về admin, tự động hỏi chuyển sang admin
+                if (question.id === 'admin') {
+                    addChatMessage("Bot", response, getCurrentTime(), false, false);
+                } else {
+                    addChatMessage("Bot", response, getCurrentTime(), false, false);
+                    
+                    // Sau khi trả lời, hỏi thêm
+                    setTimeout(() => {
+                        addChatMessage("Bot", "Bạn còn thắc mắc gì khác không? 😊", getCurrentTime(), false, false);
+                    }, 1000);
+                }
+            }, 1500);
+        }
+        
         // Toggle chat window
         document.getElementById('chatWidgetButton').addEventListener('click', function() {
             const widget = document.getElementById('chatWidget');
@@ -1274,7 +1487,6 @@
                 .withAutomaticReconnect()
                 .build();
 
-            // Nhận tin nhắn từ admin
             chatConnection.on("ReceiveAdminMessage", (adminName, message, time) => {
                 addChatMessage(adminName, message, time, false, true);
                 if (!isChatOpen) {
@@ -1288,7 +1500,7 @@
             });
 
             chatConnection.on("SupportRequested", () => {
-                addSystemChatMessage("✅ Đã gửi yêu cầu hỗ trợ. Quản trị viên sẽ trả lời bạn sớm.");
+                addSystemChatMessage("✅ Đã gửi yêu cầu hỗ trợ. Quản trị viên sẽ trả lời bạn sớm.", true);
             });
 
             chatConnection.on("UpdateOnlineUsers", (count) => {
@@ -1318,6 +1530,10 @@
             document.getElementById('chatBody').style.display = 'block';
             document.getElementById('chatInput').style.display = 'flex';
             
+            // HIỂN THỊ QUICK QUESTIONS
+            document.getElementById('quickQuestionsContainer').style.display = 'block';
+            renderQuickQuestions();
+            
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "🤖 Bot AI";
             badge.style.display = 'inline-block';
@@ -1325,8 +1541,7 @@
             
             addSystemChatMessage(`Chào ${currentChatUser}! Tôi là Bot hỗ trợ.`);
             setTimeout(() => {
-                const greeting = botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
-                addChatMessage("Bot", greeting, getCurrentTime(), false, false);
+                addChatMessage("Bot", "Bạn có thể chọn câu hỏi bên dưới hoặc nhập câu hỏi của riêng bạn! 😊", getCurrentTime(), false, false);
             }, 800);
         }
 
@@ -1336,13 +1551,16 @@
             document.getElementById('chatBody').style.display = 'block';
             document.getElementById('chatInput').style.display = 'flex';
             
+            // ẨN QUICK QUESTIONS khi chat với admin
+            document.getElementById('quickQuestionsContainer').style.display = 'none';
+            
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "👨‍💼 Quản trị viên";
             badge.style.display = 'inline-block';
             badge.classList.add('admin-mode');
             
             initChatConnection();
-            addSystemChatMessage(`Chào ${currentChatUser}! Đang kết nối với quản trị viên...`);
+            addSystemChatMessage(`Chào ${currentChatUser}! Đang kết nối với quản trị viên...`, true);
             
             setTimeout(() => {
                 if (chatConnection && chatConnection.state === "Connected") {
@@ -1358,20 +1576,19 @@
             'muốn', 'cần', 'giúp', 'hỗ trợ'
         ];
 
-        // Hàm kiểm tra xem tin nhắn có phải là đồng ý không
         function isAgreementMessage(message) {
             const msg = message.toLowerCase().trim();
-            
-            // Kiểm tra từ đơn lẻ hoặc trong câu
             return agreeKeywords.some(keyword => {
                 const regex = new RegExp(`\\b${keyword}\\b|^${keyword}$`, 'i');
                 return regex.test(msg);
             });
         }
 
-        // Hàm tự động chuyển sang admin support
         function autoSwitchToAdmin() {
             chatMode = "admin";
+            
+            // ẨN QUICK QUESTIONS khi chuyển sang admin
+            document.getElementById('quickQuestionsContainer').style.display = 'none';
             
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "👨‍💼 Quản trị viên";
@@ -1391,32 +1608,53 @@
             }, 1500);
         }
 
-        // CẬP NHẬT hàm getBotResponse để phát hiện câu hỏi về admin
         function getBotResponse(userMessage) {
             const msg = userMessage.toLowerCase();
             
+            // Tìm kiếm trong quick questions trước
+            for (const question of quickQuestions) {
+                if (msg.includes(question.text.toLowerCase()) || 
+                    msg.includes(question.id)) {
+                    return question.responses[Math.floor(Math.random() * question.responses.length)];
+                }
+            }
+            
+            // Phân tích từ khóa
             if (msg.includes("xin chào") || msg.includes("chào") || msg.includes("hello") || msg.includes("hi")) {
-                return botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
+                return quickQuestions.find(q => q.id === 'greeting').responses[0];
             } 
             else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("tiền")) {
-                return botResponses.price[Math.floor(Math.random() * botResponses.price.length)];
+                return quickQuestions.find(q => q.id === 'price').responses[0];
             } 
             else if (msg.includes("giao hàng") || msg.includes("ship") || msg.includes("vận chuyển")) {
-                return botResponses.shipping[Math.floor(Math.random() * botResponses.shipping.length)];
+                return quickQuestions.find(q => q.id === 'shipping').responses[0];
             } 
             else if (msg.includes("size") || msg.includes("kích thước") || msg.includes("cỡ")) {
-                return botResponses.size[Math.floor(Math.random() * botResponses.size.length)];
+                return quickQuestions.find(q => q.id === 'size').responses[0];
             } 
             else if (msg.includes("sản phẩm") || msg.includes("áo") || msg.includes("quần")) {
-                return botResponses.product[Math.floor(Math.random() * botResponses.product.length)];
-            } 
+                return quickQuestions.find(q => q.id === 'products').responses[0];
+            }
+            else if (msg.includes("thanh toán") || msg.includes("payment") || msg.includes("trả tiền")) {
+                return quickQuestions.find(q => q.id === 'payment').responses[0];
+            }
+            else if (msg.includes("đổi") || msg.includes("trả") || msg.includes("hoàn")) {
+                return quickQuestions.find(q => q.id === 'return').responses[0];
+            }
+            else if (msg.includes("bảo hành") || msg.includes("warranty")) {
+                return quickQuestions.find(q => q.id === 'warranty').responses[0];
+            }
+            else if (msg.includes("khuyến mãi") || msg.includes("giảm giá") || msg.includes("sale")) {
+                return quickQuestions.find(q => q.id === 'discount').responses[0];
+            }
+            else if (msg.includes("liên hệ") || msg.includes("contact") || msg.includes("địa chỉ")) {
+                return quickQuestions.find(q => q.id === 'contact').responses[0];
+            }
             else if (msg.includes("admin") || msg.includes("quản trị") || msg.includes("nhân viên")) {
-                // Bot hỏi có muốn chuyển sang admin không
                 return "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?";
             } 
             else {
-                // Trả lời mặc định và gợi ý chuyển sang admin
-                return botResponses.default[Math.floor(Math.random() * botResponses.default.length)];
+                return "Xin lỗi, tôi chưa hiểu rõ câu hỏi này. Bạn có thể chọn một trong các câu hỏi thường gặp bên dưới, hoặc chat với quản trị viên để được hỗ trợ tốt hơn nhé! 😊";
             }
         }
 
@@ -1426,13 +1664,11 @@
 
             if (message) {
                 if (chatMode === "bot") {
-                    // Thêm tin nhắn của user
                     addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
                     input.value = "";
                     
-                    // KIỂM TRA CÂU TRẢ LỜI ĐỒNG Ý
+                    // Kiểm tra câu trả lời đồng ý
                     if (isAgreementMessage(message)) {
-                        // Nếu tin nhắn cuối của bot có chứa câu hỏi về admin
                         const chatBody = document.getElementById('chatBody');
                         const lastMessages = chatBody.querySelectorAll('.chat-message-text');
                         const lastBotMessage = Array.from(lastMessages)
@@ -1442,7 +1678,6 @@
                             lastBotMessage.includes('admin') || 
                             lastBotMessage.includes('nhân viên')) {
                             
-                            // Tự động chuyển sang admin
                             setTimeout(() => {
                                 addChatMessage("Bot", "Được rồi! Tôi sẽ chuyển bạn sang quản trị viên ngay.", 
                                     getCurrentTime(), false, false);
@@ -1452,16 +1687,15 @@
                                 autoSwitchToAdmin();
                             }, 2000);
                             
-                            return; // Dừng xử lý bot
+                            return;
                         }
                     }
                     
-                    // Giả lập bot đang gõ
+                    // Bot typing
                     setTimeout(() => {
                         showChatTyping("Bot");
                     }, 500);
                     
-                    // Hiển thị câu trả lời sau 1.5s
                     setTimeout(() => {
                         hideChatTyping();
                         const botResponse = getBotResponse(message);
@@ -1469,7 +1703,6 @@
                     }, 1500);
                     
                 } else if (chatMode === "admin" && chatConnection) {
-                    // Chế độ admin - gửi qua SignalR
                     chatConnection.invoke("SendMessageToAdmin", currentChatUser, message)
                         .catch(err => console.error(err));
                     addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
@@ -1498,7 +1731,7 @@
                     <div class="chat-avatar">${initial}</div>
                     <div class="chat-message-content">
                         <div class="chat-message-user">${userLabel}</div>
-                        <div class="chat-message-text">${escapeHtml(message)}</div>
+                        <div class="chat-message-text">${escapeHtml(message).replace(/\n/g, '<br>')}</div>
                         <div class="chat-message-time">${time}</div>
                     </div>
                 `;
