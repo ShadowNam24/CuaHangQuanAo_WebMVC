@@ -1,7 +1,7 @@
 ﻿using CuaHangQuanAo.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 namespace CuaHangQuanAo.Controllers
 {
@@ -9,11 +9,9 @@ namespace CuaHangQuanAo.Controllers
     public class OrderController : Controller
     {
         private readonly CuaHangBanQuanAoContext _context;
+        private static readonly string[] ValidStatuses = { "pending", "processing", "fulfilled", "cancelled" };
 
-        public OrderController(CuaHangBanQuanAoContext context)
-        {
-            _context = context;
-        }
+        public OrderController(CuaHangBanQuanAoContext context) => _context = context;
 
         // List orders
         public async Task<IActionResult> Index()
@@ -151,7 +149,69 @@ namespace CuaHangQuanAo.Controllers
             }
         }
 
-        // Delete (POST)
+        // EDIT (GET): navigate to edit page
+        [HttpGet]
+        public async Task<IActionResult> Functions_Edit(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+                .FirstOrDefaultAsync(o => o.OrdersId == id);
+
+            if (order == null) return NotFound();
+
+            ViewBag.Customers = await _context.Customers.ToListAsync();
+            return View("EditOrder", order);
+        }
+
+        // EDIT (POST): persist changes
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Functions_Edit(int id, Order input)
+        {
+            if (id != input.OrdersId) return BadRequest();
+
+            var order = await _context.Orders
+                .Include(o => o.OrdersDetails)
+                .FirstOrDefaultAsync(o => o.OrdersId == id);
+
+            if (order == null) return NotFound();
+
+            // Update editable fields
+            order.CustomerName = input.CustomerName;
+            order.PhoneNumber = input.PhoneNumber;
+            order.ShippingAddress = input.ShippingAddress;
+            order.Discount = input.Discount;
+            order.Status = input.Status;
+
+            // Recalculate totals from details (if discount changed)
+            decimal subtotal = 0;
+            foreach (var d in order.OrdersDetails)
+            {
+                var price = d.Price ?? 0;
+                subtotal += price * (d.Quantity ?? 0);
+            }
+            var discount = order.Discount ?? 0;
+            order.Total = subtotal - (subtotal * (discount / 100));
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Đã cập nhật đơn hàng #{order.OrdersId}.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // DELETE (GET): show confirmation popup page
+        [HttpGet]
+        public async Task<IActionResult> Functions_Delete(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.Customer)
+                .FirstOrDefaultAsync(o => o.OrdersId == id);
+
+            if (order == null) return NotFound();
+            return View("DeleteOrderConfirm", order);
+        }
+
+        // DELETE (POST): confirmed deletion
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Functions_DeleteConfirmed(int id)
@@ -162,26 +222,12 @@ namespace CuaHangQuanAo.Controllers
 
             if (order != null)
             {
-                try
-                {
-                    // Remove all related order details first
-                    if (order.OrdersDetails != null && order.OrdersDetails.Any())
-                    {
-                        _context.OrdersDetails.RemoveRange(order.OrdersDetails);
-                    }
+                if (order.OrdersDetails?.Any() == true)
+                    _context.OrdersDetails.RemoveRange(order.OrdersDetails);
 
-                    // Remove the order itself
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateException ex)
-                {
-                    ModelState.AddModelError("", $"Lỗi khi xóa đơn hàng: {ex.Message}");
-                    var orderToShow = await _context.Orders
-                        .Include(o => o.Customer)
-                        .FirstOrDefaultAsync(o => o.OrdersId == id);
-                    return View("OrderDetail", orderToShow);
-                }
+                _context.Orders.Remove(order);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã xóa đơn hàng #{id}.";
             }
             return RedirectToAction(nameof(Index));
         }
@@ -190,5 +236,39 @@ namespace CuaHangQuanAo.Controllers
         {
             return _context.Orders.Any(e => e.OrdersId == id);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangeStatus(int id, string status)
+        {
+            status = (status ?? "").ToLowerInvariant();
+            if (!ValidStatuses.Contains(status))
+            {
+                TempData["Error"] = "Trạng thái không hợp lệ.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var order = _context.Orders.FirstOrDefault(o => o.OrdersId == id);
+            if (order == null)
+            {
+                TempData["Error"] = $"Không tìm thấy đơn hàng #{id}.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            order.Status = status;
+            _context.SaveChanges();
+            TempData["Success"] = $"Đã cập nhật trạng thái đơn hàng #{id} thành '{status}'.";
+
+            // Prevent caching to avoid stale back navigation
+            Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
+            Response.Headers.Pragma = "no-cache";
+            Response.Headers.Expires = "0";
+
+            TempData["StatusMessage"] = $"Cập nhật trạng thái đơn hàng #{id} thành công: {status}";
+            // Redirect to Admin home (adjust controller/action to your Admin dashboard)
+            return RedirectToAction("Index", "Order"); // or RedirectToAction("Dashboard", "Admin")
+        }
+
+       
     }
 }

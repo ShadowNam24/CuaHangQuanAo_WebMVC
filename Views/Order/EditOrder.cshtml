@@ -1,0 +1,199 @@
+﻿@model CuaHangQuanAo.Entities.Order
+@{
+    ViewData["Title"] = "Sửa đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    :root{
+        --brand-primary:#1E3A8A;
+        --brand-secondary:#3B82F6;
+        --brand-accent:#22C55E;
+        --brand-warning:#F59E0B;
+        --brand-danger:#EF4444;
+        --brand-muted:#F3F4F6;
+    }
+
+    .hero {
+        background: linear-gradient(135deg,var(--brand-primary),var(--brand-secondary));
+        color:#fff;
+        border-radius:1rem;
+        padding:1.25rem 1.5rem;
+        box-shadow:0 12px 28px rgba(30,58,138,.18);
+        display:flex;align-items:center;justify-content:space-between;
+    }
+    .hero-title{font-weight:800;font-size:1.35rem;}
+    .hero-sub{opacity:.85}
+
+    .card-modern{
+        border-radius:1rem;
+        background:#fff;
+        border:1px solid #e5e7eb;
+        box-shadow:0 14px 34px rgba(30,58,138,.12);
+        overflow:hidden;
+    }
+    .section-title{
+        font-weight:800;
+        font-size:1rem;
+        color:#111827;
+        margin-bottom:.75rem;
+        display:flex;align-items:center;gap:.5rem;
+    }
+    .form-label{font-weight:600;color:#374151}
+    .form-control, .form-select{
+        border-radius:.75rem;
+        border-color:#e5e7eb;
+        transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .form-control:focus, .form-select:focus{
+        border-color:var(--brand-secondary);
+        box-shadow: 0 0 0 .25rem rgba(59,130,246,.15);
+        transform: translateY(-1px);
+    }
+
+    /* Glow buttons */
+    .btn-glow{
+        position:relative;
+        border:none;
+        color:#fff;
+        font-weight:700;
+        border-radius:999px;
+        padding:.65rem 1.1rem;
+        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .btn-glow-primary{
+        background: linear-gradient(135deg,var(--brand-secondary),#60A5FA);
+        box-shadow: 0 10px 22px rgba(59,130,246,.35);
+    }
+    .btn-glow-primary:hover{ transform: translateY(-2px); filter: brightness(1.05); }
+    .btn-glow-danger{
+        background: linear-gradient(135deg,#EF4444,#F87171);
+        box-shadow: 0 10px 22px rgba(239,68,68,.35);
+    }
+    .btn-glow-secondary{
+        background: linear-gradient(135deg,#64748B,#94A3B8);
+        box-shadow: 0 8px 18px rgba(100,116,139,.35);
+    }
+
+    .btn-outline-modern{
+        border-radius:999px;
+        font-weight:700;
+        padding:.6rem 1rem;
+        border:1px solid var(--brand-primary);
+        color:var(--brand-primary);
+        background:#fff;
+        transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease, color .15s ease;
+    }
+    .btn-outline-modern:hover{
+        transform: translateY(-2px);
+        box-shadow:0 10px 22px rgba(30,58,138,.18);
+        background:var(--brand-primary);
+        color:#fff;
+    }
+
+    .summary {
+        display:grid;grid-template-columns: repeat(3,1fr);gap:.75rem;
+        margin-top:.5rem;
+    }
+    .summary-item{
+        background:var(--brand-muted);
+        border-radius:.75rem;
+        padding:.6rem .75rem;
+        font-weight:700;
+        color:#111827;
+    }
+</style>
+
+<div class="container py-3">
+    <div class="hero mb-3">
+        <div>
+            <div class="hero-title"><i class="bi bi-pencil-square me-2"></i>Sửa đơn hàng #@Model.OrdersId</div>
+            <div class="hero-sub">Cập nhật thông tin đơn hàng</div>
+        </div>
+        <a href="@Url.Action("Index","Order")" class="btn-outline-modern">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <form asp-action="Functions_Edit" asp-controller="Order" method="post" class="card-modern p-3">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="OrdersId" />
+
+        <div class="section-title"><i class="bi bi-person-badge text-primary"></i>Thông tin khách hàng</div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Tên khách hàng</label>
+                <input asp-for="CustomerName" class="form-control" />
+                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Số điện thoại</label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Địa chỉ</label>
+                <input asp-for="ShippingAddress" class="form-control" />
+                <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="section-title"><i class="bi bi-receipt-cutoff text-primary"></i>Thiết lập đơn hàng</div>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Giảm giá (%)</label>
+                <input asp-for="Discount" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="Discount" class="text-danger small"></span>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Trạng thái</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="pending">pending</option>
+                    <option value="processing">processing</option>
+                    <option value="fulfilled">fulfilled</option>
+                    <option value="cancelled">cancelled</option>
+                </select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <div class="summary">
+                    <div class="summary-item"><i class="bi bi-hash me-1"></i>Mã: #@Model.OrdersId</div>
+                    <div class="summary-item"><i class="bi bi-calendar2 me-1"></i>Ngày: @Model.OrderDate?.ToString("dd/MM/yyyy")</div>
+                    <div class="summary-item"><i class="bi bi-cash-coin me-1"></i>Tổng: @string.Format("{0:N0} đ", Model.Total)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="@Url.Action("Index","Order")" class="btn-outline-modern">
+                <i class="bi bi-x-circle me-1"></i>Hủy
+            </a>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-glow btn-glow-primary">
+                    <i class="bi bi-save me-1"></i>Lưu thay đổi
+                </button>
+                <a href="@Url.Action("Functions_Delete","Order", new { id = Model.OrdersId })" class="btn-glow btn-glow-danger">
+                    <i class="bi bi-trash me-1"></i>Xóa đơn hàng
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Ensure back navigation from EditOrder returns to Admin home
+        if (window.performance && performance.getEntriesByType) {
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav && (nav.type === 'back_forward' || nav.type === 'reload')) {
+                window.history.replaceState(null, '', '/Admin'); // adjust if needed
+            }
+        }
+        window.addEventListener('popstate', () => {
+            location.replace('/Admin'); // adjust if needed
+        });
+    </script>
+}

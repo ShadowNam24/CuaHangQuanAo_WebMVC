@@ -5,95 +5,121 @@
 }
 
 <style>
+    :root {
+        --brand-primary: #1E3A8A; /* navy */
+        --brand-secondary: #3B82F6; /* blue */
+        --brand-accent: #F59E0B; /* amber */
+        --brand-muted: #F3F4F6; /* light gray */
+        --text-muted: #6B7280;
+    }
+
     .details-container {
         background-color: white;
         border-radius: 1rem;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 24px rgba(30, 58, 138, 0.12);
+        border: 1px solid var(--brand-muted);
     }
 
     .details-header {
-        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+        background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
         color: white;
         border-radius: 0.8rem 0.8rem 0 0;
         padding: 1.5rem;
     }
 
     .info-section {
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
-        padding: 1.5rem;
+        background-color: var(--brand-muted);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
         margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
     }
 
     .info-label {
-        color: #6c757d;
+        color: var(--text-muted);
         font-size: 0.875rem;
         margin-bottom: 0.25rem;
     }
 
     .info-value {
-        font-weight: 500;
-        font-size: 1.1rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #111827;
     }
 
-    .badge-order {
-        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
+    .badge-order,
+    .discount-badge {
+        background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
         color: white;
         padding: 0.5rem 1rem;
-        border-radius: 50px;
+        border-radius: 999px;
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.2);
     }
 
     .item-details {
-        border-left: 4px solid #4B0082;
+        border-left: 4px solid var(--brand-secondary);
         padding-left: 1rem;
     }
 
     .btn-action {
-        border-radius: 50px;
-        padding: 0.5rem 1.25rem;
-        font-weight: 500;
-        transition: all 0.2s;
+        border-radius: 999px;
+        padding: 0.5rem 1.1rem;
+        font-weight: 600;
+        transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
     }
-
-        .btn-action:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    }
+    .btn-primary.btn-action {
+        background-color: var(--brand-secondary);
+        border-color: var(--brand-secondary);
+    }
+    .btn-outline-secondary.btn-action {
+        border-color: var(--brand-primary);
+        color: var(--brand-primary);
+    }
+    .btn-outline-secondary.btn-action:hover {
+        background-color: var(--brand-primary);
+        color: #fff;
+    }
 
     .table-products {
         border-radius: 0.5rem;
         overflow: hidden;
+        border: 1px solid #e5e7eb;
+    }
+    .table-products th {
+        background-color: var(--brand-muted);
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #111827;
     }
 
-        .table-products th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-    .product-name {
-        font-weight: 500;
-    }
-
+    .product-name { font-weight: 600; }
     .product-quantity {
-        background-color: #e9ecef;
-        border-radius: 4px;
-        padding: 0.2rem 0.6rem;
-        font-weight: 500;
+        background-color: #e5e7eb;
+        border-radius: 6px;
+        padding: 0.25rem 0.6rem;
+        font-weight: 600;
+        color: #111827;
     }
 
     .total-row {
-        font-weight: 700;
-        font-size: 1.1rem;
+        font-weight: 800;
+        font-size: 1.15rem;
     }
 
-    .discount-badge {
-        background-color: #fff3cd;
-        color: #856404;
-        border-radius: 50px;
+    .status-badge {
+        text-transform: uppercase;
+        border-radius: 999px;
+        font-weight: 700;
         padding: 0.25rem 0.75rem;
-        font-size: 0.875rem;
     }
+    .status-pending { background-color: #FDE68A; color: #92400E; }
+    .status-processing { background-color: #BFDBFE; color: #1E3A8A; }
+    .status-fulfilled { background-color: #A7F3D0; color: #065F46; }
+    .status-cancelled { background-color: #FECACA; color: #7F1D1D; }
 </style>
 
 <div class="container py-4">
@@ -320,3 +346,47 @@
         </div>
     </div>
 </div>
+
+
+@{
+    // Add this block before the <span class="badge status-badge ..."> usage
+    string status = Model.Status ?? "pending";
+    string statusClass = status switch
+    {
+        "pending" => "status-pending",
+        "processing" => "status-processing",
+        "fulfilled" => "status-fulfilled",
+        "cancelled" => "status-cancelled",
+        _ => "status-pending"
+    };
+}
+
+<div class="d-flex align-items-center gap-2 mb-3">
+    <span>Trạng thái hiện tại:</span>
+    <span class="badge status-badge @statusClass">@status</span>
+</div>
+
+<form asp-action="ChangeStatus" asp-controller="Order" method="post" class="d-flex gap-2">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.OrdersId" />
+    <select name="status" class="form-select form-select-sm w-auto">
+        <option value="pending" selected="@(Model.Status=="pending")">pending</option>
+        <option value="processing" selected="@(Model.Status=="processing")">processing</option>
+        <option value="fulfilled" selected="@(Model.Status=="fulfilled")">fulfilled</option>
+        <option value="cancelled" selected="@(Model.Status=="cancelled")">cancelled</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm btn-action">Cập nhật</button>
+</form>
+
+@section Scripts {
+    <script>
+        // Prevent re-submit on back and send user to Admin home when navigating back after update
+        if (window.performance && performance.getEntriesByType) {
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav && (nav.type === 'back_forward' || nav.type === 'reload')) {
+                // optional: ensure no stale POST re-execution
+                window.history.replaceState(null, '', '/Admin'); // change to your Admin home route
+            }
+        }
+    </script>
+}

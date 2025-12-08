@@ -1,363 +1,221 @@
 ﻿@model IEnumerable<CuaHangQuanAo.Entities.Order>
+
 @{
-    ViewData["Title"] = "Danh sách đơn hàng";
-	Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "_AdminLayout";
+
+    Func<string, string> statusClass = s => s switch
+    {
+        "pending" => "status-pending",
+        "processing" => "status-processing",
+        "fulfilled" => "status-fulfilled",
+        "cancelled" => "status-cancelled",
+        _ => "status-pending"
+    };
+
+    var totalOrders = Model.Count();
+    var totalRevenue = Model.Sum(o => o.Total ?? 0);
+    var avgRevenue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 }
 
 <style>
-    .page-title-box {
-        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
-        color: white;
-        border-radius: 10px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    :root {
+        --brand-primary: #1E3A8A;
+        --brand-secondary: #3B82F6;
+        --brand-accent: #22C55E;
+        --brand-warning: #F59E0B;
+        --brand-danger: #EF4444;
+        --brand-muted: #F3F4F6;
+        --text-muted: #6B7280;
     }
 
-    .card {
-        transition: all 0.3s;
-        border: none;
-        border-radius: 0.8rem;
+    .page-hero {
+        background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+        color: #fff;
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 12px 28px rgba(30,58,138,.18);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
+    .hero-title { font-size: 1.35rem; font-weight: 800; }
+    .hero-sub { opacity:.85; font-size:.9rem; }
+    .hero-btn { border-radius:999px; padding:.5rem 1rem; font-weight:700; }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
-        }
-
-    .table th {
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.82rem;
-        letter-spacing: 0.5px;
+    .metrics {
+        display:grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 1rem;
+        margin: 1rem 0 1.25rem;
     }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(75, 0, 130, 0.05);
+    .metric-card {
+        background:#fff;
+        border:1px solid #e5e7eb;
+        border-radius: .85rem;
+        padding: .9rem 1rem;
+        box-shadow:0 10px 24px rgba(30,58,138,.08);
     }
+    .metric-label { color:var(--text-muted); font-weight:600; }
+    .metric-value { font-size:1.25rem; font-weight:800; color:#111827; }
 
-    .action-buttons .btn {
-        border-radius: 50px;
-        padding: 0.4rem 1rem;
-        transition: all 0.2s;
-    }
-
-        .action-buttons .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-    .badge-order {
-        background: linear-gradient(45deg, #4B0082, #9370DB);
-        color: white;
-        border-radius: 50px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-    }
-
-    .empty-state {
-        padding: 3rem 2rem;
-        opacity: 0.8;
-    }
-
-        .empty-state i {
-            font-size: 4rem;
-            opacity: 0.5;
-        }
-
-    .add-button {
-        font-weight: 600;
-        padding: 0.6rem 1.5rem;
-        border-radius: 50px;
-        box-shadow: 0 4px 10px rgba(75, 0, 130, 0.3);
-    }
-
-    .table-responsive {
-        border-radius: 0.8rem;
+    .orders-card {
+        border-radius: 1rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 24px rgba(30,58,138,.08);
         overflow: hidden;
+        background: #fff;
     }
-
-    .customer-name {
-        font-weight: 500;
-        color: #495057;
+    .toolbar {
+        display:flex; gap:.75rem; align-items:center; justify-content:space-between; padding: .75rem 1rem;
     }
-
-    .date-badge {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 4px;
-        padding: 0.3rem 0.6rem;
-        font-size: 0.875rem;
+    .search-input { max-width: 360px; }
+    .table-orders thead th {
+        background: var(--brand-muted);
+        color: #111827;
+        font-weight: 700;
+        border-bottom: 1px solid #e5e7eb;
     }
-
-    .status-paid {
-        background-color: #d4edda;
-        color: #155724;
-        border-radius: 50px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .table-orders tbody tr:hover { background:#f9fafb; }
+    .status-badge {
+        text-transform: uppercase;
+        border-radius: 999px;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        font-size: .75rem;
     }
-
-    .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-        border-radius: 50px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 600;
+    .status-pending { background-color: #FDE68A; color: #92400E; }
+    .status-processing { background-color: #BFDBFE; color: #1E3A8A; }
+    .status-fulfilled { background-color: #A7F3D0; color: #065F46; }
+    .status-cancelled { background-color: #FECACA; color: #7F1D1D; }
+    .pill {
+        border-radius: 999px; padding:.25rem .6rem; font-weight:700; font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem;
+        border:1px solid transparent;
     }
-
-    .modal-header {
-        background: linear-gradient(135deg, #4B0082 0%, #9370DB 100%);
-        color: white;
-        border-radius: 0.8rem 0.8rem 0 0;
-    }
-
-    .modal-footer .btn-danger {
-        background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
-        border: none;
-    }
+    .pill-blue { color:#1E3A8A; border-color:#93C5FD; background:#EFF6FF; }
+    .pill-yellow { color:#92400E; border-color:#FCD34D; background:#FFFBEB; }
+    .pill-red { color:#7F1D1D; border-color:#FCA5A5; background:#FEF2F2; }
+    .btn-action { border-radius:999px; padding:.35rem .8rem; font-weight:600; }
+    .btn-primary.btn-action { background-color: var(--brand-secondary); border-color: var(--brand-secondary); }
 </style>
 
-<div class="container py-4">
-    <div class="page-title-box d-flex justify-content-between align-items-center">
-        <div>
-            <h2 class="mb-1 fw-bold">
-                <i class="bi bi-receipt me-2"></i>Danh sách đơn hàng
-            </h2>
-            <p class="text-white-50 mb-0">Quản lý thông tin đơn hàng và chi tiết giao dịch</p>
-        </div>
-        <a class="btn btn-light add-button" href="@Url.Action("Functions_Create", "Order")">
-            <i class="bi bi-plus-circle-fill me-2"></i> Tạo đơn hàng
-        </a>
+<div class="page-hero mb-3">
+    <div>
+        <div class="hero-title"><i class="bi bi-bag-check me-2"></i>Danh sách đơn hàng</div>
+        <div class="hero-sub">Quản lý đơn hàng trong cửa hàng</div>
     </div>
+    <a href="@Url.Action("Index","Order")" class="btn btn-light hero-btn"><i class="bi bi-arrow-repeat me-1"></i>Tải lại</a>
+</div>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                            <i class="bi bi-receipt text-primary fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-1 text-muted">Tổng đơn hàng</h6>
-                            <h4 class="mb-0 fw-bold">@(Model?.Count() ?? 0)</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                            <i class="bi bi-currency-dollar text-success fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-1 text-muted">Tổng doanh thu</h6>
-                            <h4 class="mb-0 fw-bold">@string.Format("{0:N0} đ", Model?.Sum(x => x.Total) ?? 0)</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center">
-                        <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                            <i class="bi bi-calendar-event text-info fs-4"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h6 class="mb-1 text-muted">Đơn hàng gần nhất</h6>
-                            <h4 class="mb-0 fw-bold">
-                                @(Model?.Max(x => x.OrderDate)?.ToString("dd/MM/yyyy") ?? "Chưa có")
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="metrics">
+    <div class="metric-card">
+        <div class="metric-label"><i class="bi bi-basket3 me-1 text-primary"></i>Tổng đơn hàng</div>
+        <div class="metric-value">@totalOrders</div>
     </div>
-
-    <div class="card shadow">
-        <div class="card-header bg-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="bi bi-table me-2 text-primary"></i> Dữ liệu đơn hàng
-                </h5>
-                <div class="input-group" style="width: 250px;">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm..." id="searchInput">
-                    <button class="btn btn-outline-secondary" type="button">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="orderTable">
-                    <thead>
-                        <tr class="bg-light">
-                            <th scope="col" style="width:5%">#</th>
-                            <th scope="col" style="width:15%">
-                                <i class="bi bi-calendar me-1 text-secondary"></i> Ngày tạo
-                            </th>
-                            <th scope="col" style="width:20%">
-                                <i class="bi bi-person me-1 text-secondary"></i> Khách hàng
-                            </th>
-                            <th scope="col" style="width:20%">
-                                <i class="bi bi-cash me-1 text-secondary"></i> Tổng tiền
-                            </th>
-                            <th scope="col" style="width:15%">
-                                <i class="bi bi-tag me-1 text-secondary"></i> Giảm giá
-                            </th>
-                            <th scope="col" class="text-center" style="width:25%">
-                                <i class="bi bi-sliders me-1 text-secondary"></i> Hành động
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null && Model.Any())
-                        {
-                            int stt = 1;
-                            foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="fw-bold text-secondary">@stt</td>
-                                    <td>
-                                        <span class="date-badge">
-                                            <i class="bi bi-calendar2-check me-1"></i>
-                                            @item.OrderDate?.ToString("dd/MM/yyyy")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="customer-name">
-                                            @(!string.IsNullOrEmpty(item.CustomerName)
-                                                ? item.CustomerName
-                                                : (item.Customer != null
-                                                    ? (item.Customer.LastName + " " + item.Customer.FirstName).Trim()
-                                                    : "Chưa có thông tin"))
-                                </span>
-                                @if (!string.IsNullOrEmpty(item.Customer?.PhoneNumber))
-                                        {
-                                            <div class="small text-muted">
-                                                <i class="bi bi-telephone me-1"></i> @item.Customer.PhoneNumber
-                                            </div>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-order">
-                                            @string.Format("{0:N0} đ", item.Total)
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if (item.Discount.HasValue && item.Discount.Value > 0)
-                                        {
-                                            <span class="status-pending">
-                                                @string.Format("{0:0.##}%", item.Discount)
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">Không có</span>
-                                        }
-                                    </td>
-                                    <td class="text-center action-buttons">
-                                        <a class="btn btn-sm btn-outline-primary me-1" href="@Url.Action("Functions_Details", "Order", new { id = item.OrdersId })" title="Chi tiết">
-                                            <i class="bi bi-eye"></i> Chi tiết
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-danger delete-btn"
-                                                data-order-id="@item.OrdersId"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#deleteModal"
-                                                title="Xóa">
-                                            <i class="bi bi-trash"></i> Xóa
-                                        </button>
-                                    </td>
-                                </tr>
-                                stt++;
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="6" class="text-center text-muted empty-state">
-                                    <i class="bi bi-inbox-fill mb-3"></i>
-                                    <h5>Không có dữ liệu đơn hàng</h5>
-                                    <p class="mb-0">Vui lòng tạo đơn hàng mới</p>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="card-footer bg-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Hiển thị @(Model?.Count() ?? 0) đơn hàng</span>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Trước</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Sau</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
+    <div class="metric-card">
+        <div class="metric-label"><i class="bi bi-graph-up-arrow me-1 text-success"></i>Doanh thu</div>
+        <div class="metric-value">@string.Format("{0:N0} đ", totalRevenue)</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-label"><i class="bi bi-tag me-1 text-warning"></i>Giá trung bình</div>
+        <div class="metric-value">@string.Format("{0:N0} đ", avgRevenue)</div>
     </div>
 </div>
 
-<!-- Modal xác nhận xóa đơn hàng -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa đơn hàng</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Bạn có chắc chắn muốn xóa đơn hàng này không?</p>
-                <p class="text-danger"><strong>Lưu ý:</strong> Hành động này không thể hoàn tác và sẽ xóa tất cả thông tin liên quan.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <form id="deleteForm" asp-action="Functions_DeleteConfirmed" asp-controller="Order" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" id="orderId" name="id" value="" />
-                    <button type="submit" class="btn btn-danger">Xóa đơn hàng</button>
-                </form>
-            </div>
+<div class="orders-card">
+    <div class="toolbar">
+        <div class="input-group search-input">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input id="orderSearch" class="form-control form-control-sm" placeholder="Tìm kiếm theo khách hàng, mã đơn, trạng thái..." />
         </div>
+        <div class="d-flex gap-2">
+            <span class="pill pill-blue"><i class="bi bi-info-circle"></i> pending</span>
+            <span class="pill pill-yellow"><i class="bi bi-gear"></i> processing</span>
+            <span class="pill pill-blue"><i class="bi bi-check2-circle"></i> fulfilled</span>
+            <span class="pill pill-red"><i class="bi bi-x-circle"></i> cancelled</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="ordersTable" class="table table-hover table-orders mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                    <th>Đổi trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+            @{
+                var stt = 1;
+            }
+            @foreach (var o in Model)
+            {
+                var s = o.Status ?? "pending";
+                <tr>
+                    <td>@stt</td>
+                    <td>#@o.OrdersId</td>
+                    <td>@(string.IsNullOrWhiteSpace(o.CustomerName)
+                            ? (o.Customer != null ? (o.Customer.LastName + " " + o.Customer.FirstName).Trim() : "Không rõ")
+                            : o.CustomerName)</td>
+                    <td>@o.OrderDate?.ToString("dd/MM/yyyy")</td>
+                    <td>@string.Format("{0:N0} đ", o.Total)</td>
+                    <td><span class="status-badge @statusClass(s)">@s</span></td>
+                    <td class="d-flex gap-2">
+                        <a class="pill pill-blue text-decoration-none" href="@Url.Action("Functions_Details","Order", new { id = o.OrdersId })"><i class="bi bi-eye"></i> Chi tiết</a>
+                        <a class="pill pill-yellow text-decoration-none" href="@Url.Action("Functions_Edit","Order", new { id = o.OrdersId })"><i class="bi bi-pencil-square"></i> Sửa</a>
+                        <a class="pill pill-red text-decoration-none" href="@Url.Action("Functions_Delete","Order", new { id = o.OrdersId })"><i class="bi bi-trash"></i> Xóa</a>
+                    </td>
+                    <td>
+                        <form asp-action="ChangeStatus" asp-controller="Order" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@o.OrdersId" />
+                            <select name="status" class="form-select form-select-sm w-auto">
+                                <option value="pending" selected="@(o.Status=="pending")">pending</option>
+                                <option value="processing" selected="@(o.Status=="processing")">processing</option>
+                                <option value="fulfilled" selected="@(o.Status=="fulfilled")">fulfilled</option>
+                                <option value="cancelled" selected="@(o.Status=="cancelled")">cancelled</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm btn-action">Cập nhật</button>
+                        </form>
+                    </td>
+                </tr>
+                stt++;
+            }
+            </tbody>
+        </table>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Tìm kiếm đơn hàng
-            $("#searchInput").on("keyup", function () {
-                var value = $(this).val().toLowerCase();
-                $("#orderTable tbody tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
-
-            // Xử lý xóa đơn hàng
-            $('.delete-btn').click(function() {
-                var orderId = $(this).data('order-id');
-                $('#orderId').val(orderId);
-            });
+        // Client-side search on table
+        const input = document.getElementById('orderSearch');
+        const table = document.getElementById('ordersTable');
+        input?.addEventListener('input', () => {
+            const q = input.value.toLowerCase();
+            for (const row of table.tBodies[0].rows) {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            }
+        });
+    </script>
+    <script>
+        // Redirect Admin back navigation to Admin home
+        if (window.performance && performance.getEntriesByType) {
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav && (nav.type === 'back_forward' || nav.type === 'reload')) {
+                window.history.replaceState(null, '', '/Admin'); // change if your admin home differs
+            }
+        }
+        // Optional: pressing browser back while on Order list goes to Admin home
+        window.addEventListener('popstate', () => {
+            location.replace('/Admin'); // change to your Admin home route
         });
     </script>
 }
