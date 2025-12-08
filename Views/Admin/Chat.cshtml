@@ -1,0 +1,468 @@
+﻿@{
+    ViewData["Title"] = "Quản lý Chat với Khách hàng";
+    Layout = "_AdminLayout";
+}
+
+<style>
+    .admin-chat-container {
+        display: flex;
+        height: calc(100vh - 120px);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .customers-panel {
+        width: 320px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .panel-header h5 {
+        margin: 0 0 5px 0;
+        font-weight: 600;
+    }
+
+    .customers-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+
+    .customer-item {
+        padding: 15px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+    .customer-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .customer-item.active {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+        border-color: #667eea;
+    }
+
+    .customer-item .customer-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .customer-item .customer-time {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .new-message-indicator {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 12px;
+        height: 12px;
+        background: #dc3545;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .chat-panel {
+        flex: 1;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f5f5f5;
+    }
+
+    .admin-message {
+        margin-bottom: 15px;
+        animation: fadeIn 0.3s;
+    }
+
+    .admin-message-incoming {
+        display: flex;
+        gap: 10px;
+    }
+
+    .admin-message-outgoing {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .admin-message-content {
+        max-width: 70%;
+    }
+
+    .admin-message-text {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        word-wrap: break-word;
+    }
+
+    .admin-message-outgoing .admin-message-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .chat-input-area {
+        padding: 20px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        border-radius: 0 0 15px 15px;
+    }
+
+    .chat-input-box {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input-box input {
+        flex: 1;
+        padding: 14px 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .chat-input-box input:focus {
+        border-color: #667eea;
+    }
+
+    .chat-input-box button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 14px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .chat-input-box button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .empty-chat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #6c757d;
+    }
+
+    .empty-chat i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    @@keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.1); }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="admin-chat-container">
+    <!-- Panel danh sách khách hàng -->
+    <div class="customers-panel">
+        <div class="panel-header">
+            <h5><i class="bi bi-people-fill me-2"></i>Khách hàng</h5>
+            <small id="waitingCount">0 khách đang chờ</small>
+        </div>
+        <div class="customers-list" id="customersList">
+            <div class="empty-chat">
+                <i class="bi bi-chat-dots"></i>
+                <p>Chưa có khách hàng nào</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel chat -->
+    <div class="chat-panel">
+        <div class="chat-header">
+            <div>
+                <h5 id="currentCustomerName">Chọn khách hàng để chat</h5>
+                <small id="currentCustomerTime"></small>
+            </div>
+            <button class="btn btn-sm btn-light" onclick="refreshCustomers()">
+                <i class="bi bi-arrow-clockwise"></i> Làm mới
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-chat">
+                <i class="bi bi-chat-square-text"></i>
+                <p>Chọn khách hàng để xem tin nhắn</p>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <div class="chat-input-box">
+                <input type="text" id="adminMessageInput" placeholder="Nhập tin nhắn..." disabled>
+                <button id="sendMessageBtn" onclick="sendAdminMessage()" disabled>
+                    <i class="bi bi-send-fill"></i> Gửi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script>
+        let adminConnection = null;
+        let currentCustomerId = null;
+        let customers = [];
+        const adminName = "@User.Identity.Name";
+
+        $(document).ready(function () {
+            initAdminChat();
+        });
+
+        function initAdminChat() {
+            adminConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .withAutomaticReconnect()
+                .build();
+
+            adminConnection.on("UpdateWaitingCustomers", (waitingCustomers) => {
+                customers = waitingCustomers;
+                updateCustomersList();
+            });
+
+            adminConnection.on("NewCustomerJoined", (connectionId, username) => {
+                customers.push({ connectionId, username, joinedAt: new Date() });
+                updateCustomersList();
+                showNotification(`${username} vừa tham gia chat`);
+            });
+
+            adminConnection.on("ReceiveCustomerMessage", (connectionId, username, message, time) => {
+                if (currentCustomerId === connectionId) {
+                    addMessageToChat(username, message, time, false);
+                } else {
+                    markCustomerWithNewMessage(connectionId);
+                }
+                showNotification(`Tin nhắn mới từ ${username}`);
+            });
+
+            adminConnection.on("CustomerRequestSupport", (connectionId, username) => {
+                showNotification(`${username} yêu cầu hỗ trợ!`);
+                selectCustomer(connectionId);
+            });
+
+            adminConnection.on("CustomerLeft", (connectionId, username) => {
+                customers = customers.filter(c => c.connectionId !== connectionId);
+                updateCustomersList();
+                if (currentCustomerId === connectionId) {
+                    clearChat();
+                }
+            });
+
+            adminConnection.on("ReceiveChatHistory", (customerConnectionId, history) => {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                history.forEach(msg => {
+                    addMessageToChat(msg.user, msg.message, formatTime(msg.timestamp), !msg.isFromCustomer);
+                });
+            });
+
+            adminConnection.start()
+                .then(() => {
+                    console.log("Admin chat connected");
+                    adminConnection.invoke("JoinChat", adminName, true);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function updateCustomersList() {
+            const list = document.getElementById('customersList');
+            const count = document.getElementById('waitingCount');
+
+            count.textContent = `${customers.length} khách đang chờ`;
+
+            if (customers.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-chat">
+                        <i class="bi bi-chat-dots"></i>
+                        <p>Chưa có khách hàng nào</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = customers.map(customer => `
+                <div class="customer-item ${currentCustomerId === customer.connectionId ? 'active' : ''}" 
+                     onclick="selectCustomer('${customer.connectionId}')">
+                    <div class="customer-name">
+                        <i class="bi bi-person-circle"></i> ${customer.username}
+                    </div>
+                    <div class="customer-time">
+                        ${formatTime(customer.joinedAt)}
+                    </div>
+                    ${customer.hasNewMessage ? '<span class="new-message-indicator"></span>' : ''}
+                </div>
+            `).join('');
+        }
+
+        function selectCustomer(connectionId) {
+            currentCustomerId = connectionId;
+            const customer = customers.find(c => c.connectionId === connectionId);
+
+            if (customer) {
+                customer.hasNewMessage = false;
+                document.getElementById('currentCustomerName').textContent = customer.username;
+                document.getElementById('currentCustomerTime').textContent = `Online từ ${formatTime(customer.joinedAt)}`;
+                document.getElementById('adminMessageInput').disabled = false;
+                document.getElementById('sendMessageBtn').disabled = false;
+
+                if (adminConnection) {
+                    adminConnection.invoke("GetChatHistory", connectionId);
+                }
+
+                updateCustomersList();
+            }
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('adminMessageInput');
+            const message = input.value.trim();
+
+            if (message && currentCustomerId && adminConnection) {
+                adminConnection.invoke("SendMessageToCustomer", currentCustomerId, adminName, message);
+                addMessageToChat(adminName, message, getCurrentTime(), true);
+                input.value = '';
+            }
+        }
+
+        function addMessageToChat(user, message, time, isOutgoing) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `admin-message ${isOutgoing ? 'admin-message-outgoing' : 'admin-message-incoming'}`;
+
+            if (isOutgoing) {
+                messageDiv.innerHTML = `
+                    <div class="admin-message-content">
+                        <div class="admin-message-text">${escapeHtml(message)}</div>
+                        <div class="chat-message-time" style="font-size:11px;color:#999;text-align:right;margin-top:5px;">${time}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="chat-avatar" style="width:40px;height:40px;border-radius:50%;background:#667eea;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;">
+                        ${user.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="admin-message-content">
+                        <div class="chat-message-user" style="font-size:12px;font-weight:600;color:#667eea;margin-bottom:5px;">${user}</div>
+                        <div class="admin-message-text">${escapeHtml(message)}</div>
+                        <div class="chat-message-time" style="font-size:11px;color:#999;margin-top:5px;">${time}</div>
+                    </div>
+                `;
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function clearChat() {
+            currentCustomerId = null;
+            document.getElementById('currentCustomerName').textContent = 'Chọn khách hàng để chat';
+            document.getElementById('currentCustomerTime').textContent = '';
+            document.getElementById('adminMessageInput').disabled = true;
+            document.getElementById('sendMessageBtn').disabled = true;
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="empty-chat">
+                    <i class="bi bi-chat-square-text"></i>
+                    <p>Chọn khách hàng để xem tin nhắn</p>
+                </div>
+            `;
+        }
+
+        function refreshCustomers() {
+            if (adminConnection) {
+                adminConnection.invoke("JoinChat", adminName, true);
+            }
+        }
+
+        function showNotification(message) {
+            console.log('Thông báo:', message);
+            // Có thể thêm toast notification ở đây
+        }
+
+        function markCustomerWithNewMessage(connectionId) {
+            const customer = customers.find(c => c.connectionId === connectionId);
+            if (customer) {
+                customer.hasNewMessage = true;
+                updateCustomersList();
+            }
+        }
+
+        function formatTime(date) {
+            if (typeof date === 'string') {
+                date = new Date(date);
+            }
+            return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getCurrentTime() {
+            return new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('adminMessageInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendAdminMessage();
+            }
+        });
+    </script>
+}

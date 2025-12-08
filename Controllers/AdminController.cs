@@ -56,5 +56,11 @@ namespace CuaHangQuanAo.Controllers
             };
             return View(dashboard);
         }
+
+        [Authorize(Roles = "Employee, Admin")]
+        public IActionResult Chat()
+        {
+            return View();
+        }
     }
 }

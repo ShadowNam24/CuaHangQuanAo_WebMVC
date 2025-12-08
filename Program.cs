@@ -3,6 +3,7 @@ using CuaHangQuanAo.Entities;
 using CuaHangQuanAo.Factory;
 using CuaHangQuanAo.Models;
 using CuaHangQuanAo.Services;
+using LiveChatApp.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddRazorPages();
+builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<CuaHangBanQuanAoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ChuoiKetNoi")));
@@ -82,6 +85,7 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+app.MapRazorPages();
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();

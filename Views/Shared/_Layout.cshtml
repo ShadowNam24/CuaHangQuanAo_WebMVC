@@ -312,5 +312,726 @@
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)
+
+
+    <!-- Thêm vào _Layout.cshtml hoặc Index.cshtml trước thẻ đóng </body> -->
+
+    <style>
+        /* Nút mở chat */
+        .chat-widget-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            z-index: 9998;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .chat-widget-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+            }
+
+            .chat-widget-button svg {
+                width: 28px;
+                height: 28px;
+                fill: white;
+            }
+
+        .chat-widget-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Cửa sổ chat */
+        .chat-widget-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @@keyframes slideUp {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .chat-widget-window.active {
+            display: flex;
+        }
+
+        /* Header chat */
+        .chat-widget-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-widget-header-info h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-widget-header-info p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .chat-widget-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+            .chat-widget-close:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+        /* Body chat */
+        .chat-widget-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .chat-message-incoming {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-message-outgoing {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .chat-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .chat-message-content {
+            max-width: 70%;
+        }
+
+        .chat-message-user {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .chat-message-text {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            word-wrap: break-word;
+        }
+
+        .chat-message-outgoing .chat-message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-system-message {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        .chat-typing-indicator {
+            display: none;
+            padding: 10px 0;
+            color: #999;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        /* Input area */
+        .chat-widget-input {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+            .chat-widget-input input {
+                flex: 1;
+                padding: 12px 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 20px;
+                font-size: 14px;
+                outline: none;
+                transition: border-color 0.3s;
+            }
+
+                .chat-widget-input input:focus {
+                    border-color: #667eea;
+                }
+
+        .chat-widget-send {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+            .chat-widget-send:hover {
+                transform: scale(1.1);
+            }
+
+            .chat-widget-send svg {
+                width: 20px;
+                height: 20px;
+                fill: white;
+            }
+
+        /* Welcome screen */
+        .chat-welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .chat-welcome-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .chat-welcome-icon svg {
+                width: 40px;
+                height: 40px;
+                fill: white;
+            }
+
+        .chat-welcome h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .chat-welcome p {
+            color: #666;
+            font-size: 14px;
+            margin: 0 0 20px 0;
+        }
+
+        .chat-welcome input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+            .chat-welcome input:focus {
+                border-color: #667eea;
+            }
+
+        .chat-welcome button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .chat-welcome button:hover {
+                transform: translateY(-2px);
+            }
+
+        /* Online users count */
+        .chat-online-users {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chat-online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100%
+
+        {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        }
+
+        /* Responsive */
+        @@media (max-width: 480px) {
+            .chat-widget-window
+
+        {
+            width: calc(100% - 40px);
+            height: calc(100vh - 110px);
+            bottom: 90px;
+            right: 20px;
+            left: 20px;
+        }
+
+        }
+    </style>
+
+    <!-- Nút mở chat -->
+    <button class="chat-widget-button" id="chatWidgetButton">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+        </svg>
+        <span class="chat-widget-badge" id="chatBadge">0</span>
+    </button>
+
+    <!-- Cửa sổ chat -->
+    <div class="chat-widget-window" id="chatWidget">
+        <div class="chat-widget-header">
+            <div class="chat-widget-header-info">
+                <h3>
+                    💬 Live Chat
+                    <span id="chatModeBadge" class="chat-mode-badge" style="display:none;">Bot</span>
+                </h3>
+                <div class="chat-online-users">
+                    <span class="chat-online-dot"></span>
+                    <p><span id="onlineUsersCount">0</span> người online</p>
+                </div>
+            </div>
+            <button class="chat-widget-close" id="closeChat">✕</button>
+        </div>
+
+        <!-- Welcome screen -->
+        <div class="chat-welcome" id="chatWelcome">
+            <div class="chat-welcome-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+                </svg>
+            </div>
+            <h4>Chào mừng bạn!</h4>
+            <p>Nhập tên của bạn để bắt đầu trò chuyện</p>
+            <input type="text" id="chatUsername" placeholder="Tên của bạn..." maxlength="20">
+            <button onclick="startChat()">Bắt đầu chat</button>
+        </div>
+
+        <!-- Support options - Chọn bot hoặc admin -->
+        <div class="chat-support-options" id="chatSupportOptions">
+            <p style="margin:0 0 15px 0; font-weight:600; color:#333; text-align:center;">
+                Bạn muốn chat với:
+            </p>
+            <button class="support-btn bot-btn" onclick="continueWithBot()">
+                <span>🤖</span> <span>Chat với Bot AI</span>
+            </button>
+            <button class="support-btn admin-btn" onclick="requestAdminSupport()">
+                <span>👨‍💼</span> <span>Nhắn với Quản trị viên</span>
+            </button>
+        </div>
+
+        <!-- Chat body -->
+        <div class="chat-widget-body" id="chatBody" style="display: none;"></div>
+
+        <div class="chat-typing-indicator" id="typingIndicator">Ai đó đang gõ...</div>
+
+        <!-- Input area -->
+        <div class="chat-widget-input" id="chatInput" style="display: none;">
+            <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+            <button class="chat-widget-send" onclick="sendChatMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+    <script>
+        let chatConnection = null;
+        let currentChatUser = "";
+        let chatTypingTimer;
+        let unreadMessages = 0;
+        let isChatOpen = false;
+        let chatMode = "none"; // "bot", "admin", or "none"
+        
+        // Câu trả lời của bot AI
+        const botResponses = {
+            greeting: [
+                "Xin chào! Tôi là trợ lý ảo của CuaHangQuanAo. Tôi có thể giúp gì cho bạn?",
+                "Chào bạn! Rất vui được hỗ trợ bạn hôm nay. Bạn cần tư vấn gì không?"
+            ],
+            price: [
+                "Giá sản phẩm của chúng tôi rất cạnh tranh, từ 200.000đ - 5.000.000đ tùy loại. Bạn quan tâm loại sản phẩm nào?",
+                "Chúng tôi có nhiều mức giá phù hợp với mọi túi tiền. Bạn muốn xem sản phẩm trong tầm giá nào?"
+            ],
+            shipping: [
+                "Chúng tôi có dịch vụ giao hàng toàn quốc. Miễn phí ship cho đơn từ 500.000đ trong nội thành.",
+                "Phí ship chỉ 30.000đ cho đơn dưới 500.000đ. Giao hàng từ 2-5 ngày tùy khu vực."
+            ],
+            size: [
+                "Chúng tôi có đầy đủ size từ S đến XXL. Bạn có thể tham khảo bảng size trên trang sản phẩm.",
+                "Để chọn size phù hợp, bạn có thể xem hướng dẫn chọn size hoặc liên hệ admin để được tư vấn cụ thể hơn."
+            ],
+            product: [
+                "Chúng tôi có nhiều sản phẩm: áo thun, áo sơ mi, quần jeans, suit... Bạn quan tâm loại nào?",
+                "Sản phẩm của shop rất đa dạng và chất lượng cao. Bạn có thể xem catalog trên trang chủ."
+            ],
+            admin: [
+                "Bạn muốn chat với quản trị viên? Tôi có thể chuyển bạn sang ngay! Nhấn nút bên dưới nhé.",
+                "Để được tư vấn chi tiết hơn, tôi sẽ kết nối bạn với quản trị viên."
+            ],
+            default: [
+                "Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. Bạn có thể nói rõ hơn được không?",
+                "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?",
+                "Tôi có thể giúp bạn về: giá cả, giao hàng, size, sản phẩm. Bạn muốn hỏi về gì?"
+            ]
+        };
+
+        // Toggle chat window
+        document.getElementById('chatWidgetButton').addEventListener('click', function() {
+            const widget = document.getElementById('chatWidget');
+            widget.classList.toggle('active');
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) {
+                unreadMessages = 0;
+                updateBadge();
+            }
+        });
+
+        document.getElementById('closeChat').addEventListener('click', function() {
+            document.getElementById('chatWidget').classList.remove('active');
+            isChatOpen = false;
+        });
+
+        function initChatConnection() {
+            chatConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .withAutomaticReconnect()
+                .build();
+
+            // Nhận tin nhắn từ admin
+            chatConnection.on("ReceiveAdminMessage", (adminName, message, time) => {
+                addChatMessage(adminName, message, time, false, true);
+                if (!isChatOpen) {
+                    unreadMessages++;
+                    updateBadge();
+                }
+            });
+
+            chatConnection.on("MessageSent", (message, time) => {
+                // Message already displayed
+            });
+
+            chatConnection.on("SupportRequested", () => {
+                addSystemChatMessage("✅ Đã gửi yêu cầu hỗ trợ. Quản trị viên sẽ trả lời bạn sớm.");
+            });
+
+            chatConnection.on("UpdateOnlineUsers", (count) => {
+                document.getElementById('onlineUsersCount').textContent = count;
+            });
+
+            chatConnection.start()
+                .then(() => {
+                    console.log("Chat connected");
+                    chatConnection.invoke("JoinChat", currentChatUser, false);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function startChat() {
+            const username = document.getElementById('chatUsername').value.trim();
+            if (username) {
+                currentChatUser = username;
+                document.getElementById('chatWelcome').style.display = 'none';
+                document.getElementById('chatSupportOptions').style.display = 'block';
+            }
+        }
+
+        function continueWithBot() {
+            chatMode = "bot";
+            document.getElementById('chatSupportOptions').style.display = 'none';
+            document.getElementById('chatBody').style.display = 'block';
+            document.getElementById('chatInput').style.display = 'flex';
+            
+            const badge = document.getElementById('chatModeBadge');
+            badge.textContent = "🤖 Bot AI";
+            badge.style.display = 'inline-block';
+            badge.classList.remove('admin-mode');
+            
+            addSystemChatMessage(`Chào ${currentChatUser}! Tôi là Bot hỗ trợ.`);
+            setTimeout(() => {
+                const greeting = botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
+                addChatMessage("Bot", greeting, getCurrentTime(), false, false);
+            }, 800);
+        }
+
+        function requestAdminSupport() {
+            chatMode = "admin";
+            document.getElementById('chatSupportOptions').style.display = 'none';
+            document.getElementById('chatBody').style.display = 'block';
+            document.getElementById('chatInput').style.display = 'flex';
+            
+            const badge = document.getElementById('chatModeBadge');
+            badge.textContent = "👨‍💼 Quản trị viên";
+            badge.style.display = 'inline-block';
+            badge.classList.add('admin-mode');
+            
+            initChatConnection();
+            addSystemChatMessage(`Chào ${currentChatUser}! Đang kết nối với quản trị viên...`);
+            
+            setTimeout(() => {
+                if (chatConnection && chatConnection.state === "Connected") {
+                    chatConnection.invoke("RequestAdminSupport", currentChatUser);
+                }
+            }, 1000);
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (message) {
+                if (chatMode === "bot") {
+                    // Bot mode
+                    addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
+                    input.value = "";
+                    
+                    setTimeout(() => {
+                        showChatTyping("Bot");
+                    }, 500);
+                    
+                    setTimeout(() => {
+                        hideChatTyping();
+                        const botResponse = getBotResponse(message);
+                        addChatMessage("Bot", botResponse, getCurrentTime(), false, false);
+                    }, 1500);
+                } else if (chatMode === "admin" && chatConnection) {
+                    // Admin mode
+                    chatConnection.invoke("SendMessageToAdmin", currentChatUser, message)
+                        .catch(err => console.error(err));
+                    addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
+                    input.value = "";
+                }
+            }
+        }
+
+        function getBotResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            
+            if (msg.includes("xin chào") || msg.includes("chào") || msg.includes("hello") || msg.includes("hi")) {
+                return botResponses.greeting[Math.floor(Math.random() * botResponses.greeting.length)];
+            } else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("tiền")) {
+                return botResponses.price[Math.floor(Math.random() * botResponses.price.length)];
+            } else if (msg.includes("giao hàng") || msg.includes("ship") || msg.includes("vận chuyển")) {
+                return botResponses.shipping[Math.floor(Math.random() * botResponses.shipping.length)];
+            } else if (msg.includes("size") || msg.includes("kích thước") || msg.includes("cỡ")) {
+                return botResponses.size[Math.floor(Math.random() * botResponses.size.length)];
+            } else if (msg.includes("sản phẩm") || msg.includes("áo") || msg.includes("quần")) {
+                return botResponses.product[Math.floor(Math.random() * botResponses.product.length)];
+            } else if (msg.includes("admin") || msg.includes("quản trị") || msg.includes("nhân viên")) {
+                return botResponses.admin[Math.floor(Math.random() * botResponses.admin.length)];
+            } else {
+                return botResponses.default[Math.floor(Math.random() * botResponses.default.length)];
+            }
+        }
+
+        function addChatMessage(user, message, time, isOutgoing, isAdmin) {
+            const chatBody = document.getElementById('chatBody');
+            const messageDiv = document.createElement('div');
+
+            if (isOutgoing) {
+                messageDiv.className = 'chat-message chat-message-outgoing';
+                messageDiv.innerHTML = `
+                    <div class="chat-message-content">
+                        <div class="chat-message-text">${escapeHtml(message)}</div>
+                        <div class="chat-message-time">${time}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.className = 'chat-message chat-message-incoming';
+                const initial = user.charAt(0).toUpperCase();
+                const userLabel = isAdmin ? `${user} (QTV)` : user;
+                messageDiv.innerHTML = `
+                    <div class="chat-avatar">${initial}</div>
+                    <div class="chat-message-content">
+                        <div class="chat-message-user">${userLabel}</div>
+                        <div class="chat-message-text">${escapeHtml(message)}</div>
+                        <div class="chat-message-time">${time}</div>
+                    </div>
+                `;
+            }
+
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function addSystemChatMessage(message) {
+            const chatBody = document.getElementById('chatBody');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-system-message';
+            messageDiv.textContent = message;
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        function showChatTyping(username) {
+            const indicator = document.getElementById('typingIndicator');
+            indicator.textContent = `${username} đang gõ...`;
+            indicator.style.display = 'block';
+        }
+
+        function hideChatTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function updateBadge() {
+            const badge = document.getElementById('chatBadge');
+            if (unreadMessages > 0) {
+                badge.textContent = unreadMessages > 9 ? '9+' : unreadMessages;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        document.getElementById('chatUsername').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startChat();
+            }
+        });
+    </script>
 </body>
 </html>
