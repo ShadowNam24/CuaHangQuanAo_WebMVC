@@ -856,6 +856,145 @@
     .delay-3 {
         animation-delay: 1s;
     }
+
+    /* Success Popup Modal */
+    .success-popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .success-popup.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup-content {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease;
+        position: relative;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .popup-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        animation: scaleIn 0.5s ease 0.2s both;
+    }
+
+    @@keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+
+    .popup-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .popup-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #28a745;
+        margin-bottom: 1rem;
+    }
+
+    .popup-message {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .popup-close-btn {
+        background: linear-gradient(135deg, var(--accent) 0%, #ff6b35 100%);
+        color: white;
+        border: none;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .popup-close-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(239, 131, 84, 0.4);
+    }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        animation: confettiFall 3s ease-out forwards;
+    }
+
+    @@keyframes confettiFall {
+        to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    /* Loading Spinner */
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.2em;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .popup-content {
+            padding: 2rem;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+        }
+    }
 </style>
 
 <!-- Hero Section with Slideshow -->
@@ -1115,6 +1254,23 @@
     </div>
 </section>
 
+<!-- Success Popup Modal -->
+<div class="success-popup" id="success-popup">
+    <div class="popup-content">
+        <div class="popup-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        <h3 class="popup-title">Đăng Ký Thành Công!</h3>
+        <p class="popup-message">
+            Cảm ơn bạn đã đăng ký nhận tin! <br>
+            Vui lòng kiểm tra email để xác nhận và nhận mã giảm giá <strong>10%</strong>.
+        </p>
+        <button class="popup-close-btn" onclick="closePopup()">
+            Đóng
+        </button>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         // Slideshow functionality
@@ -1165,30 +1321,98 @@
             indicators[slideIndex - 1].classList.add("active");
         }
 
-        // Newsletter form handling
+        // ===== NEWSLETTER FORM HANDLING WITH AJAX - NO REDIRECT =====
         document.getElementById('mc-embedded-subscribe-form').addEventListener('submit', function(e) {
-            const messageDiv = document.getElementById('newsletter-message');
-            const submitBtn = document.getElementById('mc-embedded-subscribe');
-            const emailInput = document.getElementById('mce-EMAIL');
+            e.preventDefault(); // NGĂN FORM SUBMIT BÌNH THƯỢNG
             
-            // Show processing state
+            const form = this;
+            const emailInput = document.getElementById('mce-EMAIL');
+            const submitBtn = document.getElementById('mc-embedded-subscribe');
+            const email = emailInput.value.trim();
+
+            // Validation
+            if (!email || !isValidEmail(email)) {
+                alert('Vui lòng nhập địa chỉ email hợp lệ!');
+                return;
+            }
+
+            // Show loading state
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+            // AJAX request to Mailchimp using JSONP to avoid CORS
+            const mailchimpUrl = 'https://nttu.us8.list-manage.com/subscribe/post-json?u=0e2357ffef311679b247a0efd&id=011dd85a52';
             
-            // Note: Since this is submitting to Mailchimp's server, we can't catch the response directly
-            // But we can show a temporary message
+            // Create JSONP request
+            const url = mailchimpUrl + '&EMAIL=' + encodeURIComponent(email) + '&c=?';
+            const script = document.createElement('script');
+            script.src = url;
+            document.body.appendChild(script);
+            
+            // Set timeout to show popup after 1.5 seconds
             setTimeout(() => {
-                messageDiv.innerHTML = '<div class="alert alert-success">✓ Cảm ơn bạn đã đăng ký! Vui lòng kiểm tra email để xác nhận.</div>';
-                messageDiv.style.display = 'block';
-                emailInput.value = '';
+                // Reset button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="bi bi-send me-2"></i> Đăng Ký Ngay';
                 
-                // Hide message after 5 seconds
+                // Clear email input
+                emailInput.value = '';
+                
+                // Show success popup
+                showSuccessPopup();
+                
+                // Remove script
+                document.body.removeChild(script);
+            }, 1500);
+        });
+
+        // Email validation
+        function isValidEmail(email) {
+            const re = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            return re.test(email);
+        }
+
+        // Show success popup with confetti effect
+        function showSuccessPopup() {
+            const popup = document.getElementById('success-popup');
+            popup.classList.add('show');
+            
+            // Add confetti effect
+            createConfetti();
+        }
+
+        // Create confetti animation
+        function createConfetti() {
+            const popup = document.querySelector('.popup-content');
+            const colors = ['#ef8354', '#ff6b35', '#667eea', '#764ba2', '#28a745', '#ffc107'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                popup.appendChild(confetti);
+                
+                // Remove confetti after animation
                 setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
-            }, 1000);
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        // Close popup
+        function closePopup() {
+            const popup = document.getElementById('success-popup');
+            popup.classList.remove('show');
+        }
+
+        // Close popup when clicking outside
+        document.getElementById('success-popup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
         });
     </script>
 }
