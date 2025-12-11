@@ -22,12 +22,30 @@ namespace CuaHangQuanAo.Controllers
             _factoryProvider = factoryProvider;
         }
 
-        [HttpGet("/Product/Detail/{id:int}")]
-        public async Task<IActionResult> Detail(int id)
+        // Accept optional slug; redirect permanently to canonical URL when missing/incorrect
+        [HttpGet("/Product/Detail/{id:int}/{slug?}")]
+        public async Task<IActionResult> Detail(int id, string? slug)
         {
             try
             {
                 var vm = await _productService.GetProductDetailWithStorageAsync(id);
+
+                // Compute canonical slug from product name
+                var canonicalSlug = vm.Item.ItemsName.ToSlug();
+
+                // Redirect permanently to canonical URL when slug is missing or mismatched
+                if (string.IsNullOrWhiteSpace(slug) || !string.Equals(slug, canonicalSlug, StringComparison.OrdinalIgnoreCase))
+                {
+                    var canonicalUrl = Url.Action("Detail", "Product", new { id, slug = canonicalSlug });
+                    return RedirectPermanent(canonicalUrl ?? $"/Product/Detail/{id}/{canonicalSlug}");
+                }
+
+                // Provide metadata for layout and OG tags
+                ViewData["ID"] = id;
+                ViewData["Slug"] = canonicalSlug;
+                ViewData["Title"] = vm.Item.ItemsName;
+                ViewData["Image"] = vm.MainImage ?? vm.Item.CoverImage ?? $"{vm.Item.ItemsId}.jpg";
+
                 return View(vm);
             }
             catch (ArgumentException)
@@ -130,6 +148,7 @@ namespace CuaHangQuanAo.Controllers
                     id = x.ItemsId,
                     name = x.ItemsName,
                     price = x.SellPrice,
+                    slug = x.ItemsName.ToSlug(),
                     // Fix image path - use product variant image or fallback to item-based naming
                     img = x.ProductVariants.Any()
                         ? Url.Content($"~/Images/{x.ProductVariants.First().Image}")

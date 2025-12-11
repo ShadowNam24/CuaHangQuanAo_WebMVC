@@ -3,14 +3,26 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="@ViewData["Title"]" />
+    <meta property="og:description" content="Mua sắm những bộ trang phục chất lượng và phong cách tại CuaHangQuanAo." />
+    <meta property="og:image" content="https://audra-gastrocnemial-overplausibly.ngrok-free.dev/Images/products/@ViewData["Image"]" />
+    @{
+        // Build canonical product URL using ID + optional slug when available
+        var siteRoot = "https://audra-gastrocnemial-overplausibly.ngrok-free.dev";
+        var id = ViewData["ID"]?.ToString();
+        var slug = ViewData["Slug"]?.ToString();
+        var ogUrl = id == null ? siteRoot : $"{siteRoot}/Product/Detail/{id}" + (string.IsNullOrWhiteSpace(slug) ? "" : $"/{slug}");
+    }
+    <meta property="og:url" content="@ogUrl" />
+    <meta property="og:image:height" content="600" />
+    <meta property="og:image:width" content="600" />
     <title>@ViewData["Title"] - CuaHangQuanAo</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/CuaHangQuanAo.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
-    @RenderSection("Meta", required: false)
-
+    <meta property="og:type" content="website" />
 </head>
 <body>
     <header>

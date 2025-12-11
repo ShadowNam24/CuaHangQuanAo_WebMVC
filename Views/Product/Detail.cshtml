@@ -1,6 +1,8 @@
 ﻿@model CuaHangQuanAo.Models.ViewModels.ProductDetailVm
 @{
     ViewData["Title"] = Model.Item.ItemsName;
+	ViewData["Image"] = Model.MainImage;
+    ViewData["ID"] = Model.Item.ItemsId; // Corrected assignment for ID
     Layout = "_Layout";
 }
 
