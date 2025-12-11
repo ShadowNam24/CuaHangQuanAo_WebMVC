@@ -114,7 +114,7 @@
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
         position: relative;
     }
-    
+
     .product-title {
         font-size: 2.5rem;
         font-weight: 700;
@@ -383,6 +383,28 @@
             justify-content: center;
         }
     }
+    .quantity-share-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem; /* Khoảng cách giữa số lượng và nút */
+    }
+
+    #shareFbBtn {
+        background-color: #4267B2;
+        color: white;
+        border-radius: 25px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s;
+    }
+
+        #shareFbBtn:hover {
+            background-color: #365899;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
 </style>
 
 <div class="product-detail-container">
@@ -452,12 +474,17 @@
                                 </button>
                             </div>
                         </div>
+                        <button id="shareFbBtn">
+                            <i class="bi bi-facebook me-2"></i>Facebook
+                        </button>
 
                         @Html.AntiForgeryToken()
 
                         <button id="addToCartBtn" class="add-to-cart-btn" @(User.Identity.IsAuthenticated ? "" : "disabled")>
                             <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ hàng
                         </button>
+
+
                         
                         @if (!User.Identity.IsAuthenticated)
                         {
@@ -703,6 +730,19 @@
                     }
                 });
             });
+
+            // --- SHARE FACEBOOK  ---
+            $("#shareFbBtn").click(function () {
+                let shareUrl = window.location.href;
+                let fbShareUrl = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl);
+
+                window.open(
+                    fbShareUrl,
+                    "facebook-share-dialog",
+                    "width=800,height=600"
+                );
+            });
+
         });
     </script>
 }
