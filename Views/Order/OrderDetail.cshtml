@@ -272,7 +272,7 @@
                                         <tr>
                                             <td>@stt</td>
                                             <td>
-                                                <div class="product-name">@(item.Items?.ItemsName ?? "Chưa có thông tin")</div>
+                                                @* <div class="product-name">@(item.Items?.ItemsName ?? "Chưa có thông tin")</div> *@
                                             </td>
                                             <td>@string.Format("{0:N0} đ", item.Price)</td>
                                             <td><span class="product-quantity">@item.Quantity</span></td>

@@ -126,7 +126,8 @@ namespace CuaHangQuanAo.Controllers
         {
             var item = await _context.Items
                 .Include(i => i.Category)
-                .Include(i => i.OrdersDetails)
+                .Include(i => i.ProductVariants)
+                .ThenInclude(pv => pv.OrdersDetails)
                 .FirstOrDefaultAsync(m => m.ItemsId == id);
 
             if (item == null) return NotFound();

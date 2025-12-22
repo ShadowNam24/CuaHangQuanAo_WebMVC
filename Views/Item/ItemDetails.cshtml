@@ -197,7 +197,7 @@
                         <h4 class="section-title">
                             <i class="bi bi-receipt me-2"></i>Lịch sử đơn hàng
                         </h4>
-                        @if (Model.OrdersDetails != null && Model.OrdersDetails.Any())
+                        @* @if (Model.OrdersDetails != null && Model.OrdersDetails.Any()) *@
                         {
                             <table class="table table-details">
                                 <thead>
@@ -207,7 +207,7 @@
                                         <th>Giá bán</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                @* <tbody>
                                     @foreach (var detail in Model.OrdersDetails)
                                     {
                                         <tr>
@@ -220,7 +220,7 @@
                                             <td>@string.Format("{0:N0} đ", detail.Price)</td>
                                         </tr>
                                     }
-                                </tbody>
+                                </tbody> *@
                             </table>
                         }
                         else

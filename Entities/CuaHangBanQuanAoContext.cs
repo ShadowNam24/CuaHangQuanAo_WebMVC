@@ -147,6 +147,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.Property(e => e.ItemsId).HasColumnName("ItemsID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
+            entity.Property(e => e.CoverImage).HasMaxLength(200);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -166,11 +167,22 @@ public partial class CuaHangBanQuanAoContext : DbContext
         {
             entity.HasKey(e => e.OrdersId).HasName("pk_OrderID");
 
+            entity.ToTable(tb => tb.HasTrigger("TRG_HoanKhoKhiHuyDonHang"));
+
             entity.Property(e => e.OrdersId).HasColumnName("OrdersID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+            entity.Property(e => e.CustomerName).HasMaxLength(100);
             entity.Property(e => e.Discount).HasColumnType("decimal(5, 2)");
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.DiscountCode).HasMaxLength(50);
+            entity.Property(e => e.DiscountDescription).HasMaxLength(200);
             entity.Property(e => e.EmployeeId).HasColumnName("EmployeeID");
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.ShippingAddress).HasMaxLength(500);
+            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Total).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
@@ -185,22 +197,24 @@ public partial class CuaHangBanQuanAoContext : DbContext
         {
             entity.HasKey(e => e.OrdersDetailsId).HasName("pk_OrdersDetails");
 
-            entity.Property(e => e.OrdersDetailsId).HasColumnName("OrdersDetailsID");
-            entity.Property(e => e.ItemsId).HasColumnName("ItemsID");
-            entity.Property(e => e.OrdersId).HasColumnName("OrdersID");
+            entity.ToTable(tb => tb.HasTrigger("TRG_CapNhatKhoHang"));
 
-            entity.HasOne(d => d.Items).WithMany(p => p.OrdersDetails)
-                .HasForeignKey(d => d.ItemsId)
-                .HasConstraintName("fk_ItemsID");
+            entity.Property(e => e.OrdersDetailsId).HasColumnName("OrdersDetailsID");
+            entity.Property(e => e.OrdersId).HasColumnName("OrdersID");
+            entity.Property(e => e.ProductVariantId).HasColumnName("ProductVariantID");
 
             entity.HasOne(d => d.Orders).WithMany(p => p.OrdersDetails)
                 .HasForeignKey(d => d.OrdersId)
                 .HasConstraintName("fk_OrdersDetails_OrdersID");
+
+            entity.HasOne(d => d.ProductVariant).WithMany(p => p.OrdersDetails)
+                .HasForeignKey(d => d.ProductVariantId)
+                .HasConstraintName("fk_ItemsID");
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC0756A440B2");
+            entity.HasKey(e => e.Id).HasName("PK__Password__3214EC07508B5AEE");
 
             entity.ToTable("PasswordResetToken");
 
@@ -251,7 +265,7 @@ public partial class CuaHangBanQuanAoContext : DbContext
 
             entity.HasOne(d => d.Supplier).WithMany(p => p.Storages)
                 .HasForeignKey(d => d.SupplierId)
-                .HasConstraintName("FK__Storage__Supplie__5DCAEF64");
+                .HasConstraintName("FK__Storage__Supplie__628FA481");
         });
 
         modelBuilder.Entity<Supplier>(entity =>
