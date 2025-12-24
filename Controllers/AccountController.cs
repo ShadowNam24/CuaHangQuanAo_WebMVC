@@ -62,11 +62,7 @@ namespace CuaHangQuanAo.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            if (account.AccRole == "Employee" || account.AccRole == "Admin")
-            {
-                return RedirectToAction("Index", "Admin");
-            }
-
+            // Modified logic: Always redirect to main website for all users
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -190,6 +186,24 @@ namespace CuaHangQuanAo.Controllers
             var email = TempData["Email"] as string;
             var vm = new ForgotPasswordVM { Email = email };
             return View(vm);
+        }
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult DebugUser()
+        {
+            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            var isInAdminRole = User.IsInRole("Admin");
+            var isInEmployeeRole = User.IsInRole("Employee");
+
+            return Json(new
+            {
+                Claims = claims,
+                IsAdmin = isInAdminRole,
+                IsEmployee = isInEmployeeRole,
+                Identity = User.Identity.Name,
+                IsAuthenticated = User.Identity.IsAuthenticated
+            });
         }
     }
 }

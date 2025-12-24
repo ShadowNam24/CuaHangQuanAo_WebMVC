@@ -177,6 +177,15 @@
                                             <i class="bi bi-receipt me-2 text-success"></i> Đơn hàng của tôi
                                         </a>
                                     </li>
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+                                    {
+                                        <li><hr class="dropdown-divider opacity-25" /></li>
+                                        <li>
+                                            <a class="dropdown-item py-2" asp-controller="Admin" asp-action="Index">
+                                                <i class="bi bi-gear me-2 text-warning"></i> Trang Admin
+                                            </a>
+                                        </li>
+                                    }
                                     <li><hr class="dropdown-divider opacity-25" /></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
@@ -202,11 +211,11 @@
                                 <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path"
                                    class="btn btn-sm rounded-pill px-3 fw-medium"
                                    style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3); transition: all 0.3s ease;
-                                   position: relative;">
+                                       position: relative;">
                                     <i class="bi bi-box-arrow-in-right me-1"></i> Login
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
                                           style="background: radial-gradient(circle at top right, #FFD700, #FFA500); color: #000;
-                                           transform: translate(50%, -50%); font-size: 80%; padding: 0.2em 0.5em;">NEW</span>
+                                               transform: translate(50%, -50%); font-size: 80%; padding: 0.2em 0.5em;">NEW</span>
                                 </a>
                             </li>
                         }
@@ -216,6 +225,19 @@
         </nav>
     </header>
 
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/694b8a20740c54197cdc0d30/1jd7h74pp';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
+    <!--End of Tawk.to Script-->
     <!-- Add this to the head section of the document -->
     <style>
         /* Hover effect for nav items */
@@ -262,7 +284,7 @@
         /* Chat widget styles */
         .chat-widget-button {
             position: fixed;
-            bottom: 20px;
+            bottom: 170px;
             right: 20px;
             width: 60px;
             height: 60px;
@@ -309,7 +331,7 @@
         /* Cửa sổ chat */
         .chat-widget-window {
             position: fixed;
-            bottom: 90px;
+            bottom: 100px;
             right: 20px;
             width: 380px;
             height: 550px;
@@ -324,18 +346,15 @@
         }
 
         @@keyframes slideUp {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-widget-window.active {
@@ -396,18 +415,15 @@
         }
 
         @@keyframes fadeIn {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-message-incoming {
@@ -610,65 +626,67 @@
         }
 
         @@keyframes pulse {
-            0%, 100%
+            0%, 100% {
+                opacity: 1;
+            }
 
-        {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.5;
-        }
-
+            50% {
+                opacity: 0.5;
+            }
         }
 
         /* Responsive */
         @@media (max-width: 480px) {
-            .chat-widget-window
-
-        {
-            width: calc(100% - 40px);
-            height: calc(100vh - 110px);
-            bottom: 90px;
-            right: 20px;
-            left: 20px;
-        }
-
+            .chat-widget-window {
+                width: calc(100% - 40px);
+                height: calc(100vh - 110px);
+                bottom: 90px;
+                right: 20px;
+                left: 20px;
+            }
         }
 
         /* Thêm vào phần styles hiện có */
-    
-    .chat-mode-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        background: #4ade80;
-        color: white;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 600;
-        margin-left: 10px;
-        transition: all 0.3s ease;
-    }
-    
-    .chat-mode-badge.admin-mode {
-        background: #f59e0b;
-        animation: modeSwitch 0.5s ease;
-    }
-    
-    @@keyframes modeSwitch {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
-    
-    /* Hiệu ứng cho tin nhắn system đặc biệt */
-    .chat-system-message.switching {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        color: white;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-weight: 500;
-    }
+
+        .chat-mode-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #4ade80;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .chat-mode-badge.admin-mode {
+                background: #f59e0b;
+                animation: modeSwitch 0.5s ease;
+            }
+
+        @@keyframes modeSwitch {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Hiệu ứng cho tin nhắn system đặc biệt */
+        .chat-system-message.switching {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
     </style>
 
 
@@ -714,13 +732,13 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
+
     <script>
         // Load cart count on page load
         $(document).ready(function() {
             loadCartCount();
         });
-        
+
         function loadCartCount() {
             $.get('/Cart/GetCartCount')
                 .done(function(data) {
@@ -732,13 +750,13 @@
                     console.log('Failed to load cart count');
                 });
         }
-        
+
         // Function to update cart count (can be called from other pages)
         function updateCartCount(newCount) {
             $('#cartCount').text(newCount);
         }
     </script>
-    
+
     @await RenderSectionAsync("Scripts", required: false)
 
 
@@ -748,7 +766,7 @@
         /* Nút mở chat */
         .chat-widget-button {
             position: fixed;
-            bottom: 20px;
+            bottom: 100px;
             right: 20px;
             width: 60px;
             height: 60px;
@@ -810,18 +828,15 @@
         }
 
         @@keyframes slideUp {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-widget-window.active {
@@ -882,18 +897,15 @@
         }
 
         @@keyframes fadeIn {
-            from
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-        {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-message-incoming {
@@ -1096,65 +1108,67 @@
         }
 
         @@keyframes pulse {
-            0%, 100%
+            0%, 100% {
+                opacity: 1;
+            }
 
-        {
-            opacity: 1;
-        }
-
-        50% {
-            opacity: 0.5;
-        }
-
+            50% {
+                opacity: 0.5;
+            }
         }
 
         /* Responsive */
         @@media (max-width: 480px) {
-            .chat-widget-window
-
-        {
-            width: calc(100% - 40px);
-            height: calc(100vh - 110px);
-            bottom: 90px;
-            right: 20px;
-            left: 20px;
-        }
-
+            .chat-widget-window {
+                width: calc(100% - 40px);
+                height: calc(100vh - 110px);
+                bottom: 90px;
+                right: 20px;
+                left: 20px;
+            }
         }
 
         /* Thêm vào phần styles hiện có */
-    
-    .chat-mode-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        background: #4ade80;
-        color: white;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 600;
-        margin-left: 10px;
-        transition: all 0.3s ease;
-    }
-    
-    .chat-mode-badge.admin-mode {
-        background: #f59e0b;
-        animation: modeSwitch 0.5s ease;
-    }
-    
-    @@keyframes modeSwitch {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-    }
-    
-    /* Hiệu ứng cho tin nhắn system đặc biệt */
-    .chat-system-message.switching {
-        background: linear-gradient(90deg, #667eea, #764ba2);
-        color: white;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-weight: 500;
-    }
+
+        .chat-mode-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #4ade80;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .chat-mode-badge.admin-mode {
+                background: #f59e0b;
+                animation: modeSwitch 0.5s ease;
+            }
+
+        @@keyframes modeSwitch {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Hiệu ứng cho tin nhắn system đặc biệt */
+        .chat-system-message.switching {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
     </style>
 
     <!-- Nút mở chat -->
@@ -1239,7 +1253,7 @@
         let unreadMessages = 0;
         let isChatOpen = false;
         let chatMode = "none";
-        
+
         // Định nghĩa các câu hỏi nhanh với icon và câu trả lời
         const quickQuestions = [
             {
@@ -1425,12 +1439,12 @@
                 ]
             }
         ];
-        
+
         // Render quick questions
         function renderQuickQuestions() {
             const grid = document.getElementById('quickQuestionsGrid');
             grid.innerHTML = '';
-            
+
             quickQuestions.forEach(question => {
                 const btn = document.createElement('button');
                 btn.className = 'quick-question-btn';
@@ -1442,7 +1456,7 @@
                 grid.appendChild(btn);
             });
         }
-        
+
         // Xử lý khi click vào quick question
         function handleQuickQuestion(question) {
             // Thêm hiệu ứng click
@@ -1450,26 +1464,26 @@
             setTimeout(() => {
                 event.target.closest('.quick-question-btn').classList.remove('clicked');
             }, 300);
-            
+
             // Hiển thị câu hỏi của user
             addChatMessage(currentChatUser, question.text, getCurrentTime(), true, false);
-            
+
             // Bot typing
             setTimeout(() => {
                 showChatTyping("Bot");
             }, 500);
-            
+
             // Hiển thị câu trả lời
             setTimeout(() => {
                 hideChatTyping();
                 const response = question.responses[Math.floor(Math.random() * question.responses.length)];
-                
+
                 // Nếu là câu hỏi về admin, tự động hỏi chuyển sang admin
                 if (question.id === 'admin') {
                     addChatMessage("Bot", response, getCurrentTime(), false, false);
                 } else {
                     addChatMessage("Bot", response, getCurrentTime(), false, false);
-                    
+
                     // Sau khi trả lời, hỏi thêm
                     setTimeout(() => {
                         addChatMessage("Bot", "Bạn còn thắc mắc gì khác không? 😊", getCurrentTime(), false, false);
@@ -1477,7 +1491,7 @@
                 }
             }, 1500);
         }
-        
+
         // Toggle chat window
         document.getElementById('chatWidgetButton').addEventListener('click', function() {
             const widget = document.getElementById('chatWidget');
@@ -1542,16 +1556,16 @@
             document.getElementById('chatSupportOptions').style.display = 'none';
             document.getElementById('chatBody').style.display = 'block';
             document.getElementById('chatInput').style.display = 'flex';
-            
+
             // HIỂN THỊ QUICK QUESTIONS
             document.getElementById('quickQuestionsContainer').style.display = 'block';
             renderQuickQuestions();
-            
+
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "🤖 Bot AI";
             badge.style.display = 'inline-block';
             badge.classList.remove('admin-mode');
-            
+
             addSystemChatMessage(`Chào ${currentChatUser}! Tôi là Bot hỗ trợ.`);
             setTimeout(() => {
                 addChatMessage("Bot", "Bạn có thể chọn câu hỏi bên dưới hoặc nhập câu hỏi của riêng bạn! 😊", getCurrentTime(), false, false);
@@ -1563,18 +1577,18 @@
             document.getElementById('chatSupportOptions').style.display = 'none';
             document.getElementById('chatBody').style.display = 'block';
             document.getElementById('chatInput').style.display = 'flex';
-            
+
             // ẨN QUICK QUESTIONS khi chat với admin
             document.getElementById('quickQuestionsContainer').style.display = 'none';
-            
+
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "👨‍💼 Quản trị viên";
             badge.style.display = 'inline-block';
             badge.classList.add('admin-mode');
-            
+
             initChatConnection();
             addSystemChatMessage(`Chào ${currentChatUser}! Đang kết nối với quản trị viên...`, true);
-            
+
             setTimeout(() => {
                 if (chatConnection && chatConnection.state === "Connected") {
                     chatConnection.invoke("RequestAdminSupport", currentChatUser);
@@ -1584,7 +1598,7 @@
 
         // Danh sách từ khóa đồng ý
         const agreeKeywords = [
-            'có', 'được', 'ok', 'okay', 'đồng ý', 'yes', 'yeah', 'oke', 
+            'có', 'được', 'ok', 'okay', 'đồng ý', 'yes', 'yeah', 'oke',
             'uh', 'uhm', 'vâng', 'dạ', 'rồi', 'chắc chắn', 'tất nhiên',
             'muốn', 'cần', 'giúp', 'hỗ trợ'
         ];
@@ -1599,20 +1613,20 @@
 
         function autoSwitchToAdmin() {
             chatMode = "admin";
-            
+
             // ẨN QUICK QUESTIONS khi chuyển sang admin
             document.getElementById('quickQuestionsContainer').style.display = 'none';
-            
+
             const badge = document.getElementById('chatModeBadge');
             badge.textContent = "👨‍💼 Quản trị viên";
             badge.classList.add('admin-mode');
-            
+
             if (!chatConnection || chatConnection.state !== "Connected") {
                 initChatConnection();
             }
-            
+
             addSystemChatMessage("🔄 Đang chuyển bạn sang quản trị viên...", true);
-            
+
             setTimeout(() => {
                 if (chatConnection && chatConnection.state === "Connected") {
                     chatConnection.invoke("RequestAdminSupport", currentChatUser);
@@ -1623,28 +1637,28 @@
 
         function getBotResponse(userMessage) {
             const msg = userMessage.toLowerCase();
-            
+
             // Tìm kiếm trong quick questions trước
             for (const question of quickQuestions) {
-                if (msg.includes(question.text.toLowerCase()) || 
+                if (msg.includes(question.text.toLowerCase()) ||
                     msg.includes(question.id)) {
                     return question.responses[Math.floor(Math.random() * question.responses.length)];
                 }
             }
-            
+
             // Phân tích từ khóa
             if (msg.includes("xin chào") || msg.includes("chào") || msg.includes("hello") || msg.includes("hi")) {
                 return quickQuestions.find(q => q.id === 'greeting').responses[0];
-            } 
+            }
             else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("tiền")) {
                 return quickQuestions.find(q => q.id === 'price').responses[0];
-            } 
+            }
             else if (msg.includes("giao hàng") || msg.includes("ship") || msg.includes("vận chuyển")) {
                 return quickQuestions.find(q => q.id === 'shipping').responses[0];
-            } 
+            }
             else if (msg.includes("size") || msg.includes("kích thước") || msg.includes("cỡ")) {
                 return quickQuestions.find(q => q.id === 'size').responses[0];
-            } 
+            }
             else if (msg.includes("sản phẩm") || msg.includes("áo") || msg.includes("quần")) {
                 return quickQuestions.find(q => q.id === 'products').responses[0];
             }
@@ -1665,7 +1679,7 @@
             }
             else if (msg.includes("admin") || msg.includes("quản trị") || msg.includes("nhân viên")) {
                 return "Hmm, câu hỏi của bạn hơi khó đấy. Bạn có muốn chat với quản trị viên không?";
-            } 
+            }
             else {
                 return "Xin lỗi, tôi chưa hiểu rõ câu hỏi này. Bạn có thể chọn một trong các câu hỏi thường gặp bên dưới, hoặc chat với quản trị viên để được hỗ trợ tốt hơn nhé! 😊";
             }
@@ -1679,42 +1693,42 @@
                 if (chatMode === "bot") {
                     addChatMessage(currentChatUser, message, getCurrentTime(), true, false);
                     input.value = "";
-                    
+
                     // Kiểm tra câu trả lời đồng ý
                     if (isAgreementMessage(message)) {
                         const chatBody = document.getElementById('chatBody');
                         const lastMessages = chatBody.querySelectorAll('.chat-message-text');
                         const lastBotMessage = Array.from(lastMessages)
                             .slice(-2, -1)[0]?.textContent || '';
-                        
-                        if (lastBotMessage.includes('quản trị viên') || 
-                            lastBotMessage.includes('admin') || 
+
+                        if (lastBotMessage.includes('quản trị viên') ||
+                            lastBotMessage.includes('admin') ||
                             lastBotMessage.includes('nhân viên')) {
-                            
+
                             setTimeout(() => {
-                                addChatMessage("Bot", "Được rồi! Tôi sẽ chuyển bạn sang quản trị viên ngay.", 
+                                addChatMessage("Bot", "Được rồi! Tôi sẽ chuyển bạn sang quản trị viên ngay.",
                                     getCurrentTime(), false, false);
                             }, 500);
-                            
+
                             setTimeout(() => {
                                 autoSwitchToAdmin();
                             }, 2000);
-                            
+
                             return;
                         }
                     }
-                    
+
                     // Bot typing
                     setTimeout(() => {
                         showChatTyping("Bot");
                     }, 500);
-                    
+
                     setTimeout(() => {
                         hideChatTyping();
                         const botResponse = getBotResponse(message);
                         addChatMessage("Bot", botResponse, getCurrentTime(), false, false);
                     }, 1500);
-                    
+
                 } else if (chatMode === "admin" && chatConnection) {
                     chatConnection.invoke("SendMessageToAdmin", currentChatUser, message)
                         .catch(err => console.error(err));
