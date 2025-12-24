@@ -15,6 +15,10 @@ public partial class OrdersDetail
 
     public int? Price { get; set; }
 
+    public string? Size { get; set; }
+
+    public string? Color { get; set; }
+
     public virtual Order? Orders { get; set; }
 
     public virtual ProductVariant? ProductVariant { get; set; }

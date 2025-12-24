@@ -29,7 +29,7 @@ namespace CuaHangQuanAo.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.Items)
+                .ThenInclude(od => od.ProductVariant)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();
@@ -42,7 +42,7 @@ namespace CuaHangQuanAo.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.Items)
+                .ThenInclude(od => od.ProductVariant)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();
@@ -102,7 +102,7 @@ namespace CuaHangQuanAo.Controllers
             foreach (var detail in order.OrdersDetails)
             {
                 // Get the price from the database to ensure accuracy
-                var item = await _context.Items.FindAsync(detail.ItemsId);
+                var item = await _context.Items.FindAsync(detail.ProductVariant);
                 var price = item?.SellPrice ?? 0;
                 detail.Price = (int)price; // Save price to OrdersDetail if needed
                 subtotal += price * (detail.Quantity ?? 0);
@@ -155,7 +155,7 @@ namespace CuaHangQuanAo.Controllers
         {
             var order = await _context.Orders
                 .Include(o => o.Customer)
-                .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+                .Include(o => o.OrdersDetails).ThenInclude(od => od.ProductVariant)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();

@@ -365,7 +365,7 @@ namespace CuaHangQuanAo.Controllers
                         _context.OrdersDetails.Add(new OrdersDetail
                         {
                             OrdersId = order.OrdersId,
-                            ItemsId = cartItem.ItemsId,
+                            ProductVariantId = cartItem.ItemsId,
                             Quantity = cartItem.Quantity,
                             Price = cartItem.SellPrice
                         });

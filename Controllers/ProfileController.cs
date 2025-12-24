@@ -43,7 +43,7 @@ public class ProfileController : Controller
         // 1) Normal: orders linked by CustomerId
         var orders = await _context.Orders
             .Where(o => o.CustomerId == customer.CustomerId)
-            .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+            .Include(o => o.OrdersDetails).ThenInclude(od => od.ProductVariant)
             .OrderByDescending(o => o.OrderDate)
             .ToListAsync();
 
@@ -57,7 +57,7 @@ public class ProfileController : Controller
                 .Where(o => !o.CustomerId.HasValue &&
                             ((fullname != "" && o.CustomerName == fullname) ||
                              (phone != "" && o.PhoneNumber == phone)))
-                .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+                .Include(o => o.OrdersDetails).ThenInclude(od => od.ProductVariant)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
@@ -84,7 +84,7 @@ public class ProfileController : Controller
 
         var order = await _context.Orders
             .Include(o => o.Customer)
-            .Include(o => o.OrdersDetails).ThenInclude(od => od.Items)
+            .Include(o => o.OrdersDetails).ThenInclude(od => od.ProductVariant)
             .FirstOrDefaultAsync(o => o.OrdersId == id);
 
         if (order == null) return NotFound();

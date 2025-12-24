@@ -302,7 +302,7 @@ namespace CuaHangQuanAo.Controllers
                 }
                 catch (DbUpdateException ex)
                 {
-                    bool hasOrderDetails = await _context.OrdersDetails.AnyAsync(od => od.ItemsId == id);
+                    bool hasOrderDetails = await _context.OrdersDetails.AnyAsync(od => od.ProductVariantId == id);
                     bool hasStorage = await _context.Storages.AnyAsync(s => s.ProductVariantsId == id);
 
                     if (hasOrderDetails || hasStorage)

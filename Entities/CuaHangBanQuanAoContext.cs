@@ -200,8 +200,12 @@ public partial class CuaHangBanQuanAoContext : DbContext
             entity.ToTable(tb => tb.HasTrigger("TRG_CapNhatKhoHang"));
 
             entity.Property(e => e.OrdersDetailsId).HasColumnName("OrdersDetailsID");
+            entity.Property(e => e.Color).HasMaxLength(50);
             entity.Property(e => e.OrdersId).HasColumnName("OrdersID");
             entity.Property(e => e.ProductVariantId).HasColumnName("ProductVariantID");
+            entity.Property(e => e.Size)
+                .HasMaxLength(10)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Orders).WithMany(p => p.OrdersDetails)
                 .HasForeignKey(d => d.OrdersId)

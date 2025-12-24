@@ -221,7 +221,7 @@
                         {
                             <div class="order-item">
                                 <span class="item-name">
-                                    <i class="bi bi-box me-2"></i>@item.Items?.Product?.ItemsName
+                                    <i class="bi bi-box me-2"></i>@item.ProductVariant?.Product?.ItemsName
                                 </span>
                                 <span class="item-quantity">x @item.Quantity</span>
                                 <span class="item-price">@((item.Price * item.Quantity)?.ToString("N0")) đ</span>

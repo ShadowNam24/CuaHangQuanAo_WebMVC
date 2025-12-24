@@ -136,7 +136,7 @@ public class PayPalController : Controller
                 _context.OrdersDetails.Add(new OrdersDetail
                 {
                     OrdersId = order.OrdersId,
-                    ItemsId = ci.ItemsId,
+                    ProductVariantId = ci.ItemsId,
                     Quantity = ci.Quantity,
                     Price = ci.SellPrice
                 });
