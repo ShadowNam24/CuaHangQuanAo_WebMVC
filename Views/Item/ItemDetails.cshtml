@@ -1,4 +1,5 @@
 ﻿@model CuaHangQuanAo.Entities.Item
+@using CuaHangQuanAo.Entities;
 @{
     ViewData["Title"] = "Chi tiết sản phẩm";
     Layout = "_AdminLayout";
@@ -74,12 +75,13 @@
         color: #495057;
     }
 
-    .badge-size {
+    .badge-variant {
         background-color: #212529;
         color: white;
         border-radius: 4px;
         padding: 0.25rem 0.6rem;
         font-weight: 500;
+        margin-right: 0.25rem;
     }
 
     .no-data {
@@ -107,6 +109,20 @@
         border-radius: 0.5rem;
         overflow: hidden;
     }
+
+    .variant-card {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s;
+    }
+
+        .variant-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
 </style>
 
 <div class="container py-4">
@@ -126,12 +142,11 @@
                     </h2>
                     <p class="mb-0 text-white-50">Thông tin chi tiết về sản phẩm</p>
                 </div>
-                <div class="d-flex">
-                    <a href="@Url.Action("EditItem", "Items", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-primary btn-action">
-                        <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("EditItems", "Item", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-light btn-action">
+                        <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
                     </a>
-
-                    <button class="btn btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <button class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash me-1"></i> Xóa
                     </button>
                 </div>
@@ -139,6 +154,18 @@
         </div>
 
         <div class="p-4">
+            <!-- Product image section -->
+            @if (!string.IsNullOrEmpty(Model.CoverImage))
+            {
+                <div class="text-center mb-4">
+                    <img src="@Url.Content("~/Images/products/" + Model.CoverImage)"
+                         alt="@Model.ItemsName"
+                         class="img-fluid rounded"
+                         style="max-height: 400px; object-fit: contain;"
+                         onerror="this.onerror=null;this.src='@Url.Content("~/Images/demo/demo.webp")'" />
+                </div>
+            }
+
             <div class="info-section">
                 <h4 class="section-title">
                     <i class="bi bi-info-circle me-2"></i>Thông tin cơ bản
@@ -165,7 +192,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <div class="info-label">Giá bán</div>
+                            <div class="info-label">Giá bán cơ bản</div>
                             <div class="info-value">
                                 <span class="badge-price">
                                     @string.Format("{0:N0} đ", Model.SellPrice)
@@ -173,10 +200,23 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <div class="info-label">Kích thước</div>
+                            <div class="info-label">Ngày tạo</div>
                             <div class="info-value">
-                                <span class="badge-size">
-                                </span>
+                                <i class="bi bi-calendar me-1"></i>
+                                @Model.CreatedDate.ToString("dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="info-label">Trạng thái</div>
+                            <div class="info-value">
+                                @if (Model.IsAvailable)
+                                {
+                                    <span class="badge bg-success">Đang hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Ngừng hoạt động</span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -184,43 +224,114 @@
             </div>
 
             <div class="row mt-4">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <div class="info-section">
                         <h4 class="section-title">
-                            <i class="bi bi-box me-2"></i>Thông tin tồn kho
+                            <i class="bi bi-boxes me-2"></i>Biến thể sản phẩm
                         </h4>
-                        
+                        @if (Model.ProductVariants != null && Model.ProductVariants.Any())
+                        {
+                            <div class="row">
+                                @foreach (var variant in Model.ProductVariants)
+                                {
+                                    var finalPrice = (Model.SellPrice ?? 0) + variant.PriceModifier;
+                                    <div class="col-md-6">
+                                        <div class="variant-card">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <span class="badge-variant">Size: @variant.Size</span>
+                                                    <span class="badge-variant">Màu: @variant.Color</span>
+                                                </div>
+                                                <span class="badge bg-primary">@variant.StockQuantity trong kho</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <small class="text-muted">Giá bán:</small>
+                                                    <div class="fw-bold text-primary">@string.Format("{0:N0} đ", finalPrice)</div>
+                                                    @if (variant.PriceModifier != 0)
+                                                    {
+                                                        <small class="text-muted">
+                                                            (Cơ bản @string.Format("{0:N0} đ", Model.SellPrice)
+                                                            @(variant.PriceModifier > 0 ? "+" : "")@string.Format("{0:N0} đ", variant.PriceModifier))
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-data">
+                                <i class="bi bi-inbox"></i>
+                                <p class="mb-0">Chưa có biến thể sản phẩm nào</p>
+                            </div>
+                        }
                     </div>
                 </div>
-                <div class="col-md-6">
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
                     <div class="info-section">
                         <h4 class="section-title">
                             <i class="bi bi-receipt me-2"></i>Lịch sử đơn hàng
                         </h4>
-                        @* @if (Model.OrdersDetails != null && Model.OrdersDetails.Any()) *@
+                        @{
+                            // Get all order details through product variants
+                            var allOrderDetails = Model.ProductVariants?
+                            .SelectMany(pv => pv.OrdersDetails ?? Enumerable.Empty<OrdersDetail>())
+                            .OrderByDescending(od => od.OrdersId)
+                            .ToList();
+                        }
+                        @if (allOrderDetails != null && allOrderDetails.Any())
                         {
-                            <table class="table table-details">
+                            <table class="table table-hover table-details">
                                 <thead>
                                     <tr>
                                         <th>Mã đơn hàng</th>
+                                        <th>Biến thể</th>
                                         <th>Số lượng</th>
                                         <th>Giá bán</th>
+                                        <th>Thành tiền</th>
                                     </tr>
                                 </thead>
-                                @* <tbody>
-                                    @foreach (var detail in Model.OrdersDetails)
+                                <tbody>
+                                    @foreach (var detail in allOrderDetails)
                                     {
+                                        var variant = Model.ProductVariants?.FirstOrDefault(pv => pv.ProductVariantsId == detail.ProductVariantId);
                                         <tr>
                                             <td>
-                                                <a href="@Url.Action("OrderDetails", "Order", new { id = detail.OrdersId })">
+                                                <a href="@Url.Action("OrderDetail", "Order", new { id = detail.OrdersId })">
                                                     #@detail.OrdersId
                                                 </a>
                                             </td>
+                                            <td>
+                                                @if (variant != null)
+                                                {
+                                                    <span class="badge-variant">@variant.Size</span>
+                                                    <span class="badge-variant">@variant.Color</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
+                                            </td>
                                             <td>@detail.Quantity</td>
                                             <td>@string.Format("{0:N0} đ", detail.Price)</td>
+                                            <td class="fw-bold">@string.Format("{0:N0} đ", (detail.Price ?? 0) * (detail.Quantity ?? 0))</td>
                                         </tr>
                                     }
-                                </tbody> *@
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-light">
+                                        <td colspan="2" class="text-end fw-bold">Tổng đã bán:</td>
+                                        <td class="fw-bold">@allOrderDetails.Sum(od => od.Quantity ?? 0)</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         }
                         else
@@ -238,10 +349,9 @@
                 <a href="@Url.Action("Items", "Item")" class="btn btn-outline-secondary btn-action">
                     <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
                 </a>
-                <a href="@Url.Action("EditItem", "Item", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-primary btn-action">
+                <a href="@Url.Action("EditItems", "Item", new { id = Model.ItemsId, returnUrl = "ItemDetails" })" class="btn btn-primary btn-action">
                     <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
                 </a>
-
             </div>
         </div>
     </div>
@@ -257,7 +367,7 @@
             </div>
             <div class="modal-body">
                 <p>Bạn có chắc chắn muốn xóa sản phẩm <strong>@Model.ItemsName</strong> không?</p>
-                <p class="text-danger"><strong>Lưu ý:</strong> Hành động này không thể hoàn tác và sẽ xóa tất cả thông tin liên quan.</p>
+                <p class="text-danger"><strong>Lưu ý:</strong> Hành động này không thể hoàn tác và sẽ xóa tất cả thông tin liên quan bao gồm các biến thể sản phẩm.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -266,7 +376,6 @@
                     <input type="hidden" name="id" value="@Model.ItemsId" />
                     <button type="submit" class="btn btn-danger">Xóa sản phẩm</button>
                 </form>
-
             </div>
         </div>
     </div>

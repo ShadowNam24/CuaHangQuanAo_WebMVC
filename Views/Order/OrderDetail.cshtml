@@ -6,10 +6,10 @@
 
 <style>
     :root {
-        --brand-primary: #1E3A8A; /* navy */
-        --brand-secondary: #3B82F6; /* blue */
-        --brand-accent: #F59E0B; /* amber */
-        --brand-muted: #F3F4F6; /* light gray */
+        --brand-primary: #1E3A8A;
+        --brand-secondary: #3B82F6;
+        --brand-accent: #F59E0B;
+        --brand-muted: #F3F4F6;
         --text-muted: #6B7280;
     }
 
@@ -56,53 +56,66 @@
         box-shadow: 0 6px 16px rgba(59, 130, 246, 0.2);
     }
 
-    .item-details {
-        border-left: 4px solid var(--brand-secondary);
-        padding-left: 1rem;
-    }
-
     .btn-action {
         border-radius: 999px;
         padding: 0.5rem 1.1rem;
         font-weight: 600;
         transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
     }
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(0,0,0,.08);
-    }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,.08);
+        }
+
     .btn-primary.btn-action {
         background-color: var(--brand-secondary);
         border-color: var(--brand-secondary);
     }
+
     .btn-outline-secondary.btn-action {
         border-color: var(--brand-primary);
         color: var(--brand-primary);
     }
-    .btn-outline-secondary.btn-action:hover {
-        background-color: var(--brand-primary);
-        color: #fff;
-    }
+
+        .btn-outline-secondary.btn-action:hover {
+            background-color: var(--brand-primary);
+            color: #fff;
+        }
 
     .table-products {
         border-radius: 0.5rem;
         overflow: hidden;
         border: 1px solid #e5e7eb;
     }
-    .table-products th {
-        background-color: var(--brand-muted);
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: #111827;
+
+        .table-products th {
+            background-color: var(--brand-muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+
+    .product-name {
+        font-weight: 600;
     }
 
-    .product-name { font-weight: 600; }
     .product-quantity {
         background-color: #e5e7eb;
         border-radius: 6px;
         padding: 0.25rem 0.6rem;
         font-weight: 600;
         color: #111827;
+    }
+
+    .variant-badge {
+        background-color: #e0e7ff;
+        color: #3730a3;
+        border-radius: 4px;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-right: 0.25rem;
     }
 
     .total-row {
@@ -116,10 +129,26 @@
         font-weight: 700;
         padding: 0.25rem 0.75rem;
     }
-    .status-pending { background-color: #FDE68A; color: #92400E; }
-    .status-processing { background-color: #BFDBFE; color: #1E3A8A; }
-    .status-fulfilled { background-color: #A7F3D0; color: #065F46; }
-    .status-cancelled { background-color: #FECACA; color: #7F1D1D; }
+
+    .status-pending {
+        background-color: #FDE68A;
+        color: #92400E;
+    }
+
+    .status-processing {
+        background-color: #BFDBFE;
+        color: #1E3A8A;
+    }
+
+    .status-fulfilled {
+        background-color: #A7F3D0;
+        color: #065F46;
+    }
+
+    .status-cancelled {
+        background-color: #FECACA;
+        color: #7F1D1D;
+    }
 </style>
 
 <div class="container py-4">
@@ -139,8 +168,11 @@
                     </h2>
                     <p class="mb-0 text-white-50">Thông tin đơn hàng #@Model.OrdersId</p>
                 </div>
-                <div class="d-flex">
-                    <button class="btn btn-light btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Functions_Edit", "Order", new { id = Model.OrdersId })" class="btn btn-light btn-action">
+                        <i class="bi bi-pencil-square me-1"></i> Sửa
+                    </a>
+                    <button class="btn btn-danger btn-action" data-bs-toggle="modal" data-bs-target="#deleteModal">
                         <i class="bi bi-trash me-1"></i> Xóa
                     </button>
                 </div>
@@ -156,49 +188,39 @@
                             Thông tin khách hàng
                         </h5>
 
-                        <!-- Thay phần hiển thị thông tin khách hàng để ưu tiên các trường CustomerName / PhoneNumber / ShippingAddress -->
-<div class="mb-3">
-    <div class="info-label">Tên khách hàng</div>
-    <div class="info-value">
-        @(
-            !string.IsNullOrWhiteSpace(Model.CustomerName)
-                ? Model.CustomerName
-                : (Model.Customer != null
-                    ? (Model.Customer.LastName + " " + Model.Customer.FirstName).Trim()
-                    : "Chưa có thông tin")
-         )
-    </div>
-</div>
-
-<div class="mb-3">
-    <div class="info-label">Số điện thoại</div>
-    <div class="info-value">
-        <i class="bi bi-telephone me-1 text-primary"></i>
-        @(
-            !string.IsNullOrWhiteSpace(Model.PhoneNumber)
-                ? Model.PhoneNumber
-                : (Model.Customer?.PhoneNumber ?? "Chưa có thông tin")
-         )
-    </div>
-</div>
-
-<div class="mb-3">
-    <div class="info-label">Địa chỉ</div>
-    <div class="info-value">
-        <i class="bi bi-geo-alt me-1 text-primary"></i>
-        @(
-            !string.IsNullOrWhiteSpace(Model.ShippingAddress)
-                ? Model.ShippingAddress
-                : (Model.Customer?.AddressName ?? "Chưa có thông tin")
-         )
-    </div>
-</div>
+                        <div class="mb-3">
+                            <div class="info-label">Tên khách hàng</div>
+                            <div class="info-value">
+                                @(
+                                    !string.IsNullOrWhiteSpace(Model.CustomerName) ? Model.CustomerName
+                                        : (Model.Customer != null
+                                        ? (Model.Customer.LastName + " " + Model.Customer.FirstName).Trim()
+                                        : "Chưa có thông tin")
+                                 )
+                            </div>
+                        </div>
 
                         <div class="mb-3">
-                            <div class="info-label">Email</div>
+                            <div class="info-label">Số điện thoại</div>
                             <div class="info-value">
-                                <i class="bi bi-envelope me-1 text-primary"></i>
-                                Chưa có thông tin
+                                <i class="bi bi-telephone me-1 text-primary"></i>
+                                @(
+                                    !string.IsNullOrWhiteSpace(Model.PhoneNumber)
+                                    ? Model.PhoneNumber
+                                    : (Model.Customer?.PhoneNumber ?? "Chưa có thông tin")
+                                 )
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="info-label">Địa chỉ</div>
+                            <div class="info-value">
+                                <i class="bi bi-geo-alt me-1 text-primary"></i>
+                                @(
+                                    !string.IsNullOrWhiteSpace(Model.ShippingAddress)
+                                    ? Model.ShippingAddress
+                                    : (Model.Customer?.AddressName ?? "Chưa có thông tin")
+                                 )
                             </div>
                         </div>
                     </div>
@@ -224,7 +246,23 @@
                             </div>
                         </div>
 
-
+                        <div class="mb-3">
+                            <div class="info-label">Trạng thái</div>
+                            <div class="info-value">
+                                @{
+                                    string status = Model.Status ?? "pending";
+                                    string statusClass = status switch
+                                    {
+                                        "pending" => "status-pending",
+                                        "processing" => "status-processing",
+                                        "fulfilled" => "status-fulfilled",
+                                        "cancelled" => "status-cancelled",
+                                        _ => "status-pending"
+                                    };
+                                }
+                                <span class="badge status-badge @statusClass">@status</span>
+                            </div>
+                        </div>
 
                         @if (Model.Discount.HasValue && Model.Discount.Value > 0)
                         {
@@ -253,6 +291,7 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Sản phẩm</th>
+                                    <th scope="col">Biến thể</th>
                                     <th scope="col">Đơn giá</th>
                                     <th scope="col">Số lượng</th>
                                     <th scope="col">Thành tiền</th>
@@ -272,7 +311,20 @@
                                         <tr>
                                             <td>@stt</td>
                                             <td>
-                                                @* <div class="product-name">@(item.Items?.ItemsName ?? "Chưa có thông tin")</div> *@
+                                                <div class="product-name">
+                                                    @(item.ProductVariant?.Product?.ItemsName ?? "Chưa có thông tin")
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (item.ProductVariant != null)
+                                                {
+                                                    <span class="variant-badge">Size: @item.ProductVariant.Size</span>
+                                                    <span class="variant-badge">Màu: @item.ProductVariant.Color</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
                                             </td>
                                             <td>@string.Format("{0:N0} đ", item.Price)</td>
                                             <td><span class="product-quantity">@item.Quantity</span></td>
@@ -282,32 +334,61 @@
                                     }
 
                                     <tr class="bg-light">
-                                        <td colspan="4" class="text-end">Tạm tính:</td>
+                                        <td colspan="5" class="text-end">Tạm tính:</td>
                                         <td>@string.Format("{0:N0} đ", subtotal)</td>
                                     </tr>
 
                                     @if (Model.Discount.HasValue && Model.Discount.Value > 0)
                                     {
                                         <tr class="bg-light">
-                                            <td colspan="4" class="text-end">Giảm giá (@string.Format("{0:0.##}%", Model.Discount)):</td>
-                                            <td>@string.Format("{0:N0} đ", subtotal * (Model.Discount.Value / 100))</td>
+                                            <td colspan="5" class="text-end">Giảm giá (@string.Format("{0:0.##}%", Model.Discount)):</td>
+                                            <td>-@string.Format("{0:N0} đ", subtotal * (Model.Discount.Value / 100))</td>
                                         </tr>
                                     }
 
                                     <tr class="bg-light total-row">
-                                        <td colspan="4" class="text-end">Tổng cộng:</td>
+                                        <td colspan="5" class="text-end">Tổng cộng:</td>
                                         <td class="text-primary">@string.Format("{0:N0} đ", Model.Total)</td>
                                     </tr>
                                 }
                                 else
                                 {
                                     <tr>
-                                        <td colspan="5" class="text-center py-3">Không có thông tin sản phẩm</td>
+                                        <td colspan="6" class="text-center py-3">Không có thông tin sản phẩm</td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+
+            <!-- Status update section -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-arrow-repeat me-2 text-primary"></i>
+                        Cập nhật trạng thái
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ChangeStatus" asp-controller="Order" method="post" class="d-flex align-items-center gap-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.OrdersId" />
+
+                        <div class="flex-grow-1">
+                            <label class="form-label mb-1">Chọn trạng thái mới:</label>
+                            <select name="status" class="form-select">
+                                <option value="pending" selected="@(Model.Status == "pending")">Pending (Chờ xử lý)</option>
+                                <option value="processing" selected="@(Model.Status == "processing")">Processing (Đang xử lý)</option>
+                                <option value="fulfilled" selected="@(Model.Status == "fulfilled")">Fulfilled (Hoàn thành)</option>
+                                <option value="cancelled" selected="@(Model.Status == "cancelled")">Cancelled (Đã hủy)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-action mt-4">
+                            <i class="bi bi-check2-circle me-1"></i>Cập nhật
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -328,11 +409,11 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận hủy đơn hàng</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa đơn hàng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Bạn có chắc chắn muốn hủy đơn hàng #@Model.OrdersId không?</p>
+                <p>Bạn có chắc chắn muốn xóa đơn hàng #@Model.OrdersId không?</p>
                 <p class="text-danger"><strong>Lưu ý:</strong> Hành động này không thể hoàn tác và sẽ xóa tất cả thông tin liên quan.</p>
             </div>
             <div class="modal-footer">
@@ -340,43 +421,12 @@
                 <form asp-action="Functions_DeleteConfirmed" asp-controller="Order" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.OrdersId" />
-                    <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+                    <button type="submit" class="btn btn-danger">Xóa đơn hàng</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-
-@{
-    // Add this block before the <span class="badge status-badge ..."> usage
-    string status = Model.Status ?? "pending";
-    string statusClass = status switch
-    {
-        "pending" => "status-pending",
-        "processing" => "status-processing",
-        "fulfilled" => "status-fulfilled",
-        "cancelled" => "status-cancelled",
-        _ => "status-pending"
-    };
-}
-
-<div class="d-flex align-items-center gap-2 mb-3">
-    <span>Trạng thái hiện tại:</span>
-    <span class="badge status-badge @statusClass">@status</span>
-</div>
-
-<form asp-action="ChangeStatus" asp-controller="Order" method="post" class="d-flex gap-2">
-    @Html.AntiForgeryToken()
-    <input type="hidden" name="id" value="@Model.OrdersId" />
-    <select name="status" class="form-select form-select-sm w-auto">
-        <option value="pending" selected="@(Model.Status=="pending")">pending</option>
-        <option value="processing" selected="@(Model.Status=="processing")">processing</option>
-        <option value="fulfilled" selected="@(Model.Status=="fulfilled")">fulfilled</option>
-        <option value="cancelled" selected="@(Model.Status=="cancelled")">cancelled</option>
-    </select>
-    <button type="submit" class="btn btn-primary btn-sm btn-action">Cập nhật</button>
-</form>
 
 @section Scripts {
     <script>
@@ -384,8 +434,7 @@
         if (window.performance && performance.getEntriesByType) {
             const nav = performance.getEntriesByType('navigation')[0];
             if (nav && (nav.type === 'back_forward' || nav.type === 'reload')) {
-                // optional: ensure no stale POST re-execution
-                window.history.replaceState(null, '', '/Admin'); // change to your Admin home route
+                window.history.replaceState(null, '', '/Order/Index');
             }
         }
     </script>

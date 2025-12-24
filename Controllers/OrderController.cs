@@ -29,11 +29,12 @@ namespace CuaHangQuanAo.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.ProductVariant)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();
-            return View("OrderDetail",order);
+            return View("OrderDetail", order);
         }
 
         // OrderDetail action for public access
@@ -42,7 +43,8 @@ namespace CuaHangQuanAo.Controllers
             var order = await _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.OrdersDetails)
-                .ThenInclude(od => od.ProductVariant)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();
@@ -97,15 +99,25 @@ namespace CuaHangQuanAo.Controllers
 
             order.OrderDate = DateOnly.FromDateTime(DateTime.Now);
 
-            // Calculate total
+            // Calculate total from ProductVariants
             decimal subtotal = 0;
             foreach (var detail in order.OrdersDetails)
             {
-                // Get the price from the database to ensure accuracy
-                var item = await _context.Items.FindAsync(detail.ProductVariant);
-                var price = item?.SellPrice ?? 0;
-                detail.Price = (int)price; // Save price to OrdersDetail if needed
-                subtotal += price * (detail.Quantity ?? 0);
+                if (detail.ProductVariantId.HasValue)
+                {
+                    // Get the product variant and its base product price
+                    var variant = await _context.ProductVariants
+                        .Include(v => v.Product)
+                        .FirstOrDefaultAsync(v => v.ProductVariantsId == detail.ProductVariantId.Value);
+
+                    if (variant != null && variant.Product != null)
+                    {
+                        // Calculate price: base price + price modifier
+                        var price = (variant.Product.SellPrice ?? 0) + variant.PriceModifier;
+                        detail.Price = (int)price;
+                        subtotal += price * (detail.Quantity ?? 0);
+                    }
+                }
             }
 
             var discount = order.Discount ?? 0;
@@ -113,10 +125,10 @@ namespace CuaHangQuanAo.Controllers
             order.Total = subtotal - discountAmount;
 
             // Ensure fields are populated if a customer is selected
-            if (order.CustomerId.HasValue && 
-   (string.IsNullOrWhiteSpace(order.CustomerName) ||
-    string.IsNullOrWhiteSpace(order.PhoneNumber) ||
-    string.IsNullOrWhiteSpace(order.ShippingAddress)))
+            if (order.CustomerId.HasValue &&
+               (string.IsNullOrWhiteSpace(order.CustomerName) ||
+                string.IsNullOrWhiteSpace(order.PhoneNumber) ||
+                string.IsNullOrWhiteSpace(order.ShippingAddress)))
             {
                 var cust = await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == order.CustomerId.Value);
                 if (cust != null)
@@ -155,7 +167,9 @@ namespace CuaHangQuanAo.Controllers
         {
             var order = await _context.Orders
                 .Include(o => o.Customer)
-                .Include(o => o.OrdersDetails).ThenInclude(od => od.ProductVariant)
+                .Include(o => o.OrdersDetails)
+                    .ThenInclude(od => od.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
                 .FirstOrDefaultAsync(o => o.OrdersId == id);
 
             if (order == null) return NotFound();
@@ -199,7 +213,7 @@ namespace CuaHangQuanAo.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // DELETE (GET): show confirmation popup page
+        // DELETE (GET): show confirmation page
         [HttpGet]
         public async Task<IActionResult> Functions_Delete(int id)
         {
@@ -265,10 +279,7 @@ namespace CuaHangQuanAo.Controllers
             Response.Headers.Expires = "0";
 
             TempData["StatusMessage"] = $"Cập nhật trạng thái đơn hàng #{id} thành công: {status}";
-            // Redirect to Admin home (adjust controller/action to your Admin dashboard)
-            return RedirectToAction("Index", "Order"); // or RedirectToAction("Dashboard", "Admin")
+            return RedirectToAction("Index", "Order");
         }
-
-       
     }
 }

@@ -108,13 +108,18 @@
         </div>
 
         <div class="p-4">
-            <!-- Hidden template for product options -->
-            <select id="item-options-template" class="d-none">
-                <option value="">-- Chọn sản phẩm --</option>
+            <!-- Hidden template for product variant options -->
+            <select id="variant-options-template" class="d-none">
+                <option value="">-- Chọn biến thể sản phẩm --</option>
                 @foreach (var variant in ViewBag.Variants ?? new List<dynamic>())
                 {
-                    <option value="@variant.ProductVariantsId" data-price="@variant.Product.SellPrice">
-                        @variant.Product.ItemsName - Size: @variant.Size - Màu: @variant.Color
+                    var totalPrice = (variant.Product.SellPrice ?? 0) + variant.PriceModifier;
+                    <option value="@variant.ProductVariantsId"
+                            data-price="@totalPrice"
+                            data-product-name="@variant.Product.ItemsName"
+                            data-size="@variant.Size"
+                            data-color="@variant.Color">
+                        @variant.Product.ItemsName - Size: @variant.Size - Màu: @variant.Color (@string.Format("{0:N0} đ", totalPrice))
                     </option>
                 }
             </select>
@@ -158,7 +163,6 @@
                             <span asp-validation-for="OrderDate" class="text-danger"></span>
                         </div>
                     </div>
-
 
                     <div class="col-md-6">
                         <h5 class="section-title">Thông tin thanh toán</h5>
@@ -208,30 +212,19 @@
                 <div id="items-container">
                     <div class="item-row" data-item-index="0">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label class="form-label">Sản phẩm</label>
-                                    <select name="OrdersDetails[0].ItemsId" class="form-select item-select" required>
-                                        <option value="">-- Chọn sản phẩm --</option>
-                                        @foreach (var item in ViewBag.Items ?? new List<dynamic>())
+                                    <label class="form-label">Biến thể sản phẩm</label>
+                                    <select name="OrdersDetails[0].ProductVariantId" class="form-select variant-select" required>
+                                        <option value="">-- Chọn biến thể sản phẩm --</option>
+                                        @foreach (var variant in ViewBag.Variants ?? new List<dynamic>())
                                         {
-                                            <option value="@item.ItemsId" data-price="@item.SellPrice">@item.ItemsName</option>
+                                            var totalPrice = (variant.Product.SellPrice ?? 0) + variant.PriceModifier;
+                                            <option value="@variant.ProductVariantsId" data-price="@totalPrice">
+                                                @variant.Product.ItemsName - Size: @variant.Size - Màu: @variant.Color (@string.Format("{0:N0} đ", totalPrice))
+                                            </option>
                                         }
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Size</label>
-                                    <input type="text" name="OrdersDetails[0].Size" class="form-control item-size" placeholder="Size" required />
-                                    <span class="text-danger field-validation-valid" data-valmsg-for="OrdersDetails[0].Size"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Màu</label>
-                                    <input type="text" name="OrdersDetails[0].Color" class="form-control item-color" placeholder="Màu" required />
-                                    <span class="text-danger field-validation-valid" data-valmsg-for="OrdersDetails[0].Color"></span>
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -240,7 +233,7 @@
                                     <input type="number" name="OrdersDetails[0].Quantity" class="form-control item-quantity" min="1" value="1" required />
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">
@@ -250,12 +243,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <div class="mb-3">
-                                    <label class="form-label">&nbsp;</label>
-                                    <button type="button" class="btn btn-outline-danger form-control remove-item">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    <label class="form-label">Thành tiền</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control item-total" readonly />
+                                        <span class="input-group-text">đ</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -307,32 +301,20 @@
     }
     <script>
         $(document).ready(function () {
-            let itemIndex = $('#items-container .item-row').length - 1;
-            const itemOptionsHtml = $('#item-options-template').html();
+            let itemIndex = 0;
+            const variantOptionsHtml = $('#variant-options-template').html();
 
             $("#add-item").click(function () {
                 itemIndex++;
                 const newItem = `
                     <div class="item-row" data-item-index="${itemIndex}">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-5">
                                 <div class="mb-3">
-                                    <label class="form-label">Sản phẩm</label>
-                                    <select name="OrdersDetails[${itemIndex}].ItemsId" class="form-select item-select" required>
-                                        ${itemOptionsHtml}
+                                    <label class="form-label">Biến thể sản phẩm</label>
+                                    <select name="OrdersDetails[${itemIndex}].ProductVariantId" class="form-select variant-select" required>
+                                        ${variantOptionsHtml}
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Size</label>
-                                    <input type="text" name="OrdersDetails[${itemIndex}].Size" class="form-control item-size" placeholder="Size" required />
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="mb-3">
-                                    <label class="form-label">Màu</label>
-                                    <input type="text" name="OrdersDetails[${itemIndex}].Color" class="form-control item-color" placeholder="Màu" required />
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -341,7 +323,7 @@
                                     <input type="number" name="OrdersDetails[${itemIndex}].Quantity" class="form-control item-quantity" min="1" value="1" required />
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label">Đơn giá</label>
                                     <div class="input-group">
@@ -351,7 +333,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <div class="mb-3">
                                     <label class="form-label">&nbsp;</label>
                                     <button type="button" class="btn btn-outline-danger form-control remove-item">
@@ -365,9 +347,9 @@
                 $("#items-container").append(newItem);
                 updateAllCalculations();
             });
-            // Xóa sản phẩm
+
+            // Remove product
             $(document).on("click", ".remove-item", function() {
-                // Không xóa nếu chỉ còn một sản phẩm
                 if ($("#items-container .item-row").length > 1) {
                     $(this).closest('.item-row').remove();
                     updateAllCalculations();
@@ -376,53 +358,56 @@
                 }
             });
 
-            // Cập nhật đơn giá khi chọn sản phẩm
-            $(document).on('change', '.item-select', function() {
+            // Update price when selecting product variant
+            $(document).on('change', '.variant-select', function() {
                 const selectedOption = $(this).find('option:selected');
                 const price = selectedOption.data('price') || 0;
                 const row = $(this).closest('.item-row');
 
                 row.find('.item-price').val(formatCurrency(price));
+                row.find('.item-price-hidden').val(price);
                 updateRowTotal(row);
                 updateAllCalculations();
             });
 
-            // Cập nhật tổng khi số lượng thay đổi
+            // Update total when quantity changes
             $(document).on('change', '.item-quantity', function() {
                 const row = $(this).closest('.item-row');
                 updateRowTotal(row);
                 updateAllCalculations();
             });
 
-            // Cập nhật tổng khi giảm giá thay đổi
+            // Update total when discount changes
             $('#Discount').on('input', function() {
                 updateAllCalculations();
             });
 
-            // Cập nhật thông tin khách hàng khi chọn từ danh sách
+            // Update customer info when selecting from list
             $('#customer-select').on('change', function () {
                 var selected = $(this).find('option:selected');
-                $('#customerName').val(selected.data('name') || '');
-                $('#phoneNumber').val(selected.data('phone') || '');
-                $('#addressName').val(selected.data('address') || '');
+                $('[name="CustomerName"]').val(selected.data('name') || '');
+                $('[name="PhoneNumber"]').val(selected.data('phone') || '');
+                $('[name="ShippingAddress"]').val(selected.data('address') || '');
             });
 
-            // Cập nhật tính toán
+            // Update row total
             function updateRowTotal(row) {
-                const selectedOption = row.find('.item-select option:selected');
+                const selectedOption = row.find('.variant-select option:selected');
                 const price = selectedOption.data('price') || 0;
                 const quantity = parseInt(row.find('.item-quantity').val()) || 0;
+                const total = price * quantity;
 
-                row.find('.item-price').val(formatCurrency(price));
+                row.find('.item-total').val(formatCurrency(total));
             }
 
+            // Update all calculations
             function updateAllCalculations() {
                 let totalQuantity = 0;
                 let subtotal = 0;
 
                 $('.item-row').each(function() {
                     const row = $(this);
-                    const selectedOption = row.find('.item-select option:selected');
+                    const selectedOption = row.find('.variant-select option:selected');
                     const price = selectedOption.data('price') || 0;
                     const quantity = parseInt(row.find('.item-quantity').val()) || 0;
 
@@ -444,7 +429,7 @@
                 return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
             }
 
-            // Khởi tạo
+            // Initialize
             updateAllCalculations();
         });
     </script>

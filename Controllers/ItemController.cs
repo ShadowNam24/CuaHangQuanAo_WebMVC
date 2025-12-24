@@ -7,7 +7,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-
 namespace CuaHangQuanAo.Controllers
 {
     [Authorize(Roles = "Employee,Admin")]
@@ -90,7 +89,6 @@ namespace CuaHangQuanAo.Controllers
             }
         }
 
-        // Add to ItemController.cs
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] Category category)
         {
@@ -119,15 +117,14 @@ namespace CuaHangQuanAo.Controllers
             }
         }
 
-
-
-        // GET: /CreateItems/Functions_Details/5
+        // GET: Item/ItemDetails/5
         public async Task<IActionResult> ItemDetails(int id)
         {
+            // Item -> ProductVariants -> OrdersDetails
             var item = await _context.Items
                 .Include(i => i.Category)
                 .Include(i => i.ProductVariants)
-                .ThenInclude(pv => pv.OrdersDetails)
+                    .ThenInclude(pv => pv.OrdersDetails)
                 .FirstOrDefaultAsync(m => m.ItemsId == id);
 
             if (item == null) return NotFound();
@@ -143,10 +140,9 @@ namespace CuaHangQuanAo.Controllers
             if (item == null) return NotFound();
 
             ViewBag.Categories = _context.Categories.ToList();
-            ViewBag.ReturnUrl = returnUrl; // Lưu returnUrl vào ViewBag
+            ViewBag.ReturnUrl = returnUrl;
             return View("EditItem", item);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -154,35 +150,19 @@ namespace CuaHangQuanAo.Controllers
         {
             if (id != item.ItemsId) return NotFound();
 
-            // Lấy item hiện tại từ database
             var existingItem = await _context.Items.FindAsync(id);
             if (existingItem == null) return NotFound();
 
-            // DEBUG: Kiểm tra file có được gửi lên không
-            Console.WriteLine($"DEBUG: CoverImageFile is null: {CoverImageFile == null}");
-            Console.WriteLine($"DEBUG: RemoveCoverImage: {RemoveCoverImage}");
-            Console.WriteLine($"DEBUG: ModelState.IsValid: {ModelState.IsValid}");
-            
-            // In ra lỗi ModelState nếu có
-            if (!ModelState.IsValid)
-            {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine($"ModelState Error: {error.ErrorMessage}");
-                }
-            }
-
-            // Tạm thời bỏ qua ModelState validation
             ModelState.Clear();
 
             try
             {
-                // Cập nhật các trường cơ bản
+                // Update basic fields
                 existingItem.ItemsName = item.ItemsName;
                 existingItem.CategoryId = item.CategoryId;
                 existingItem.SellPrice = item.SellPrice;
 
-                // Xử lý xóa ảnh bìa
+                // Handle removing cover image
                 if (RemoveCoverImage && !string.IsNullOrEmpty(existingItem.CoverImage))
                 {
                     var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images/products", existingItem.CoverImage);
@@ -193,12 +173,10 @@ namespace CuaHangQuanAo.Controllers
                     existingItem.CoverImage = null;
                 }
 
-                // Xử lý upload ảnh mới
+                // Handle uploading new image
                 if (CoverImageFile != null && CoverImageFile.Length > 0)
                 {
-                    Console.WriteLine($"DEBUG: File name: {CoverImageFile.FileName}, Size: {CoverImageFile.Length}");
-                    
-                    // Xóa ảnh cũ nếu có
+                    // Delete old image if exists
                     if (!string.IsNullOrEmpty(existingItem.CoverImage))
                     {
                         var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Images/products", existingItem.CoverImage);
@@ -211,7 +189,7 @@ namespace CuaHangQuanAo.Controllers
                     // Validate file
                     var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
                     var fileExtension = Path.GetExtension(CoverImageFile.FileName).ToLowerInvariant();
-                    
+
                     if (!allowedExtensions.Contains(fileExtension))
                     {
                         TempData["ErrorMessage"] = "Chỉ chấp nhận file ảnh JPG, PNG hoặc WEBP";
@@ -226,11 +204,11 @@ namespace CuaHangQuanAo.Controllers
                         return View("EditItem", existingItem);
                     }
 
-                    // Tạo tên file unique
+                    // Create unique filename
                     var fileName = $"product_{item.ItemsId}_{Guid.NewGuid()}{fileExtension}";
                     var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", "products");
-                    
-                    // Tạo thư mục nếu chưa tồn tại
+
+                    // Create directory if it doesn't exist
                     if (!Directory.Exists(uploadPath))
                     {
                         Directory.CreateDirectory(uploadPath);
@@ -238,19 +216,18 @@ namespace CuaHangQuanAo.Controllers
 
                     var filePath = Path.Combine(uploadPath, fileName);
 
-                    // Lưu file
+                    // Save file
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await CoverImageFile.CopyToAsync(stream);
                     }
 
                     existingItem.CoverImage = fileName;
-                    Console.WriteLine($"DEBUG: Image saved successfully: {fileName}");
                 }
 
                 _context.Update(existingItem);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";
                 return RedirectToAction(nameof(Items));
             }
@@ -267,8 +244,6 @@ namespace CuaHangQuanAo.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR: {ex.Message}");
-                Console.WriteLine($"STACK TRACE: {ex.StackTrace}");
                 TempData["ErrorMessage"] = $"Lỗi khi cập nhật sản phẩm: {ex.Message}";
                 ViewBag.Categories = await _context.Categories.ToListAsync();
                 return View("EditItem", existingItem);
@@ -291,6 +266,7 @@ namespace CuaHangQuanAo.Controllers
         {
             var item = await _context.Items.FindAsync(id);
             var variants = await _context.ProductVariants.Where(pv => pv.ProductId == id).ToListAsync();
+
             if (item != null)
             {
                 try
@@ -302,8 +278,11 @@ namespace CuaHangQuanAo.Controllers
                 }
                 catch (DbUpdateException ex)
                 {
-                    bool hasOrderDetails = await _context.OrdersDetails.AnyAsync(od => od.ProductVariantId == id);
-                    bool hasStorage = await _context.Storages.AnyAsync(s => s.ProductVariantsId == id);
+                    // Check if any product variants of this item are used in orders or storage
+                    bool hasOrderDetails = await _context.OrdersDetails
+                        .AnyAsync(od => variants.Select(v => v.ProductVariantsId).Contains(od.ProductVariantId ?? 0));
+                    bool hasStorage = await _context.Storages
+                        .AnyAsync(s => variants.Select(v => v.ProductVariantsId).Contains(s.ProductVariantsId ?? 0));
 
                     if (hasOrderDetails || hasStorage)
                     {
@@ -318,7 +297,7 @@ namespace CuaHangQuanAo.Controllers
                         .Include(i => i.Category)
                         .FirstOrDefaultAsync(m => m.ItemsId == id);
 
-                    return View("DeleteItem", itemToShow);
+                    return View("Functions_Delete", itemToShow);
                 }
             }
             return RedirectToAction(nameof(Items));
