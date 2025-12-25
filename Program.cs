@@ -60,6 +60,8 @@ builder.Services.AddScoped<IStorageFactoryProvider, StorageFactoryProvider>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.Configure<VnPayOptions>(builder.Configuration.GetSection("VnPay"));
+builder.Services.AddScoped<VnPayLibrary>();
 
 var app = builder.Build();
 app.UseSession(); //

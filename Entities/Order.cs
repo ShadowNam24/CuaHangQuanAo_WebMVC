@@ -9,6 +9,8 @@ public partial class Order
 
     public int? CustomerId { get; set; }
 
+    public string? TransactionId { get; set; }
+
     public decimal? Total { get; set; }
 
     public int? EmployeeId { get; set; }
