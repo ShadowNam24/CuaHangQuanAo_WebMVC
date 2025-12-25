@@ -1009,7 +1009,7 @@
                     Khám phá bộ sưu tập thời trang nam cao cấp của chúng tôi được thiết kế dành cho quý ông hiện đại
                 </p>
                 <div class="animate-fadeInUp delay-2">
-                    <a href="@Url.Action("QuanAo", "Product")" class="hero-btn hero-btn-primary">
+                    <a href="@Url.Action("QuanAo", "Product", new { slug = "Quần áo".ToSlug() })" class="hero-btn hero-btn-primary">
                         <i class="bi bi-bag me-2"></i>Bộ sưu tập
                     </a>
                     <a href="@Url.Action("PhuKien", "Product")" class="hero-btn hero-btn-outline">
@@ -1115,7 +1115,7 @@
                         <p class="promo-text">
                             Nâng cấp tủ quần áo của bạn với bộ sưu tập trang phục nam cao cấp độc quyền của chúng tôi
                         </p>
-                        <a href="@Url.Action("QuanAo", "Product")" class="promo-btn">Mua ngay</a>
+                        <a href="@Url.Action("QuanAo", "Product", new { slug = "Quần áo".ToSlug() })" class="promo-btn">Mua ngay</a>
                     </div>
                 </div>
             </div>
@@ -1166,10 +1166,10 @@
     }
 </div>
 <div class="text-center mt-4 mb-5">
-    <a class="view-more-btn" asp-controller="Product" asp-action="QuanAo">
+    <a class="view-more-btn" asp-controller="Product" asp-action="QuanAo" asp-route-slug="@("Quần áo".ToSlug())">
         <i class="bi bi-grid me-2"></i>Xem Quần Áo
     </a>
-    <a class="view-more-btn" asp-controller="Product" asp-action="PhuKien">
+    <a class="view-more-btn" asp-controller="Product" asp-action="PhuKien" asp-route-slug="@("Phụ kiện".ToSlug())">
         <i class="bi bi-gem me-2"></i>Xem Phụ Kiện
     </a>
 </div>

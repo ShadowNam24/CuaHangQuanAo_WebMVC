@@ -52,7 +52,7 @@ public class PayPalApiService
                 new {
                     amount = new {
                         currency_code = "USD",
-                        value = total.ToString("F2") // use real total
+                        value = (total / 25000).ToString("F2") // use real total
                     }
                 }
             },

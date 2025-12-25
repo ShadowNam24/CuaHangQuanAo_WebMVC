@@ -4,6 +4,8 @@
     var f = Model.F;
     int totalPages = (int)Math.Ceiling((double)f.Total / f.PageSize);
     string currentAction = Context.Request.RouteValues["action"]?.ToString() ?? "QuanAo";
+    // get current category slug from querystring if present
+    var currentCategorySlug = Context.Request.Query["categorySlug"].ToString();
 }
 
 <div class="container-fluid my-3">
@@ -21,15 +23,17 @@
 
                         <div class="mb-3">
                             <label class="form-label">Danh mục</label>
-                            <select name="CategoryId" class="form-select">
+                            <select name="CategoryId" class="form-select" id="categorySelect">
                                 <option value="">-- Tất cả --</option>
                                 @foreach (var c in f.Categories)
                                 {
-                                    <option value="@c.CategoryId" selected="@(f.CategoryId==c.CategoryId)">
+                                    var slug = c.NameCategory.ToSlug();
+                                    <option value="@c.CategoryId" data-slug="@slug" selected="@(f.CategoryId==c.CategoryId)">
                                         @c.NameCategory
                                     </option>
                                 }
                             </select>
+                            <input type="hidden" name="CategorySlug" id="CategorySlug" value="@f.CategorySlug" />
                         </div>
 
                         <div class="row g-2 mb-3">
@@ -142,7 +146,8 @@
                                    asp-action="@currentAction"
                                    asp-route-Q="@f.Q" asp-route-CategoryId="@f.CategoryId"
                                    asp-route-MinPrice="@f.MinPrice" asp-route-MaxPrice="@f.MaxPrice"
-                                   asp-route-Sort="@f.Sort" asp-route-Page="@p">@p</a>
+                                   asp-route-Sort="@f.Sort" asp-route-Page="@p"
+                                   asp-route-categorySlug="@(string.IsNullOrWhiteSpace(f.CategorySlug) ? currentCategorySlug : f.CategorySlug)">@p</a>
                             </li>
                         }
                     </ul>
@@ -163,3 +168,22 @@
         object-fit: contain;
     }
 </style>
+
+@section Scripts {
+    <script>
+        // keep CategorySlug in sync with selected CategoryId
+        document.addEventListener('DOMContentLoaded', function() {
+            var select = document.getElementById('categorySelect');
+            var hidden = document.getElementById('CategorySlug');
+
+            function updateSlug() {
+                var opt = select.options[select.selectedIndex];
+                var slug = opt ? opt.getAttribute('data-slug') : '';
+                hidden.value = slug || '';
+            }
+
+            select.addEventListener('change', updateSlug);
+            updateSlug();
+        });
+    </script>
+}

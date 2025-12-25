@@ -4,16 +4,17 @@
 }
 <h2 class="mb-3">Phụ kiện</h2>
 
-<form method="get" class="row g-2 mb-3">
+<form method="get" class="row g-2 mb-3" id="filterFormPhuKien">
     <div class="col-auto">
         <input name="q" value="@Context.Request.Query["q"]" class="form-control" placeholder="Tìm phụ kiện..." />
     </div>
     <div class="col-auto">
-        <select name="categoryId" class="form-select">
+        <select name="categoryId" id="categoryIdPhuKien" class="form-select">
             <option value="">-- Tất cả --</option>
             <option value="8">Giày da</option>
             <option value="9">Thắt lưng</option>
         </select>
+        <input type="hidden" name="categorySlug" id="categorySlugPhuKien" value="@Context.Request.Query["categorySlug"]" />
     </div>
     <div class="col-auto">
         <input type="number" name="minPrice" value="@Context.Request.Query["minPrice"]" class="form-control" placeholder="Giá từ" min="0" />
@@ -48,3 +49,26 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var select = document.getElementById('categoryIdPhuKien');
+            var hidden = document.getElementById('categorySlugPhuKien');
+
+            function mapSlug(id) {
+                switch (parseInt(id)) {
+                    case 8: return 'giay-da';
+                    case 9: return 'that-lung';
+                    default: return '';
+                }
+            }
+
+            select.addEventListener('change', function() {
+                hidden.value = mapSlug(this.value);
+            });
+
+            hidden.value = mapSlug(select.value);
+        });
+    </script>
+}

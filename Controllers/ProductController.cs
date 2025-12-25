@@ -3,6 +3,7 @@ using CuaHangQuanAo.Factory;
 using CuaHangQuanAo.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace CuaHangQuanAo.Controllers
 {
@@ -52,6 +53,28 @@ namespace CuaHangQuanAo.Controllers
             {
                 return NotFound();
             }
+        }
+
+        // New: accept requests that pass only slug as query string: /Product/Detail?slug=... 
+        [HttpGet("/Product/Detail")]
+        public async Task<IActionResult> DetailBySlug(string? slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return NotFound();
+            }
+
+            // Load candidates into memory and compute slug using existing ToSlug helper
+            var items = await _db.Items.AsNoTracking().Where(i => i.IsAvailable).ToListAsync();
+            var matched = items.FirstOrDefault(i => string.Equals(i.ItemsName.ToSlug(), slug, StringComparison.OrdinalIgnoreCase));
+            if (matched == null)
+            {
+                return NotFound();
+            }
+
+            var canonicalSlug = matched.ItemsName.ToSlug();
+            var canonicalUrl = Url.Action("Detail", "Product", new { id = matched.ItemsId, slug = canonicalSlug });
+            return RedirectPermanent(canonicalUrl ?? $"/Product/Detail/{matched.ItemsId}/{canonicalSlug}");
         }
 
         // Get available variants for a product (including stock info)
@@ -182,8 +205,27 @@ namespace CuaHangQuanAo.Controllers
             return PartialView("_SearchResults", results);
         }
 
-        public async Task<IActionResult> QuanAo(ProductListVm f)
+        [HttpGet("/Product/QuanAo/{slug?}")]
+        public async Task<IActionResult> QuanAo(string? slug, ProductListVm f)
         {
+            // canonical slug for this category page
+            var canonicalSlug = "Quần áo".ToSlug();
+            if (string.IsNullOrWhiteSpace(slug) || !string.Equals(slug, canonicalSlug, StringComparison.OrdinalIgnoreCase))
+            {
+                var routeValues = new
+                {
+                    slug = canonicalSlug,
+                    q = f?.Q,
+                    categoryId = f?.CategoryId,
+                    minPrice = f?.MinPrice,
+                    maxPrice = f?.MaxPrice,
+                    sort = f?.Sort,
+                    page = f?.Page
+                };
+                var canonicalUrl = Url.Action("QuanAo", "Product", routeValues);
+                return RedirectPermanent(canonicalUrl ?? $"/Product/QuanAo/{canonicalSlug}");
+            }
+
             var cats = await _db.Categories
                 .Where(c => c.CategoryId >= 1 && c.CategoryId <= 7)
                 .OrderBy(c => c.CategoryId).ToListAsync();
@@ -209,8 +251,26 @@ namespace CuaHangQuanAo.Controllers
             return View("List", ("Quần áo", f));
         }
 
-        public async Task<IActionResult> PhuKien(ProductListVm f)
+        [HttpGet("/Product/PhuKien/{slug?}")]
+        public async Task<IActionResult> PhuKien(string? slug, ProductListVm f)
         {
+            var canonicalSlug = "Phụ kiện".ToSlug();
+            if (string.IsNullOrWhiteSpace(slug) || !string.Equals(slug, canonicalSlug, StringComparison.OrdinalIgnoreCase))
+            {
+                var routeValues = new
+                {
+                    slug = canonicalSlug,
+                    q = f?.Q,
+                    categoryId = f?.CategoryId,
+                    minPrice = f?.MinPrice,
+                    maxPrice = f?.MaxPrice,
+                    sort = f?.Sort,
+                    page = f?.Page
+                };
+                var canonicalUrl = Url.Action("PhuKien", "Product", routeValues);
+                return RedirectPermanent(canonicalUrl ?? $"/Product/PhuKien/{canonicalSlug}");
+            }
+
             var cats = await _db.Categories
                 .Where(c => c.CategoryId == 8 || c.CategoryId == 9)
                 .OrderBy(c => c.CategoryId).ToListAsync();

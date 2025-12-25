@@ -4,12 +4,12 @@
 }
 <h2 class="mb-3">Quần áo</h2>
 
-<form method="get" class="row g-2 mb-3">
+<form method="get" class="row g-2 mb-3" id="filterFormQuanAo">
     <div class="col-auto">
         <input name="q" value="@Context.Request.Query["q"]" class="form-control" placeholder="Tìm tên sản phẩm..." />
     </div>
     <div class="col-auto">
-        <select name="categoryId" class="form-select">
+        <select name="categoryId" id="categoryIdQuanAo" class="form-select">
             <option value="">-- Tất cả danh mục --</option>
             <option value="1">BST Vest Nam 2025</option>
             <option value="2">Suit Luxury</option>
@@ -19,6 +19,7 @@
             <option value="6">Sơ Mi tay ngắn</option>
             <option value="7">Áo Thun</option>
         </select>
+        <input type="hidden" name="categorySlug" id="categorySlugQuanAo" value="@Context.Request.Query["categorySlug"]" />
     </div>
     <div class="col-auto">
         <input type="number" name="minPrice" value="@Context.Request.Query["minPrice"]" class="form-control" placeholder="Giá từ" min="0" />
@@ -53,3 +54,33 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var select = document.getElementById('categoryIdQuanAo');
+            var hidden = document.getElementById('categorySlugQuanAo');
+
+            function mapSlug(id) {
+                // map numeric IDs used in QuanAo to slugs
+                switch (parseInt(id)) {
+                    case 1: return 'BST-vest-nam-2025'.toLowerCase();
+                    case 2: return 'suit-luxury'.toLowerCase();
+                    case 3: return 'quan-tay'.toLowerCase();
+                    case 4: return 'ao-polo'.toLowerCase();
+                    case 5: return 'so-mi'.toLowerCase();
+                    case 6: return 'so-mi-tay-ngan'.toLowerCase();
+                    case 7: return 'ao-thun'.toLowerCase();
+                    default: return '';
+                }
+            }
+
+            select.addEventListener('change', function() {
+                hidden.value = mapSlug(this.value);
+            });
+
+            // initialize
+            hidden.value = mapSlug(select.value);
+        });
+    </script>
+}

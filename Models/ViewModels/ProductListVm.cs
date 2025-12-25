@@ -4,6 +4,7 @@ public class ProductListVm
 {
     public string? Q { get; set; }
     public int? CategoryId { get; set; }
+    public string? CategorySlug { get; set; }
     public int? MinPrice { get; set; }
     public int? MaxPrice { get; set; }
     public string? Size { get; set; }
