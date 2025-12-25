@@ -265,7 +265,7 @@ namespace CuaHangQuanAo.Controllers
                     .ThenInclude(od => od.ProductVariant)
                         .ThenInclude(pv => pv!.Product)
                 .Where(o => o.CustomerId == customer.CustomerId &&
-                           (o.Status == "Paid" || o.PaymentMethod != "COD"))
+                           (o.Status == "Paid" || o.Status == "processing" ||   o.PaymentMethod != "COD"))
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 

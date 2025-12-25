@@ -352,6 +352,19 @@ namespace CuaHangQuanAo.Controllers
                         DiscountCode = model.DiscountCode, // Save applied discount code
                         DiscountDescription = model.DiscountDescription // Save discount description
                     };
+                    if (User.Identity!.IsAuthenticated)
+                    {
+                        var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity.Name);
+                        if (account != null)
+                        {
+                            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
+                            if (customer != null)
+                            {
+                                order.CustomerId = customer.CustomerId;
+                            }
+                        }
+                    }
+
 
                     Console.WriteLine($"Creating order with Total: {finalTotal}, Discount: {finalDiscount}");
                     _context.Orders.Add(order);
