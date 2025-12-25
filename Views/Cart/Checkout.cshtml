@@ -364,31 +364,217 @@
         margin-bottom: 1rem;
     }
     
-    @@media (max-width: 768px) {
-        .checkout-container {
-            padding: 1rem 0;
-        }
-        
-        .checkout-title {
-            font-size: 2rem;
-        }
-        
-        .cart-item {
-            padding: 1rem;
-        }
-        
-        .item-image {
-            width: 80px;
-            height: 80px;
-        }
-        
-        .discount-input-group {
-            flex-direction: column;
-        }
-        
-        .summary-section {
-            padding: 1.5rem;
-        }
+    /* VNPAY Button Styles - Designed to match official VNPAY appearance */
+    .vnpay-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        margin-top: 1rem;
+        box-shadow: 0 4px 20px rgba(30, 136, 229, 0.3);
+        position: relative;
+        overflow: hidden;
+        min-height: 60px;
+        bottom: 15px;
+    }
+
+    .vnpay-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.6s;
+    }
+
+    .vnpay-btn:hover::before {
+        left: 100%;
+    }
+
+    .vnpay-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(30, 136, 229, 0.4);
+    }
+
+    .vnpay-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+    }
+
+    .vnpay-logo {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .vnpay-content {
+        flex: 1;
+        text-align: left;
+        line-height: 1.3;
+    }
+
+    .vnpay-label {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 2px;
+    }
+
+    .vnpay-sublabel {
+        display: block;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 400;
+    }
+
+    .vnpay-secure {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .vnpay-secure i {
+        font-size: 1.2rem;
+    }
+
+    .vnpay-secure span {
+        font-weight: 500;
+    }
+
+    /* Loading state for VNPAY button */
+    .vnpay-btn:disabled {
+        background: linear-gradient(135deg, #90CAF9 0%, #64B5F6 100%);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 10px rgba(30, 136, 229, 0.2);
+    }
+
+    .vnpay-btn:disabled::before {
+        display: none;
+    }
+
+    /* Payment Buttons Container - Side by Side Layout */
+    .payment-buttons-container {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        align-items: stretch;
+    }
+
+    .payment-form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Unified Payment Button Styles - Exactly matching */
+    .payment-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        border: none !important;
+        border-radius: 25px !important; /* Rounded corners like main button */
+        padding: 0.875rem 1.5rem !important; /* Same as main button */
+        font-weight: 700 !important;
+        font-size: 1rem !important; /* Same as main button */
+        letter-spacing: 0.2px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        width: 100% !important;
+        text-decoration: none !important;
+        cursor: pointer !important;
+        text-transform: uppercase !important;
+        min-height: 60px !important; /* Same height */
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .payment-btn:hover {
+        transform: translateY(-3px) !important; /* Same hover effect as main button */
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
+        text-decoration: none !important;
+    }
+
+    .payment-btn:active {
+        transform: translateY(-1px) !important;
+    }
+
+    /* PayPal specific colors - matching main button style */
+    .paypal-btn.payment-btn {
+        background: linear-gradient(135deg, #ffc439 0%, #ffb700 100%) !important;
+        color: #111 !important;
+    }
+
+    .paypal-btn.payment-btn:hover {
+        background: linear-gradient(135deg, #ffb700 0%, #ffc439 100%) !important;
+        color: #111 !important;
+    }
+
+    /* VNPAY specific colors - matching main button style */
+    .vnpay-btn.payment-btn {
+        background: linear-gradient(135deg, #1E88E5 0%, #1565C0 100%) !important;
+        color: white !important;
+    }
+
+    .vnpay-btn.payment-btn:hover {
+        background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%) !important;
+        color: white !important;
+    }
+
+    /* Payment mark and label styles */
+    .payment-mark {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .payment-label {
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        font-weight: 700 !important;
+        margin-left: 0.5rem !important;
+    }
+
+    /* Override any conflicting styles */
+    .vnpay-btn.payment-btn .vnpay-logo,
+    .vnpay-btn.payment-btn .vnpay-content,
+    .vnpay-btn.payment-btn .vnpay-secure {
+        display: none !important;
+    }
+
+    /* Loading states */
+    .payment-btn:disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+    }
+
+    /* Responsive Design */
+    
+
+   
+
+    /* Remove old conflicting styles */
+    .vnpay-btn:not(.payment-btn) {
+        display: none !important;
     }
 </style>
 
@@ -484,7 +670,7 @@
 
                 <!-- Checkout Form -->
                 <div class="form-section">
-<form asp-action="Checkout" method="post" id="checkoutForm">
+                <form asp-action="Checkout" method="post" id="checkoutForm">
                         <h3 class="section-title">
                             <i class="bi bi-person-lines-fill"></i>
                             Thông tin giao hàng
@@ -492,7 +678,7 @@
                         
                         <div class="row">
                             <div class="col-md-6">
-    <div class="form-group">
+                <div class="form-group">
                                     <label class="form-label">
                                         <i class="bi bi-person"></i>
                                         Họ và tên
@@ -500,9 +686,9 @@
                                     <input asp-for="CustomerName" class="form-control" placeholder="Nhập họ và tên" required />
                                     <span asp-validation-for="CustomerName" class="text-danger"></span>
                                 </div>
-    </div>
+                            </div>
                             <div class="col-md-6">
-    <div class="form-group">
+                                <div class="form-group">
                                     <label class="form-label">
                                         <i class="bi bi-telephone"></i>
                                         Số điện thoại
@@ -510,17 +696,17 @@
                                     <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại" required />
                                     <span asp-validation-for="Phone" class="text-danger"></span>
                                 </div>
-    </div>
-    </div>
+                </div>
+                </div>
                         
-    <div class="form-group">
+                         <div class="form-group">
                             <label class="form-label">
                                 <i class="bi bi-geo-alt"></i>
                                 Địa chỉ giao hàng
                             </label>
                             <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ giao hàng chi tiết" required />
                             <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
+                         </div>
 
                         <!-- Hidden fields for discount -->
                         <input type="hidden" id="appliedDiscountCode" name="DiscountCode" value="" />
@@ -550,41 +736,72 @@
                             </div>
                             
                             <div class="summary-row">
-                                <span class="summary-label">Tổng cộng:</span>
-                                <span class="summary-value" id="totalAmount">@cartTotal.ToString("N0") ₫</span>
-                            </div>
-                        </div>
+        <span class="summary-label">Tổng cộng:</span>
+        <span class="summary-value" id="totalAmount">@cartTotal.ToString("N0") ₫</span>
+    </div>
+</div>
 
                         <button type="submit" class="checkout-btn" id="btnCheckout">
                             <i class="bi bi-credit-card me-2"></i>
                             Xác nhận đặt hàng
                         </button>
                     </form>
-                    <form asp-controller="PayPal" asp-action="CreatePayment" method="post" id="paypalForm" class="mt-3">
-                        <input type="hidden" name="total" value="@cartTotal" />
-                        <input type="hidden" name="CustomerName" />
-                        <input type="hidden" name="Phone" />
-                        <input type="hidden" name="Address" />
-                        <input type="hidden" name="DiscountCode" id="ppDiscountCode" />
-                        <input type="hidden" name="DiscountAmount" id="ppDiscountAmount" />
-                        <input type="hidden" name="DiscountDescription" id="ppDiscountDescription" />
 
-                        <!-- Official-look PayPal button (gold) -->
-                        <button type="submit" id="paypalFallbackBtn" class="paypal-btn" aria-label="Thanh toán bằng PayPal">
-                            <span class="pp-mark" aria-hidden="true">
-                                <!-- Inline SVG PayPal mark -->
-                                <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill="#003087" d="M7.1,20.2l.7-4.2h2.5c3.8,0,6.9-2.7,7.6-6.3c.5-2.8-1.7-5.2-4.6-5.2H6.5c-.4,0-.7.3-.8.6L3,20.2
-                    c-.1.4.2.8.6.8h3c.3,0,.6-.2.7-.5l.1-.3h-.3Z"></path>
-                                    <path fill="#009CDE" d="M9.3,20.2l.9-5.5h2.4c2.1,0,3.9-.8,5-2c-.6,3.6-3.7,6.3-7.6,6.3h-2.5l-.7,4.2h2.4c.3,0,.6-.2.7-.5l.1-.3h-.3Z"></path>
-                                </svg>
-                            </span>
-                            <span class="pp-label">Thanh toán bằng PayPal</span>
-                        </button>
+                    <!-- Payment Buttons Section - Side by Side Layout -->
+                    <div class="payment-buttons-container">
+                        <!-- PayPal Form -->
+                        <form asp-controller="PayPal" asp-action="CreatePayment" method="post" id="paypalForm" class="payment-form">
+                            <input type="hidden" name="total" value="@cartTotal" />
+                            <input type="hidden" name="CustomerName" />
+                            <input type="hidden" name="Phone" />
+                            <input type="hidden" name="Address" />
+                            <input type="hidden" name="DiscountCode" id="ppDiscountCode" />
+                            <input type="hidden" name="DiscountAmount" id="ppDiscountAmount" />
+                            <input type="hidden" name="DiscountDescription" id="ppDiscountDescription" />
 
-                        <!-- Optional: Render the official PayPal JS button and delegate to the form submit -->
-                        <div id="paypal-sdk-container" class="mt-2"></div>
-                    </form>
+                            <!-- PayPal button with matching styles -->
+                            <button type="submit" id="paypalFallbackBtn" class="payment-btn paypal-btn" aria-label="Thanh toán bằng PayPal">
+                                <span class="payment-mark" aria-hidden="true">
+                                    <!-- Inline SVG PayPal mark -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill="#003087" d="M7.1,20.2l.7-4.2h2.5c3.8,0,6.9-2.7,7.6-6.3c.5-2.8-1.7-5.2-4.6-5.2H6.5c-.4,0-.7.3-.8.6L3,20.2
+                        c-.1.4.2.8.6.8h3c.3,0,.6-.2.7-.5l.1-.3h-.3Z"></path>
+                                        <path fill="#009CDE" d="M9.3,20.2l.9-5.5h2.4c2.1,0,3.9-.8,5-2c-.6,3.6-3.7,6.3-7.6,6.3h-2.5l-.7,4.2h2.4c.3,0,.6-.2.7-.5l.1-.3h-.3Z"></path>
+                                    </svg>
+                                </span>
+                                <span class="payment-label">Thanh toán bằng PayPal</span>
+                            </button>
+
+                            <!-- Optional: Render the official PayPal JS button -->
+                            <div id="paypal-sdk-container" class="mt-2"></div>
+                        </form>
+
+                        <!-- VNPAY Form -->
+                        <form asp-controller="VNPay" asp-action="CreatePayment" method="post" id="vnpayForm" class="payment-form">
+                            <input type="hidden" name="total" value="@cartTotal" />
+                            <input type="hidden" name="CustomerName" />
+                            <input type="hidden" name="Phone" />
+                            <input type="hidden" name="Address" />
+                            <input type="hidden" name="DiscountCode" id="vnpDiscountCode" />
+                            <input type="hidden" name="DiscountAmount" id="vnpDiscountAmount" />
+                            <input type="hidden" name="DiscountDescription" id="vnpDiscountDescription" />
+
+                            <!-- VNPAY button with matching PayPal styles -->
+                            <button type="submit" id="vnpayBtn" class="payment-btn vnpay-btn" aria-label="Thanh toán bằng VNPAY">
+                                <span class="payment-mark" aria-hidden="true">
+                                    <!-- VNPAY logo SVG -->
+                                    <svg width="24" height="24" viewBox="0 0 100 60" focusable="false" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="100" height="60" rx="4" fill="#1E88E5"/>
+                                        <text x="15" y="25" text-anchor="start" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">VN</text>
+                                        <line x1="35" y1="15" x2="35" y2="30" stroke="white" stroke-width="1.5"/>
+                                        <text x="40" y="25" text-anchor="start" fill="white" font-family="Arial, sans-serif" font-size="10" font-weight="bold">PAY</text>
+                                        <text x="15" y="40" text-anchor="start" fill="white" font-family="Arial, sans-serif" font-size="6" opacity="0.9">Bảo mật</text>
+                                    </svg>
+                                </span>
+                                <span class="payment-label">Thanh toán bằng VNPAY</span>
+                            </button>
+                        </form>
+                    </div>
 
                 </div>
             }
@@ -865,41 +1082,7 @@
         }
     </script>
 
-    <style>
-        /* Branded PayPal-like fallback button (for when SDK fails to load) */
-        .paypal-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background-color: #ffc439; /* PayPal gold */
-            color: #111;
-            border: none;
-            border-radius: 999px;
-            padding: .65rem 1.25rem;
-            font-weight: 700;
-            letter-spacing: .2px;
-            box-shadow: 0 1px 2px rgba(0,0,0,.12);
-            transition: transform .05s ease, filter .2s ease, box-shadow .2s ease;
-        }
-
-            .paypal-btn:hover {
-                filter: brightness(0.97);
-                box-shadow: 0 2px 4px rgba(0,0,0,.14);
-            }
-
-            .paypal-btn:active {
-                transform: translateY(1px);
-            }
-
-        .pp-mark {
-            display: inline-flex;
-        }
-
-        .pp-label {
-            line-height: 1;
-            white-space: nowrap;
-        }
-    </style>
+    
 }
 
 @* Thêm prefill client-side để đồng bộ lại nếu user sửa *@
