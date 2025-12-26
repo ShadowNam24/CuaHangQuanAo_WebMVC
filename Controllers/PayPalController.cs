@@ -129,6 +129,23 @@ public class PayPalController : Controller
                 }
             }
             // Trong Success ngay trước khi tạo Order (nếu bạn đã chuyển sang lưu DB ở đây) bổ sung tự động gán thông tin khách hàng nếu null
+            if (string.IsNullOrWhiteSpace(order.CustomerName) ||
+                string.IsNullOrWhiteSpace(order.PhoneNumber) ||
+                string.IsNullOrWhiteSpace(order.ShippingAddress))
+            {
+                var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == User.Identity!.Name);
+                if (account != null)
+                {
+                    var customer = await _context.Customers.FirstOrDefaultAsync(c => c.AccId == account.AccId);
+                    if (customer != null)
+                    {
+                        order.CustomerName ??= $"{customer.FirstName} {customer.LastName}".Trim();
+                        order.PhoneNumber ??= customer.PhoneNumber;
+                        order.ShippingAddress ??= customer.AddressName;
+                        order.CustomerId = customer.CustomerId;
+                    }
+                }
+            }
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
